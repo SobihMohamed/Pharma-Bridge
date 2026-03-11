@@ -24,7 +24,7 @@ namespace PharmaBridge.Web
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            //Test
 
             app.MapControllers();
 
