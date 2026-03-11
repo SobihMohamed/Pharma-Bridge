@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\PharmaBridge.Persistence\PharmaBridge.Persistence.csproj" />
+    <ProjectReference Include="..\Infrastructure\PharmaBridge.Presentation\PharmaBridge.Presentation.csproj" />
+  </ItemGroup>
+
 </Project>

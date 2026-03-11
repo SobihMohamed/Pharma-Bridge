@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\PharmaBridge.Services\PharmaBridge.Services.csproj" />
+  </ItemGroup>
+
 </Project>

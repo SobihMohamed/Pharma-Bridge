@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PharmaBridge.Abstraction\PharmaBridge.Abstraction.csproj" />
+    <ProjectReference Include="..\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
