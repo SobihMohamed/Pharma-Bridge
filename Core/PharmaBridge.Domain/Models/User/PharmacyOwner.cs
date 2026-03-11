@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models.User
 {
-    public class PharmacyOwner : ApplicationUser
+    public class PharmacyOwner : BaseEntity<string>
     {
         public string PharmacyOwnerId { get; set; }
         public virtual ApplicationUser User { get; set; }
