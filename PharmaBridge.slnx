@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="Core/PharmaBridge.Abstraction/PharmaBridge.Abstraction.csproj" Id="2bab1a46-6b80-4ec2-9fcf-1558314c569f" />
+    <Project Path="Core/PharmaBridge.Domain/PharmaBridge.Domain.csproj" Id="ce6169d7-e264-4e07-8e5c-775e77c4ff3e" />
+    <Project Path="Core/PharmaBridge.Services/PharmaBridge.Services.csproj" Id="ba207557-8121-4dc6-aad3-44199a158866" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/PharmaBridge.Persistence/PharmaBridge.Persistence.csproj" Id="97a4b25e-dd6e-4608-afd9-454615b67320" />
+    <Project Path="Infrastructure/PharmaBridge.Presentation/PharmaBridge.Presentation.csproj" Id="4c9664e7-c03f-48db-b120-f0757987bd2b" />
+  </Folder>
+  <Project Path="PharmaBridge.Shared/PharmaBridge.Shared.csproj" Id="c8c6f911-22ee-4784-9289-efd5f7de7ff1" />
+  <Project Path="PharmaBridge.Web/PharmaBridge.Web.csproj" Id="6e92b2c7-aca9-42b5-ad77-a4bb7eb3dce5" />
+</Solution>
