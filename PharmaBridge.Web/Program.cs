@@ -25,7 +25,7 @@ namespace PharmaBridge.Web
 
             app.UseAuthorization();
             //Test2
-
+            //???? ???? 
             app.MapControllers();
 
             app.Run();
