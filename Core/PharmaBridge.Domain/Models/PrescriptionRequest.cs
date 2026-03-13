@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models
 {
-    public class PrescriptionRequest : BaseEntity<string>
+    public class PrescriptionRequest : BaseEntity<long>
     {
         public string? ImageUrl { get; set; }
         public string? PatientNotes { get; set; }
