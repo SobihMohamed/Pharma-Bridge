@@ -5,7 +5,7 @@ using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 namespace PharmaBridge.Domain.Models
 {
-    public class Pharmacy : BaseEntity<long>
+    public class Pharmacy : BaseEntity<string>
     {
         public string PharmacyName { get; set; } = string.Empty;
         public string LicenseNumber { get; set; } = string.Empty;

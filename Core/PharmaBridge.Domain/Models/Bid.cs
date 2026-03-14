@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models
 {
-    internal class Bid : BaseEntity<long>
+    internal class Bid : BaseEntity<string>
     {
         public decimal Subtotal { get; set; }
         public decimal DiscountAmount { get; set; } = 0.00m;
