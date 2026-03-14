@@ -6,7 +6,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
 {
     public class Notification :BaseEntity<int>
     {
-        public string NotifyType {  get; set; }
+        public NotificationType NotifyType {  get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int ReferenceId { get; set; }
