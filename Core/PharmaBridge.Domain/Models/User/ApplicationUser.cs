@@ -13,6 +13,6 @@ namespace PharmaBridge.Domain.Models.User
         public UserRole Role { get; set; }
 
         public virtual Patient ProfilePatient { get; set; }
-        public virtual PharmacyOwner ProfilePharmacyOwner { get; set; }
+        public virtual PharmaOwner ProfilePharmacyOwner { get; set; }
     }
 }
