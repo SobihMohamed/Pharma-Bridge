@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models
 {
-    public class BidItem :BaseEntity<string>
+    public class BidItem :BaseEntity<int>
     {
         public string ItemName { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }

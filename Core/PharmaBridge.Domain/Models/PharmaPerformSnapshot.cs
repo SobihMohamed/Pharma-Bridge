@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models
 {
-    public class PharmaPerformSnapshot : BaseEntity<string>
+    public class PharmaPerformSnapshot : BaseEntity<int>
     {
         public DateOnly PeriodStart { get; set; }
         public DateOnly PeriodEnd { get; set; }

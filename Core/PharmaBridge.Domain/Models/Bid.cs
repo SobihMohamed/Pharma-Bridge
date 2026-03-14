@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models
 {
-    internal class Bid : BaseEntity<string>
+    public class Bid : BaseEntity<int>
     {
         public decimal Subtotal { get; set; }
         public decimal DiscountAmount { get; set; } = 0.00m;
@@ -16,6 +16,6 @@ namespace PharmaBridge.Domain.Models
         public string? Notes { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RespondedAt { get; set; }
-        public DateTime? DeliveryTime { get; set; } // ??
+        public int DeliveryTime { get; set; } 
     }
 }

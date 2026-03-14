@@ -11,6 +11,5 @@ namespace PharmaBridge.Shared.EnumHelper.PharmaEnums
         Completed,
         Cancelled,
         Expired,
-        OutForDelivery
     }
 }
