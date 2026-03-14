@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
@@ -21,6 +21,16 @@ namespace PharmaBridge.Domain.Models
         public decimal AverageRating { get; set; } = 0.00m;
         public int CompleteOrderCount { get; set; } = 0;
         public string? RejectedReasons { get; set; } 
+
+        // 8- pharmacies (Many) To (1) Pharma_Owner (owned)
+        public string PharmaOwnerId { get; set; }
+        public  User.PharmaOwner PharmaOwner { get; set; }
+
+        // 6- PharmacyRating (Many) To (1) pharmacies (Has)
+        public  ICollection<PharmacyRating> Ratings { get; set; } = new HashSet<PharmacyRating>();
+
+        // 7- Pharma_Perform_Snapshot (Many) To (1) pharmacies (Has)
+        public  ICollection<PharmaPerformSnapshot> Snapshots { get; set; } = new HashSet<PharmaPerformSnapshot>(); 
 
     }
 }

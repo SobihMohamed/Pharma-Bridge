@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +15,10 @@ namespace PharmaBridge.Domain.Models.User
         public double Longitude { get; set; }
 
         public bool IsDefault { get; set; }
+
+        // 9- Patient_Profile (1) To (Many) PatientAddress (Has)
+        public string PatientProfileId { get; set; }
+        public  PatientProfile PatientProfile { get; set; }
     }
     
 }

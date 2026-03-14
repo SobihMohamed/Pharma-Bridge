@@ -1,4 +1,4 @@
-﻿using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,5 +18,9 @@ namespace PharmaBridge.Domain.Models
         public decimal TotalRevenue { get; set; } = 0.00m;
         public decimal TotalPlatformFee { get; set; } = 0.00m;
         public DateTime ComputedAt { get; set; } = DateTime.UtcNow;
+
+        // 7- Pharma_Perform_Snapshot (Many) To (1) pharmacies (Has)
+        public int PharmacyId { get; set; }
+        public  Pharmacy Pharmacy { get; set; }
     }
 }
