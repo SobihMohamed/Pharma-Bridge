@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PharmaBridge.Domain.Models.User
 {
-    public class PatientAddress : BaseEntity<string>
+    public class PatientAddress : BaseEntity<int>
     {
         public string AddressLine { get; set; }
 
