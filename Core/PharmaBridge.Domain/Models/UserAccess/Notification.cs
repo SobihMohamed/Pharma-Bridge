@@ -16,6 +16,6 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public bool IsRead { get; set; }
 
         public string ApplicationUserId { get; set; }
-        public ApplicationUser Get { get; set; }
+        public virtual ApplicationUser Get { get; set; }
     }
 }

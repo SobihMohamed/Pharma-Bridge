@@ -20,6 +20,6 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public DateTime ComputedAt { get; set; } = DateTime.UtcNow;
 
         public int PharmacyId { get; set; }
-        public Pharmacy Pharmacy { get; set; }
+        public virtual Pharmacy Pharmacy { get; set; }
     }
 }

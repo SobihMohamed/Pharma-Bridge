@@ -25,9 +25,9 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public string? RejectedReasons { get; set; } 
 
         public string PharmaOwnerId { get; set; }
-        public PharmaOwner PharmaOwner { get; set; }
+        public virtual PharmaOwner PharmaOwner { get; set; }
 
-        public ICollection<PharmacyRating> PharmacyRatings { get; set; }
-        public ICollection<PharmaPerformSnapshot> PharmaPerformSnapshots { get; set; }
+        public virtual ICollection<PharmacyRating> PharmacyRatings { get; set; } = new HashSet<PharmacyRating>();
+        public virtual ICollection<PharmaPerformSnapshot> PharmaPerformSnapshots { get; set; } =new HashSet<PharmaPerformSnapshot>();
     }
 }

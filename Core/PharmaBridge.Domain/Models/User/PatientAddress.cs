@@ -17,7 +17,7 @@ namespace PharmaBridge.Domain.Models.User
         public bool IsDefault { get; set; }
 
         public string PatientProfileId { get; set; }
-        public PatientProfile PatientProfile { get; set; }
+        public virtual PatientProfile PatientProfile { get; set; }
     }
     
 }

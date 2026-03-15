@@ -9,9 +9,9 @@ namespace PharmaBridge.Domain.Models.User
     {
 
         public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
-        public ICollection<PatientAddress> PatientAddresses { get; set; }
-        public ICollection<PrescriptionRequest> PrescriptionRequests { get; set; }
+        public virtual ICollection<PatientAddress> PatientAddresses { get; set; } = new List<PatientAddress>();
+        public virtual ICollection<PrescriptionRequest> PrescriptionRequests { get; set; } = new HashSet<PrescriptionRequest>();
     }
 }

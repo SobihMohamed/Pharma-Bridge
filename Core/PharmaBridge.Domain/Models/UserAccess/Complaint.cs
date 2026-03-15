@@ -15,9 +15,9 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public DateTime? ResolvedAt { get; set; }
 
         public string ApplicationUserId { get; set; }
-        public ApplicationUser Send { get; set; }
+        public virtual ApplicationUser Send { get; set; }
 
         public string? ResolverId { get; set; }
-        public ApplicationUser? Resolved_By { get; set; }
+        public virtual ApplicationUser? Resolved_By { get; set; }
     }
 }

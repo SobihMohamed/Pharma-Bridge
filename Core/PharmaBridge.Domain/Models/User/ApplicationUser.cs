@@ -17,7 +17,7 @@ namespace PharmaBridge.Domain.Models.User
         public ICollection<Complaint> Complaints { get; set; }
         public ICollection<Complaint> ResolvedComplaints { get; set; }
 
-        public PatientProfile? PatientProfile { get; set; }
-        public PharmaOwner? PharmaOwnerProfile { get; set; }
+        public virtual PatientProfile? PatientProfile { get; set; }
+        public virtual PharmaOwner? PharmaOwnerProfile { get; set; }
     }
 }

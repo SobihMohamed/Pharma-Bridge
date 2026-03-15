@@ -21,8 +21,8 @@ namespace PharmaBridge.Domain.Models.User
         public PharmaOwnerStatus Status { get; set; } = PharmaOwnerStatus.Pending;
 
         public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
-        public ICollection<Pharmacy> Pharmacies { get; set; }
+        public virtual ICollection<Pharmacy> Pharmacies { get; set; } =new HashSet<Pharmacy>();
     }
 }

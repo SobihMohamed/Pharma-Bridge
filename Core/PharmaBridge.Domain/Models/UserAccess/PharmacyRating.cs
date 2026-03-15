@@ -11,6 +11,6 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public string? Comment { get; set; }
 
         public int PharmacyId { get; set; }
-        public Pharmacy Pharmacy { get; set; }
+        public virtual Pharmacy Pharmacy { get; set; }
     }
 }

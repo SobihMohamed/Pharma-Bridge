@@ -15,6 +15,6 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public DateTime ExpiresAt { get; set; }
 
         public string PatientProfileId { get; set; }
-        public PatientProfile PatientProfile { get; set; }
+        public virtual PatientProfile PatientProfile { get; set; }
     }
 }
