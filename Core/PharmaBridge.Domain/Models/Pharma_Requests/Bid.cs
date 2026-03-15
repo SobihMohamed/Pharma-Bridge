@@ -1,4 +1,5 @@
-﻿using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+﻿using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,13 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public string? Notes { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RespondedAt { get; set; }
-        public int DeliveryTime { get; set; } 
+        public int DeliveryTime { get; set; }
+
+        // 11 - Bid (1) To (Many) BidItems (Contains)
+        public virtual ICollection<BidItem> BidItems { get; set; } = new HashSet<BidItem>();
+
+        // 12 - Bid (Many) To (1) Pharmacy (Create Bid)
+        public int PharmacyId { get; set; }
+        public virtual Pharmacy Pharmacy { get; set; }
     }
 }

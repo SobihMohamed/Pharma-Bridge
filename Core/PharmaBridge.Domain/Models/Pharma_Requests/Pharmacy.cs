@@ -20,7 +20,9 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public string? ContactPhone { get; set; }
         public decimal AverageRating { get; set; } = 0.00m;
         public int CompleteOrderCount { get; set; } = 0;
-        public string? RejectedReasons { get; set; } 
+        public string? RejectedReasons { get; set; }
 
+        // 12 - Bid (Many) To (1) Pharmacy (Create Bid)
+        public virtual ICollection<Bid> Bids { get; set; } = new HashSet<Bid>();
     }
 }

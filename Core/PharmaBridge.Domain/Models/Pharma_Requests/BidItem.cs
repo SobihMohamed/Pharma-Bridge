@@ -12,5 +12,9 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public bool IsAlternative { get; set; } = false;
         public string? AlternativeNote { get; set; }
         public decimal LineTotal { get; set; }
+
+        // 11 - Bid (1) To (Many) BidItems (Contains)
+        public int BidId { get; set; }
+        public virtual Bid  Bid { get; set; }
     }
 }
