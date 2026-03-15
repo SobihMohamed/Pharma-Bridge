@@ -13,7 +13,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
 
         public int PharmacyId { get; set; }
         public virtual Pharmacy Pharmacy { get; set; }
-        public string PatientProfileID { get; set; }
+        public string PatientProfileId { get; set; }
         public virtual PatientProfile PatientProfile { get; set; }
     }
 }
