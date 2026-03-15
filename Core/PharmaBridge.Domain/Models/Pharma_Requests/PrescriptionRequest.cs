@@ -20,7 +20,7 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         // 18 - PrescriptionRequest (1) To (Many) PrescriptionRequestHistory (Has)
         public virtual ICollection<PrescriptionRequestHistory> PrescriptionRequestHistory { get; set; } = new HashSet<PrescriptionRequestHistory>();
 
-        // 20 - PrescriptionRequest (1) To (Many) Bid (Has)
+        // 20 - PrescriptionRequest (1) To (Many) Bid (Has) 
         public virtual ICollection<Bid> Bids { get; set; } = new HashSet<Bid>();
     }
 }
