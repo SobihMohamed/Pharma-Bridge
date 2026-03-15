@@ -1,4 +1,5 @@
-﻿using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+﻿using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,6 +14,8 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public PrescriptionStatus Status { get; set; } = PrescriptionStatus.Open;
         public DateTime ExpiresAt { get; set; }
 
+        // 17 - Order (1) To (1) PrescriptionRequest (Has)
+        public virtual Order Order { get; set; }
 
     }
 }
