@@ -25,5 +25,8 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         // 12 - Bid (Many) To (1) Pharmacy (Create Bid)
         public int PharmacyId { get; set; }
         public virtual Pharmacy Pharmacy { get; set; }
+
+        // 14 - Order (1) To (1) Bid (Converted To)
+        public virtual Order Order { get; set; }
     }
 }

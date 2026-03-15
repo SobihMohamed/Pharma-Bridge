@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PharmaBridge.Domain.Models.UserAccess;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +16,9 @@ namespace PharmaBridge.Domain.Models.User
         public double Longitude { get; set; }
 
         public bool IsDefault { get; set; }
+
+        // 13 - Order (1) To (1) PatientAddress (Go To)
+        public virtual Order Order { get; set; }
     }
-    
+
 }

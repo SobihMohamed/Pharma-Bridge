@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PharmaBridge.Domain.Models.Pharma_Requests;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,5 +18,12 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public DateTime? DeliveredAt { get; set; }
         public DateTime? CompletedAt { get; set; }
 
+        // 13 - Order (1) To (1) PatientAddress (Go To)
+        public int PatientAddressId { get; set; }
+        public virtual PatientAddress PatientAddress { get; set; }
+
+        // 14 - Order (1) To (1) Bid (Converted To)
+        public int BidId { get; set; }
+        public virtual Bid Bid { get; set; }
     }
 }
