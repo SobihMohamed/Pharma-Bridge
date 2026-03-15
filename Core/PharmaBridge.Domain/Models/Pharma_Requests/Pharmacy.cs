@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 namespace PharmaBridge.Domain.Models.Pharma_Requests
@@ -22,5 +24,10 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public int CompleteOrderCount { get; set; } = 0;
         public string? RejectedReasons { get; set; } 
 
+        public string PharmaOwnerId { get; set; }
+        public PharmaOwner PharmaOwner { get; set; }
+
+        public ICollection<PharmacyRating> PharmacyRatings { get; set; }
+        public ICollection<PharmaPerformSnapshot> PharmaPerformSnapshots { get; set; }
     }
 }

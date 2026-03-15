@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Domain.Contracts;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.UserAccess;
 
 namespace PharmaBridge.Domain.Models.User
 {
@@ -12,7 +13,11 @@ namespace PharmaBridge.Domain.Models.User
         public string FullName { get; set; }
         public UserRole Role { get; set; }
 
-        public virtual Patient ProfilePatient { get; set; }
-        public virtual PharmaOwner ProfilePharmacyOwner { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
+        public ICollection<Complaint> Complaints { get; set; }
+        public ICollection<Complaint> ResolvedComplaints { get; set; }
+
+        public PatientProfile? PatientProfile { get; set; }
+        public PharmaOwner? PharmaOwnerProfile { get; set; }
     }
 }

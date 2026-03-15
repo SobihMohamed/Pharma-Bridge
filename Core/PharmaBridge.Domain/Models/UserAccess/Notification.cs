@@ -1,6 +1,8 @@
-﻿using System;
+using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.User;
 
 namespace PharmaBridge.Domain.Models.UserAccess
 {
@@ -12,5 +14,8 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public int ReferenceId { get; set; }
         public string ReferenceType { get; set; }
         public bool IsRead { get; set; }
+
+        public string ApplicationUserId { get; set; }
+        public ApplicationUser Get { get; set; }
     }
 }

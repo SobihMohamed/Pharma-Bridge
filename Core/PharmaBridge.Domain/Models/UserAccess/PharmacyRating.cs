@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.Pharma_Requests;
 
 namespace PharmaBridge.Domain.Models.UserAccess
 {
@@ -8,5 +9,8 @@ namespace PharmaBridge.Domain.Models.UserAccess
     {
         public int RatingValue { get; set; }
         public string? Comment { get; set; }
+
+        public int PharmacyId { get; set; }
+        public Pharmacy Pharmacy { get; set; }
     }
 }

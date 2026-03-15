@@ -1,7 +1,8 @@
-﻿using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.User;
 
 namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
@@ -13,6 +14,7 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public PrescriptionStatus Status { get; set; } = PrescriptionStatus.Open;
         public DateTime ExpiresAt { get; set; }
 
-
+        public string PatientProfileId { get; set; }
+        public PatientProfile PatientProfile { get; set; }
     }
 }
