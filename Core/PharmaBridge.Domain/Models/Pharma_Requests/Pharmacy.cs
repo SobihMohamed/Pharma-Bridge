@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
-namespace PharmaBridge.Domain.Models
+namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
     public class Pharmacy : BaseEntity<int>
     {

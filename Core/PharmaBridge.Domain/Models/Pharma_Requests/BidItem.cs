@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Domain.Models
+namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
     public class BidItem :BaseEntity<int>
     {
