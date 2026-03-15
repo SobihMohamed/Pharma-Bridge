@@ -13,9 +13,9 @@ namespace PharmaBridge.Domain.Models.User
         public string FullName { get; set; }
         public UserRole Role { get; set; }
 
-        public ICollection<Notification> Notifications { get; set; }
-        public ICollection<Complaint> Complaints { get; set; }
-        public ICollection<Complaint> ResolvedComplaints { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }  = new HashSet<Notification>();
+        public virtual ICollection<Complaint> Complaints { get; set; }  = new HashSet<Complaint>();
+        public virtual ICollection<Complaint> ResolvedComplaints { get; set; } = new HashSet<Complaint>();
 
         public virtual PatientProfile? PatientProfile { get; set; }
         public virtual PharmaOwner? PharmaOwnerProfile { get; set; }
