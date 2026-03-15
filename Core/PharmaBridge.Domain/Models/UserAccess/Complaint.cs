@@ -14,10 +14,10 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public string? AdminNotes { get; set; }
         public DateTime? ResolvedAt { get; set; }
 
-        public string ApplicationUserId { get; set; }
+        public string SubmittedById { get; set; }
         public virtual ApplicationUser SubmittedBy { get; set; }
-
-        public string? ResolverId { get; set; }
+        
+        public string? ResolvedById { get; set; }
         public virtual ApplicationUser? ResolvedBy { get; set; }
     }
 }
