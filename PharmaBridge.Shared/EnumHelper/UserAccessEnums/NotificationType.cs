@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Shared.EnumHelper.NotificationEnums
+namespace PharmaBridge.Shared.EnumHelper.UserAccessEnums
 {
     public enum NotificationType
     {
-        OrderUpdate = 1,
-        PaymentSuccess = 2,
-        NewBid = 3,
-        SystemAlert = 4,
-        ComplaintResolved = 5
+        Order = 1,
+        Payment = 2,
+        Bid = 3,
+        System = 4,
+        Complaint = 5,
+        Prescription= 6
     }
 }

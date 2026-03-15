@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Shared.EnumHelper.NotificationEnums
+namespace PharmaBridge.Shared.EnumHelper.UserAccessEnums
 {
     public enum PaymentStatus
     {
