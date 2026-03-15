@@ -8,7 +8,6 @@ namespace PharmaBridge.Domain.Models.User
 {
     public class PharmaOwner : BaseEntity<string>
     {
-        public string FullName { get; set; }
 
         public string? NationalId { get; set; }
 
