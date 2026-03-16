@@ -1,8 +1,11 @@
-﻿using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
@@ -28,5 +31,11 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
 
         // 16 - Pharmacy (1) To (Many) Order (Get)
         public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+
+        public string PharmaOwnerId { get; set; }
+        public virtual PharmaOwner PharmaOwner { get; set; }
+
+        public virtual ICollection<PharmacyRating> PharmacyRatings { get; set; } = new HashSet<PharmacyRating>();
+        public virtual ICollection<PharmaPerformSnapshot> PharmaPerformSnapshots { get; set; } =new HashSet<PharmaPerformSnapshot>();
     }
 }

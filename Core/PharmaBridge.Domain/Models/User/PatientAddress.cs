@@ -1,4 +1,4 @@
-﻿using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Domain.Models.UserAccess;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +19,9 @@ namespace PharmaBridge.Domain.Models.User
 
         // 13 - Order (1) To (1) PatientAddress (Go To)
         public virtual Order Order { get; set; }
+
+        public string PatientProfileId { get; set; }
+        public virtual PatientProfile PatientProfile { get; set; }
     }
 
 }

@@ -1,8 +1,9 @@
-﻿using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Domain.Models.User;
 
 namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
@@ -22,5 +23,8 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
 
         // 20 - PrescriptionRequest (1) To (Many) Bid (Has) 
         public virtual ICollection<Bid> Bids { get; set; } = new HashSet<Bid>();
+
+        public string PatientProfileId { get; set; }
+        public virtual PatientProfile PatientProfile { get; set; }
     }
 }
