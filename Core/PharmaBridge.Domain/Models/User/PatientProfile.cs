@@ -8,6 +8,8 @@ namespace PharmaBridge.Domain.Models.User
 {
     public class PatientProfile : BaseEntity<string>
     {
+        // 15 - PatientProfile (1) To (Many) Orders (Placed)
+        public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
 
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
