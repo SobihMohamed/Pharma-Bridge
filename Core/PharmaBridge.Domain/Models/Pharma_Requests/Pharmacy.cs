@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Domain.Models.UserAccess;
-using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+
 
 namespace PharmaBridge.Domain.Models.Pharma_Requests
 {
