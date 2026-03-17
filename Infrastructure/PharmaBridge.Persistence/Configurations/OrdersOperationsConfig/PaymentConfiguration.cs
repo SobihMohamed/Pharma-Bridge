@@ -22,10 +22,8 @@ namespace PharmaBridge.Persistence.Configurations.OrdersOperationsConfig
             builder.Property(p => p.GatewayResponse).HasMaxLength(500);
 
             builder.Property(p => p.Status)
-                   .HasConversion(
-                       v => v.ToString(),
-                       v => (PaymentStatus)Enum.Parse(typeof(PaymentStatus), v)
-                   ).HasMaxLength(50);
+                   .HasConversion<string>()
+                   .HasMaxLength(50);
 
             // Relationships
 

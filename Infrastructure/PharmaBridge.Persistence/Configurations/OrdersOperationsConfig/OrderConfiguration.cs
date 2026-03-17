@@ -20,10 +20,8 @@ namespace PharmaBridge.Persistence.Configurations.OrdersOperationsConfig
             builder.Property(o => o.CancelReason).HasMaxLength(500);
 
             builder.Property(o => o.OrderStatus)
-                   .HasConversion(
-                       v => v.ToString(),
-                       v => (OrderStatus)Enum.Parse(typeof(OrderStatus), v)
-                   ).HasMaxLength(50);
+                   .HasConversion<string>()
+                   .HasMaxLength(50);
 
             // Relationships 
 
