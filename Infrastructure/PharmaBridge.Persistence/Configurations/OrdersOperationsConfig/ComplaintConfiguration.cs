@@ -23,7 +23,7 @@ namespace PharmaBridge.Persistence.Configurations.OrdersOperationsConfig
                    .HasConversion(
                        v => v.ToString(),
                        v => (ComplaintStatus)Enum.Parse(typeof(ComplaintStatus), v)
-                   );
+                   ).HasMaxLength(50);
 
             //  Relationships
 
