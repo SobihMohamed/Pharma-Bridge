@@ -43,8 +43,6 @@ namespace PharmaBridge.Persistence.Configurations.Pharma_Operations
             builder.Property(x => x.SubmittedAt)
                    .IsRequired();
 
-            builder.Property(x => x.RespondedAt);
-
             builder.Property(x => x.DeliveryTimeInMinutes)
                    .IsRequired();
 
