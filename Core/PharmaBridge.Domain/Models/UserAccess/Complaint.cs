@@ -14,6 +14,10 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public string? AdminNotes { get; set; }
         public DateTime? ResolvedAt { get; set; }
 
+        // add order reference to the complaint
+        public int? OrderId { get; set; }
+        public virtual Order? Order { get; set; }
+
         public string SubmittedById { get; set; }
         public virtual ApplicationUser SubmittedBy { get; set; }
         

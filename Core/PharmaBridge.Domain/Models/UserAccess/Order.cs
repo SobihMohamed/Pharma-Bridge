@@ -35,10 +35,13 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public virtual Pharmacy Pharmacy { get; set; }
 
         // 17 - Order (1) To (1) PrescriptionRequest (Has)
-        public int PrescriptionRequestId { get; set; }
+        public string PrescriptionRequestId { get; set; }
         public virtual PrescriptionRequest PrescriptionRequest { get; set; }
 
         // 19 - Order (1) To (Many) Payment (Pay)
         public virtual ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();
+
+        // add the complaints list 
+        public virtual ICollection<Complaint> Complaints { get; set; } = new HashSet<Complaint>();
     }
 }

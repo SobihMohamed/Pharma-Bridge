@@ -16,15 +16,19 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public DateTime ExpiresAt { get; set; }
 
         // 17 - Order (1) To (1) PrescriptionRequest (Has)
-        public virtual Order Order { get; set; }
+        // nullable because the prescription request can be created and not converted to order yet
+        public virtual Order? Order { get; set; }
 
         // 18 - PrescriptionRequest (1) To (Many) PrescriptionRequestHistory (Has)
-        public virtual ICollection<PrescriptionRequestHistory> PrescriptionRequestHistory { get; set; } = new HashSet<PrescriptionRequestHistory>();
+        public virtual ICollection<PrescriptionRequestHistory> PrescriptionRequestHistorys{ get; set; } = new HashSet<PrescriptionRequestHistory>();
 
         // 20 - PrescriptionRequest (1) To (Many) Bid (Has) 
         public virtual ICollection<Bid> Bids { get; set; } = new HashSet<Bid>();
 
         public string PatientProfileId { get; set; }
         public virtual PatientProfile PatientProfile { get; set; }
+
+        public int DeliveryAddressId { get; set; }
+        public virtual PatientAddress DeliveryAddress { get; set; }
     }
 }

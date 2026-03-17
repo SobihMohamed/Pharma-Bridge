@@ -17,8 +17,8 @@ namespace PharmaBridge.Domain.Models.User
 
         public bool IsDefault { get; set; }
 
-        // 13 - Order (1) To (1) PatientAddress (Go To)
-        public virtual Order Order { get; set; }
+        // the address not related to order but related to patient profile and the patient can have many addresses
+        // it can in the order table not the address but the order can have a reference to the address that the patient choose when placing the order
 
         public string PatientProfileId { get; set; }
         public virtual PatientProfile PatientProfile { get; set; }

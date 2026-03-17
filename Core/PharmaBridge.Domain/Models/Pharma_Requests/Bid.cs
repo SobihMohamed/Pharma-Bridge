@@ -17,7 +17,7 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public string? Notes { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RespondedAt { get; set; }
-        public int DeliveryTime { get; set; }
+        public int DeliveryTimeInMinutes { get; set; }
 
         // 11 - Bid (1) To (Many) BidItems (Contains)
         public virtual ICollection<BidItem> BidItems { get; set; } = new HashSet<BidItem>();
@@ -27,7 +27,8 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public virtual Pharmacy Pharmacy { get; set; }
 
         // 14 - Order (1) To (1) Bid (Converted To)
-        public virtual Order Order { get; set; }
+        // nullable because the bid can be created and not converted to order yet
+        public virtual Order? Order { get; set; }
 
         // 20 - PrescriptionRequest (1) To (Many) Bid (Has)
         public int PrescriptionRequestId { get; set; }
