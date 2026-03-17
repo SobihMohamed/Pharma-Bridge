@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
-namespace PharmaBridge.Infrastructure.Configurations
+namespace PharmaBridge.Persistence.Configurations.Pharma_Operations
 {
     public class BidConfiguration : IEntityTypeConfiguration<Bid>
     {
@@ -34,12 +34,8 @@ namespace PharmaBridge.Infrastructure.Configurations
                    .IsRequired();
 
             builder.Property(x => x.Status)
-                   .HasMaxLength(50) // In Review
-                   .IsRequired() // In Review
-                   .HasConversion(
-                       v => v.ToString(),
-                       v => (BidStatus)Enum.Parse(typeof(BidStatus), v)
-                   );
+               .HasConversion<string>()
+               .HasMaxLength(50);
 
             builder.Property(x => x.Notes)
                    .HasMaxLength(500);

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 
-namespace PharmaBridge.Infrastructure.Configurations
+namespace PharmaBridge.Persistence.Configurations.Pharma_Operations
 {
     public class BidItemConfiguration : IEntityTypeConfiguration<BidItem>
     {

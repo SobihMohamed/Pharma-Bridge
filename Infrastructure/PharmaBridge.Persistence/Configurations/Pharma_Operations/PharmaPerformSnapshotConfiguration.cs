@@ -4,7 +4,7 @@ using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 
-namespace PharmaBridge.Persistence.Configurations
+namespace PharmaBridge.Persistence.Configurations.Pharma_Operations
 {
     public class PharmaPerformSnapshotConfiguration : IEntityTypeConfiguration<PharmaPerformSnapshot>
     {
@@ -21,13 +21,8 @@ namespace PharmaBridge.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.PeriodType)
-                   .HasMaxLength(50)
-                   .IsRequired()
-                   .HasConversion(
-                       v => v.ToString(),
-                       v => (SnapshotPeriodType)Enum.Parse(typeof(SnapshotPeriodType), v)
-                   );
-
+               .HasConversion<string>()
+               .HasMaxLength(50);
 
             builder.Property(x => x.TotalBids)
                 .IsRequired();
