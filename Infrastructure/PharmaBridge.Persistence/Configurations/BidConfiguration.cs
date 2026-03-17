@@ -47,8 +47,6 @@ namespace PharmaBridge.Infrastructure.Configurations
             builder.Property(x => x.SubmittedAt)
                    .IsRequired();
 
-            builder.Property(x => x.RespondedAt);
-
             builder.Property(x => x.DeliveryTimeInMinutes)
                    .IsRequired();
 
