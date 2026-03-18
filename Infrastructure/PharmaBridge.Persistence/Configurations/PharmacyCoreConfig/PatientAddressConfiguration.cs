@@ -18,7 +18,7 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
 
             builder.Property(x => x.AddressLine)
                    .IsRequired()
-                   .HasMaxLength(200);
+                   .HasMaxLength(500);
 
             builder.Property(x => x.City)
                    .IsRequired()
@@ -26,11 +26,11 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
 
             builder.Property(x => x.Latitude)
                    .IsRequired()
-                   .HasPrecision(18, 2);
+                   .HasPrecision(18, 8);
 
             builder.Property(x => x.Longitude)
                    .IsRequired()
-                   .HasPrecision(18, 2);
+                   .HasPrecision(18, 8);
 
             builder.Property(x => x.IsDefault)
                    .IsRequired()
