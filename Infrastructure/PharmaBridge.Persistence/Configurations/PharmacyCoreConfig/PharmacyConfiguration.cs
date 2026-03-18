@@ -47,21 +47,21 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
             builder.Property(x => x.TextAddress)
                    .HasMaxLength(250);
 
-            builder.Property(p => p.ContactPhone)
+            builder.Property(x => x.ContactPhone)
                    .HasMaxLength(11);
 
-            builder.Property(p => p.AverageRating)
+            builder.Property(x => x.AverageRating)
                    .HasPrecision(18, 2);
 
-            builder.Property(p => p.CompleteOrderCount)
+            builder.Property(x => x.CompleteOrderCount)
                    .HasDefaultValue(0);
 
-            builder.Property(p => p.RejectedReasons)
+            builder.Property(x => x.RejectedReasons)
                    .HasMaxLength(500);
 
-            builder.HasOne(p => p.PharmaOwner)
+            builder.HasOne(x => x.PharmaOwner)
                    .WithMany(o => o.Pharmacies)
-                   .HasForeignKey(p => p.PharmaOwnerId)
+                   .HasForeignKey(x => x.PharmaOwnerId)
                    .OnDelete(DeleteBehavior.Restrict);
 
         }
