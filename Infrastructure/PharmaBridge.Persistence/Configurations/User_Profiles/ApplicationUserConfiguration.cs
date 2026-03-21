@@ -18,11 +18,13 @@ namespace PharmaBridge.Persistence.Configurations.User_Profiles
 
             builder.Property(x => x.Role)
                 .HasMaxLength(50)
-                .IsRequired();
+                .IsRequired()
+                .HasConversion<string>();
 
-           
+
+
             //The relation of Notification, Complaints, ResolvedComplaints will be added in their classes of Config
-            
+
         }
 
     }

@@ -6,7 +6,7 @@ namespace PharmaBridge.Persistence.Configurations.User_Profiles
 {
     public class PharmaOwnerConfiguration : IEntityTypeConfiguration<PharmaOwner>
     {
-        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
+        public void Configure(EntityTypeBuilder<PharmaOwner> builder)
         {
             builder.ToTable("PharmaOwners");
 
@@ -25,6 +25,7 @@ namespace PharmaBridge.Persistence.Configurations.User_Profiles
                 .HasMaxLength(500);
 
             builder.Property(x => Status)
+                .HasMaxLength(50)
                 .IsRequired()
                 .HasConversion<string>();
             
