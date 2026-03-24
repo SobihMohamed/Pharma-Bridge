@@ -43,7 +43,7 @@ namespace PharmaBridge.Persistence.Configurations.PharmaRequestsConfig
             builder.HasOne(x => x.PrescriptionRequest)
                    .WithMany(p => p.PrescriptionRequestHistorys)
                    .HasForeignKey(x => x.PrescriptionRequestId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
 
             // PrescriptionRequestHistory (Many) → (1) ApplicationUser (ChangedBy)
 
