@@ -32,8 +32,6 @@ namespace PharmaBridge.Persistence.Configurations.PharmaRequestsConfig
                    .HasMaxLength(500)
                    .IsRequired();
 
-            builder.Property(x => x.ReferenceId);
-
             builder.Property(x => x.ReferenceType)
                    .HasMaxLength(100);
 
