@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PharmaBridge.Domain.Models.User;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,7 +27,7 @@ namespace PharmaBridge.Persistence.Configurations.User_Profiles
             builder.Property(x => x.SyndicateCardImage)
                 .HasMaxLength(500);
 
-            builder.Property(x => Status)
+            builder.Property(x => x.Status)
                 .HasMaxLength(50)
                 .IsRequired()
                 .HasConversion<string>();

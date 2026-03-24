@@ -27,7 +27,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public virtual Bid Bid { get; set; }
 
         // 15 - PatientProfile (1) To (Many) Orders (Placed)
-        public int PatientProfileId { get; set; }
+        public string PatientProfileId { get; set; }
         public virtual PatientProfile PatientProfile { get; set; }
 
         // 16 - Pharmacy (1) To (Many) Order (Get)
@@ -35,7 +35,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public virtual Pharmacy Pharmacy { get; set; }
 
         // 17 - Order (1) To (1) PrescriptionRequest (Has)
-        public string PrescriptionRequestId { get; set; }
+        public int PrescriptionRequestId { get; set; }
         public virtual PrescriptionRequest PrescriptionRequest { get; set; }
 
         // 19 - Order (1) To (Many) Payment (Pay)

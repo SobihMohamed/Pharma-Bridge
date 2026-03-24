@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PharmaBridge.Domain.Models.User;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
