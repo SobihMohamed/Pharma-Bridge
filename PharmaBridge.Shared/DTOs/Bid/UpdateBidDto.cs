@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PharmaBridge.Shared.DTOs.BidItem;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
