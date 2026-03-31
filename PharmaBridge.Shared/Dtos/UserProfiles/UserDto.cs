@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Shared.Dtos.UserProfiles
+namespace PharmaBridge.Shared.DTOs.UserProfiles
 {
     public class UserDto
     {
