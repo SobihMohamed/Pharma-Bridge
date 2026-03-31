@@ -16,6 +16,5 @@ namespace PharmaBridge.Shared.DTOs.ApplicationUsers
         [Required]
         public string PhoneNumber { get; set; }
 
-
     }
 }
