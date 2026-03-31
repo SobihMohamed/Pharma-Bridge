@@ -7,9 +7,14 @@ namespace PharmaBridge.Shared.DTOs.Notifications
 {
     public class NotificationDto
     {
-        public NotificationType NotifyType { get; }
-        public string Title { get; }
-        public string Description { get; }
-        public bool IsRead { get; }
+        public int Id { get; set; }
+        public string NotifyType { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public bool IsRead { get; set; }
+
+        public int? ReferenceId { get; set; }
+        public string? ReferenceType { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
