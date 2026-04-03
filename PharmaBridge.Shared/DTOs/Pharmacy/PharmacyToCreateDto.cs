@@ -7,33 +7,36 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyToCreateDto
     {
-        [Required]
+        [Required(ErrorMessage = "Pharmacy Name is required")]
         [MaxLength(100)]
         public string PharmacyName { get; set; }
-
-        [Required]
+    
+        [Required(ErrorMessage = "License Number is required")]
         [MaxLength(100)]
         public string LicenseNumber { get; set; }
-
+    
+        [Required(ErrorMessage = "License Image is required")]
+        public string LicenseImageUrl { get; set; }
+    
         [Required]
-        public decimal Latitude { get; set; }
-
+        public decimal Latitude { get; set; } 
         [Required]
         public decimal Longitude { get; set; }
-
+    
         public TimeOnly? OpenTime { get; set; }
         public TimeOnly? CloseTime { get; set; }
         public bool Is24Hours { get; set; }
-
+    
         [MaxLength(500)]
-        public string? TextAddress { get; set; }
-
+        public string? TextAddress { get; set; } // not shown to user
+        public string? Area {get; set;} // which shown in the pharamcyDto for user only
+        
         [Phone]
         [MaxLength(11)]
         public string? ContactPhone { get; set; }
-
-        [Required]
-        public string PharmaOwnerId { get; set; }
+    
+        // REMOVED: PharmaOwnerId (Security Risk)
+        // We get this from the JWT token in the backend.
 
         // Id         -> auto-generated
         // Status     -> defaults to Pending
