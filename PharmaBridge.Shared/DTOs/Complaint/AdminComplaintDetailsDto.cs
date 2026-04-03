@@ -7,9 +7,10 @@ namespace PharmaBridge.Shared.DTOs.Complaint
 {
     public class AdminComplaintDetailsDto : ComplaintDto
     {
-        [MaxLength(500)]
+        // Removed validation attributes because this is an Output/Read DTO
         public string? AdminNotes { get; set; }
 
-        public string? ResolvedById { get; set; }
+        // Flattened for Admin UI (e.g., "Resolved by: Tarek")
+        public string? ResolvedByName { get; set; }
     }
 }
