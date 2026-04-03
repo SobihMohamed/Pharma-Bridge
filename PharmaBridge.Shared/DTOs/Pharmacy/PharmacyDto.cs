@@ -10,7 +10,16 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         public string PharmacyName { get; set; }
         public string? TextAddress { get; set; }
         public decimal AverageRating { get; set; }
+        // 1. Social Proof: To build trust with patients
+        public int CompleteOrderCount { get; set; }
+
         public bool Is24Hours { get; set; }
-        public string? LicenseImageUrl { get; set; }
+
+        // 2. Added Operating Hours for non-24h pharmacies
+        public string? OpenTime { get; set; } 
+        public string? CloseTime { get; set; }
+
+        // REMOVED: LicenseImageUrl
+        // This is sensitive legal data and should only be visible to Admins.
     }
 }
