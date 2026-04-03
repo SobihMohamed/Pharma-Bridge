@@ -8,7 +8,11 @@ namespace PharmaBridge.Shared.DTOs.Order
     {
         public int Id { get; set; }
 
-        public decimal Amount { get; set; }
+       // 1. Price Breakdown (Flattened from Bid)
+        public decimal Subtotal { get; set; }
+        public decimal DeliveryFee { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal Amount { get; set; } // This is the Total Price
 
         public string OrderStatus { get; set; }
 
@@ -25,11 +29,19 @@ namespace PharmaBridge.Shared.DTOs.Order
 
         public string DeliveryAddress { get; set; }
 
+        // 2. Pharmacy Info (For the Patient)
+        public int PharmacyId { get; set; }
         public string PharmacyName { get; set; }
         public string? PharmacyPhone { get; set; }
 
+        // 3. Patient Info (For the Pharmacy & Delivery Guy)
+        public string PatientName { get; set; }
+        public string PatientPhone { get; set; }
+        
         public int BidId { get; set; }
-
         public int PrescriptionRequestId { get; set; }
+        
+        // 4. The actual items ordered! (Mapped from Bid.BidItems)
+        public List<BidItemDto> Items { get; set; } = new();
     }
 }
