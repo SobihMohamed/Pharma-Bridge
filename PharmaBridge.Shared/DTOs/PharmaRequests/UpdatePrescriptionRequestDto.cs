@@ -26,5 +26,7 @@ namespace PharmaBridge.Shared.DTOs.PharmaRequests
 
         [MaxLength(200, ErrorMessage = "Medicine name cannot exceed 200 characters")]
         public string? MedicineName { get; set; }
+
+        public int? DeliveryAddressId { get; set; }
     }
 }
