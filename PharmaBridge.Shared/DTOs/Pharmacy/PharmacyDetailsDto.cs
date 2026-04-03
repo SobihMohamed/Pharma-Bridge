@@ -4,17 +4,14 @@ using System.Text;
 
 namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
-    public class PharmacyDetailsDto
+    // Inherits: Id, PharmacyName, TextAddress, AverageRating, CompleteOrderCount, Is24Hours, OpenTime, CloseTime
+    public class PharmacyDetailsDto : PharmacyDto
     {
-        public int Id { get; set; }
-        public string PharmacyName { get; set; }
-        public string? TextAddress { get; set; }
-        public decimal AverageRating { get; set; }
-        public bool Is24Hours { get; set; }
-        public TimeOnly? OpenTime { get; set; }
-        public TimeOnly? CloseTime { get; set; }
-        public string? ContactPhone { get; set; }
+        // Added for the Map View in the details screen
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+
+        // REMOVED: ContactPhone 
+        // Reason: To prevent "Platform Leakage". Patients should only get the phone number after an order is confirmed.
     }
 }
