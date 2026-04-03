@@ -1,4 +1,5 @@
 ﻿using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
+﻿using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,13 +12,13 @@ namespace PharmaBridge.Shared.DTOs.Payment
         [Required(ErrorMessage = "Order ID is required to initiate payment")]
         public int OrderId { get; set; }
     
-        [Required]
-        [MaxLength(50)]
-        public string PaymentMethod { get; set; } // CreditCard, Wallet, etc.
+        [Required(ErrorMessage = "Please select a payment method")]
+        public PaymentMethodType Method { get; set; } // Enum 
     
-        [MaxLength(100)]
-        public string? GatewayName { get; set; } // Stripe, PayPal, Fawry
+        [Required(ErrorMessage = "Payment gateway must be specified")]
+        public PaymentGatewayType Gateway { get; set; } // Enum 
     
         // REMOVED: Status, Amount, InitiatedAt, PaymentIntentId
-        // These are all handled SECURELY on the Server-Side.    }
+        // These are all handled SECURELY on the Server-Side.    
+    }
 }
