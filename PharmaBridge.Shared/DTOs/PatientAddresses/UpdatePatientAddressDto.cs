@@ -16,8 +16,16 @@ namespace PharmaBridge.Shared.DTOs.PatientAddresses
         [Required]
         [MaxLength(100)]
         public string City { get; set; }
+
+        // Adding Geographic Boundaries (Consistency with CreateDto)
+        [Required]
+        [Range(-90.0, 90.0, ErrorMessage = "Latitude must be between -90 and 90 degrees.")]
         public decimal Latitude { get; set; }
+
+        [Required]
+        [Range(-180.0, 180.0, ErrorMessage = "Longitude must be between -180 and 180 degrees.")]
         public decimal Longitude { get; set; }
+
         public bool IsDefault { get; set; }
     }
 }
