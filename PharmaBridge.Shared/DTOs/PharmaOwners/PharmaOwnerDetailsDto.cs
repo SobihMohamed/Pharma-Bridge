@@ -4,13 +4,11 @@ using System.Text;
 
 namespace PharmaBridge.Shared.DTOs.PharmaOwners
 {
-    public class PharmaOwnerDetailsDto
+    public class PharmaOwnerDetailsDto : PharmaOwnerDto
     {
-        public string Id { get; set; }
-        public string ApplicationUserId { get; set; }
-        public string FullName { get; set; }
-        public string? Email { get; set; } 
-        public string? PhoneNumber { get; set; }
-        public string Status { get; set; }
+        public string? NationalId { get; set; }
+        public string? NationalIdFront { get; set; }
+        public string? NationalIdBack { get; set; }
+        public string? SyndicateCardImage { get; set; }
     }
 }
