@@ -25,5 +25,8 @@ namespace PharmaBridge.Domain.Contracts.GenericReposPattern
 
         // delete
         void DeleteAsync(TEntity entity); // in memory
+
+        // Count 
+        Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications);
     }
 }
