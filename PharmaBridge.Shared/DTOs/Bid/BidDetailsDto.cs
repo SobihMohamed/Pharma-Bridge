@@ -25,8 +25,10 @@ namespace PharmaBridge.Shared.DTOs.Bid
 
         // The pharmacy name and contact info patient may want to call before accepting
         public string PharmacyName { get; set; }
-        public string? PharmacyPhone { get; set; }
+        public int PharmacyId { get; set; }
 
+        public int? OrderId { get; set; }
+        
         // The full list of items included in this bid
         public List<BidItemDto> BidItems { get; set; } = new();
 
