@@ -29,6 +29,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
     
         [MaxLength(500)]
         public string? TextAddress { get; set; } // not shown to user
+        [MaxLength(15)]
         public string? Area {get; set;} // which shown in the pharamcyDto for user only
         
         [Phone]
