@@ -9,6 +9,7 @@ namespace PharmaBridge.Domain.Contracts.GenericReposPattern
         // GetAll
         Task<IReadOnlyList<TEntity>> GetAllAsync();
 
+
         // GetById
         Task<TEntity?> GetByIdAsync(TKey id);
 

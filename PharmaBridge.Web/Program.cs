@@ -1,4 +1,7 @@
 
+using PharmaBridge.Persistence.ProgramService;
+using PharmaBridge.Web.Extensions;
+
 namespace PharmaBridge.Web
 {
     public class Program
@@ -7,9 +10,19 @@ namespace PharmaBridge.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // get database config
+            builder.Services.InjectDatabaseService(builder.Configuration);
+            // get from identity Layer in web project (Identity Core)
+            builder.Services.InjectIdentityCore();
+            // get th application services 
+            builder.Services.AddApplicationService();
+            // inject the Rate Limiting Service
+            builder.Services.InjectRateLimiting();
             // Add services to the container.
-
             builder.Services.AddControllers();
+            // Add Data Protection services
+            builder.Services.AddDataProtection();
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
