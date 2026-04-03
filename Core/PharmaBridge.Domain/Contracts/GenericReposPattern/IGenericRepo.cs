@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PharmaBridge.Domain.Contracts.SpecificationPattern;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,9 +10,12 @@ namespace PharmaBridge.Domain.Contracts.GenericReposPattern
         // GetAll
         Task<IReadOnlyList<TEntity>> GetAllAsync();
 
-
+        // get all with spec
+        Task<IReadOnlyList<TEntity>> GetAllWithSpecAsync(ISpecifications<TEntity,TKey> specifications);
         // GetById
         Task<TEntity?> GetByIdAsync(TKey id);
+        //get by id with spec
+        Task<TEntity?> GetByIdWithSpecAsync(ISpecifications<TEntity,TKey> specifications);
 
         // Add Async Await
         Task AddAsync(TEntity entity); // call Db 
