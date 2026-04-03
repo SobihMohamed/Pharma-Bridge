@@ -4,12 +4,17 @@ using System.Text;
 
 namespace PharmaBridge.Shared.DTOs.PatientProfiles
 {
-    public class PatientProfileDetailsDto
+    public class PatientProfileDetailsDto : PatientProfileDto
     {
-        public string Id { get; set; }
-        public string ApplicationUserId { get; set; }
-        public string FullName { get; set; } 
-        public string? Email { get; set; } 
-        public string? PhoneNumber { get; set; }
+        // 1. Collections
+        public ICollection<PatientAddressDto> Addresses { get; set; } = new HashSet<PatientAddressDto>();
+
+        // 2. Dashboard Summaries
+        // PrescriptionRequests
+        public int TotalPrescriptionRequests { get; set; } 
+        
+        public int OrdersCount { get; set; } 
+        
+        public int ComplaintsSubmitted { get; set; } 
     }
 }
