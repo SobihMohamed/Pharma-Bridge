@@ -17,8 +17,12 @@ namespace PharmaBridge.Shared.DTOs.Order
         public bool PaymentStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
-
-        // The pharmacy name so the patient can identify the order without tapping into it
+        
+        // For the Patient App
+        public int PharmacyId { get; set; }
         public string PharmacyName { get; set; }
+
+        // For the Pharmacy App (so they know whose order this is at a glance)
+        public string PatientName { get; set; }
     }
 }
