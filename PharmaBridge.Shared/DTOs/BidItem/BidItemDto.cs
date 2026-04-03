@@ -22,6 +22,6 @@ namespace PharmaBridge.Shared.DTOs.BidItem
         public decimal LineTotal { get; set; }
 
         // The parent bid's Id => useful for frontend navigation/linking
-        public int BidId { get; set; }
+        // public int BidId { get; set; }
     }
 }
