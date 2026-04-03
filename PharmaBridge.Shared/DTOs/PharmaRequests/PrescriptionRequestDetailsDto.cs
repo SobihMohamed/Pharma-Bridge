@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 
 namespace PharmaBridge.Shared.DTOs.PharmaRequestsFlow
 {
-    public class PrescriptionRequestDetailsDto
+    // Inherits everything from the List DTO (Id, ImageUrl, MedicineName, Status, BidsCount, DeliveryArea, etc.)
+    public class PrescriptionRequestDetailsDto : PrescriptionRequestDto
     {
-        public int Id { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? PatientNotes { get; set; }
-        public string? MedicineName { get; set; }
-        public string Status { get; set; }
-        public DateTime ExpiresAt { get; set; }
-        public DateTime CreatedAt { get; set; }
-
-        // How many bids have been received shown as a counter badge on the detail page
-        // ("3 pharmacies responded")
-        public int BidCount { get; set; }
-
-        // The delivery address text — patient wants to confirm where it will be delivered
-        public string DeliveryAddress { get; set; }
+        // We only add the FULL address here, because this details page 
+        // is what the PATIENT reviews to confirm their exact home address.
+        public string FullDeliveryAddress { get; set; }
+        
+        // لو في لستة بالمزادات اللي اتقدمت على الروشتة دي بنحطها هنا
+        // public List<BidDto> Bids { get; set; } = new();
     }
 }
