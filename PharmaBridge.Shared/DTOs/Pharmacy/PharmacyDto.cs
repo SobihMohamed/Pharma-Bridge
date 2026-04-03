@@ -7,7 +7,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
     public class PharmacyDto
     {
         public string PharmacyName { get; set; }
-        public string? Address { get; set; } // show only first 10 char
+        public string? TextAddress { get; set; } // show only first 10 char
         public decimal AverageRating { get; set; }
         
         // 1. Social Proof: To build trust with patients
