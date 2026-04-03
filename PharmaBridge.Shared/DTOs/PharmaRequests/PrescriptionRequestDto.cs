@@ -20,6 +20,13 @@ namespace PharmaBridge.Shared.DTOs.PharmaRequestsFlow
 
         // CreatedAt comes from BaseEntity — useful to sort the list by newest first
         public DateTime CreatedAt { get; set; }
-       
+
+        // Business Logic Additions:
+        // 1. To show activity/competition on the request
+        public int BidsCount { get; set; } 
+
+        // 2. Flattened from DeliveryAddress (e.g., City or Region ONLY)
+        // Crucial for pharmacies to calculate delivery fee, without exposing the exact home address.
+        public string DeliveryArea { get; set; }
     }
 }
