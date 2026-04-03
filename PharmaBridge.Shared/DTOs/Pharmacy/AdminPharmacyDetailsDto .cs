@@ -11,6 +11,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         // public string? Address { get; set; } it already exist but in this get the all string
     
         public string LicenseNumber { get; set; }
+        public string? LicenseImageUrl { get; set; }
         public string Status { get; set; }
         public string? RejectedReasons { get; set; }
         public string? ContactPhone { get; set; }
