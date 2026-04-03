@@ -21,7 +21,8 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
             builder.Property(x => x.Comment)
                    .HasMaxLength(500);
 
-
+            builder.HasIndex(x => x.OrderId)
+                    .IsUnique();
 
             builder.HasOne(x => x.Pharmacy)
                    .WithMany(p => p.PharmacyRatings)

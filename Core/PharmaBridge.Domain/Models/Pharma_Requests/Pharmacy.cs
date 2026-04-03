@@ -20,6 +20,7 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
         public TimeOnly? CloseTime { get; set; }
         public bool Is24Hours { get; set; } = false;
         public string? TextAddress { get; set; }
+        public string Area { get; set; } = string.Empty;
         public string? ContactPhone { get; set; }
         public decimal AverageRating { get; set; } = 0.00m;
         public int CompleteOrderCount { get; set; } = 0;

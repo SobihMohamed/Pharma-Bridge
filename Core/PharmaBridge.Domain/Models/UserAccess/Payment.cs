@@ -1,4 +1,5 @@
 ﻿using PharmaBridge.Domain.Models.Pharma_Requests;
+using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,9 @@ namespace PharmaBridge.Domain.Models.UserAccess
     {
         public string PaymentIntentId { get; set; }
         public DateTime? SettledAt { get; set; }
-        public string? GatewayName { get; set; }
+        public PaymentGatewayType? GatewayName { get; set; }
         public decimal Amount { get; set; }
-        public string PaymentMethod { get; set; }
+        public PaymentMethodType PaymentMethod { get; set; }
         public  PaymentStatus Status { get; set; }
         public DateTime InitiatedAt { get; set; }
         public  string? GatewayResponse {get; set; }
