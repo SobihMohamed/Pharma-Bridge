@@ -12,8 +12,5 @@ namespace PharmaBridge.Shared.DTOs.PatientProfiles
         public string FullName { get; set; }
         public string Email { get; set; }
         public string? PhoneNumber { get; set; }
-
-        // Senior UX Touch: Dashboard Summaries
-        public int TotalOrdersCount { get; set; } // Count from Orders collection
     }
 }
