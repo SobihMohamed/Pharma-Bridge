@@ -24,6 +24,6 @@ namespace PharmaBridge.Shared.DTOs.BidItem
         public string? AlternativeNote { get; set; }
 
         // The parent bid's Id => required to link the item to its bid
-        public int BidId { get; set; }
+        // public int BidId { get; set; }
     }
 }
