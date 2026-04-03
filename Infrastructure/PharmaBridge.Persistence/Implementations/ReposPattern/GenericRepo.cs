@@ -12,7 +12,7 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
     public class GenericRepo<TEntity, TKey> 
         : IGenericRepo<TEntity, TKey> where TEntity : class ,IEntity<TKey>
     {
-        private readonly DbSet<TEntity> _dbSet;
+        private readonly DbSet<TEntity> _dbSet; 
         public GenericRepo(PharmaDbContext dbContext)
         {
             _dbSet = dbContext.Set<TEntity>();

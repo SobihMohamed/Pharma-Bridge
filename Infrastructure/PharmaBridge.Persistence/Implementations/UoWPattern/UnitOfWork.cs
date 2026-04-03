@@ -11,13 +11,13 @@ namespace PharmaBridge.Persistence.Implementations.UoWPattern
 {
     public class UnitOfWork(PharmaDbContext _context) : IUnitOfWork
     {
-        private readonly Dictionary<string, object> _repository = [];
+        private readonly Dictionary<string, object> _repository = []; // Cache بنحط فيها الريبوز اللي اتعملت قبل كده
         public IGenericRepo<TEntity, Tkey> GetRepository<TEntity, Tkey>() where TEntity : class, IEntity<Tkey>
         {
             // Get the type name of the entity
             var typeName = typeof(TEntity).Name;
 
-            if(_repository.ContainsKey(typeName))
+            if(_repository.ContainsKey(typeName)) // Lazy Initialization + Caching
                 return (IGenericRepo<TEntity, Tkey>)_repository[typeName];
 
             // new object of the generic repository
