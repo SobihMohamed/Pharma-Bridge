@@ -8,7 +8,7 @@ namespace PharmaBridge.Shared.DTOs.PharmaPerformSnapshot
     {
        public int Id { get; set; }
         public DateOnly PeriodStart { get; set; }
-        public DateOnly DateOnly PeriodEnd { get; set; }
+        public DateOnly PeriodEnd { get; set; }
         public string PeriodType { get; set; } 
 
         // Flattening:

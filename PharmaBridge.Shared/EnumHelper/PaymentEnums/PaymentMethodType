@@ -1,8 +1,0 @@
-namespace PharmaBridge.Shared.EnumHelper.PaymentEnums
-{
-    public enum PaymentMethodType
-    {
-        CreditCard = 1,
-        CashOnDelivery = 2
-    }
-}

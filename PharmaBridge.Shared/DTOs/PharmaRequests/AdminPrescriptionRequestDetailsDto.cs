@@ -19,6 +19,4 @@ namespace PharmaBridge.Shared.DTOs.PharmaRequests
         // 3. Full history of status changes — admins need the audit trail
         public List<PrescriptionRequestHistoryDto> History { get; set; } = new();
     }
-
-    }
 }

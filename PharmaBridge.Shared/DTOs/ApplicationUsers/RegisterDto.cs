@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PharmaBridge.Shared.EnumHelper.UserEnums;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace PharmaBridge.Shared.DTOs.ApplicationUsers
@@ -21,7 +23,7 @@ namespace PharmaBridge.Shared.DTOs.ApplicationUsers
         [Required, Phone]
         public string PhoneNumber { get; set; } = null!;
 
-        The Missing Link: Which type of user is registering?
+        //The Missing Link: Which type of user is registering?
         [Required(ErrorMessage = "Please specify the account type (Patient or Pharmacy Owner).")]
         [Range(2, 3, ErrorMessage = "Invalid Role. Registration is only allowed for Patients and Pharmacy Owners.")]
         public UserRole Role { get; set; }
