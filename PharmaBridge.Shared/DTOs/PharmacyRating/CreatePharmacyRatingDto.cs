@@ -17,5 +17,8 @@ namespace PharmaBridge.Shared.DTOs.PharmacyRating
         [Required]
         public int PharmacyId { get; set; }
 
+        [Required(ErrorMessage = "Order ID is required to verify the rating.")]
+        public int OrderId { get; set; }
+
     }
 }
