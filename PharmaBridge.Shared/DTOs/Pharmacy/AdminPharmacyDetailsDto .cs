@@ -8,7 +8,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
     {
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        // public string? Address { get; set; } it already exist but in this get the all string
+        public string? TextAddress { get; set; }
     
         public string LicenseNumber { get; set; }
         public string? LicenseImageUrl { get; set; }
