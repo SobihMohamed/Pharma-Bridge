@@ -8,15 +8,17 @@ namespace PharmaBridge.Shared.DTOs.PharmaRequests
 {
     public class AdminPrescriptionRequestDetailsDto : PrescriptionRequestDetailsDto
     {
-        // admins need this to look up the patient profile
+       // 1. Patient Info (Flattened for Admin UX)
         public string PatientProfileId { get; set; }
+        public string PatientName { get; set; }   // Added so admin knows who it is at a glance
+        public string PatientPhone { get; set; }  // Added in case admin needs to call the patient for support
 
-        // The delivery address FK — admins may need the raw ID to query the address table
+        // 2. The delivery address FK — admins may need the raw ID to query the address table
         public int DeliveryAddressId { get; set; }
 
-        // Full history of status changes — admins need the audit trail
-        // We expose a list of the history DTO (read-only, lightweight)
+        // 3. Full history of status changes — admins need the audit trail
         public List<PrescriptionRequestHistoryDto> History { get; set; } = new();
+    }
 
     }
 }
