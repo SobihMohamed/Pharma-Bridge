@@ -6,10 +6,10 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyDto
     {
-        public int Id { get; set; }
         public string PharmacyName { get; set; }
-        public string? TextAddress { get; set; }
+        public string? TextAddress { get; set; } // show only first 10 char
         public decimal AverageRating { get; set; }
+        
         // 1. Social Proof: To build trust with patients
         public int CompleteOrderCount { get; set; }
 
