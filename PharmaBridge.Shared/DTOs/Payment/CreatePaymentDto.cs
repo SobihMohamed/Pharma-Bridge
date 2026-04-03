@@ -8,28 +8,16 @@ namespace PharmaBridge.Shared.DTOs.Payment
 {
     public class CreatePaymentDto
     {
-        [Required]
-        [MaxLength(100)]
-        public string PaymentIntentId { get; set; }
-
-        [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be positive.")]
-        public decimal Amount { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        public string PaymentMethod { get; set; }
-
-        [Required]
-        public PaymentStatus Status { get; set; }
-
-        [MaxLength(100)]
-        public string? GatewayName { get; set; }
-        [MaxLength(500)]
-        public string? GatewayResponse { get; set; }
-        public DateTime InitiatedAt { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "Order ID is required to initiate payment")]
         public int OrderId { get; set; }
-    }
+    
+        [Required]
+        [MaxLength(50)]
+        public string PaymentMethod { get; set; } // CreditCard, Wallet, etc.
+    
+        [MaxLength(100)]
+        public string? GatewayName { get; set; } // Stripe, PayPal, Fawry
+    
+        // REMOVED: Status, Amount, InitiatedAt, PaymentIntentId
+        // These are all handled SECURELY on the Server-Side.    }
 }
