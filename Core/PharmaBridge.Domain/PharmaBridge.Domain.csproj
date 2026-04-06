@@ -14,4 +14,8 @@
     <ProjectReference Include="..\..\PharmaBridge.Shared\PharmaBridge.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\NotFoundHandeler\" />
+  </ItemGroup>
+
 </Project>

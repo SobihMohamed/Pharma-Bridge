@@ -1,6 +1,7 @@
 
 using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Web.Extensions;
+using PharmaBridge.Web.Middleware;
 
 namespace PharmaBridge.Web
 {
@@ -33,12 +34,14 @@ namespace PharmaBridge.Web
             {
                 app.MapOpenApi();
             }
-
+            // add middleware for global exception handling
+            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-            //Test2
-
+           
+            app.UseStaticFiles();
             app.MapControllers();
 
             app.Run();
