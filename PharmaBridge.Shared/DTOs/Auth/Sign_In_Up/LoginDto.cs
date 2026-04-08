@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace PharmaBridge.Shared.DTOs.ApplicationUsers
+namespace PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up
 {
     public class LoginDto
     {

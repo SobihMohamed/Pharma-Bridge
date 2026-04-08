@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="DTOs\Pharmacy\UpdatePharmacyStatusDto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="DTOs\Pharmacy\UpdatePharmacyStatusDto.cs" />
+  </ItemGroup>
+
 </Project>

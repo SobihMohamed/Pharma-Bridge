@@ -6,10 +6,9 @@ namespace PharmaBridge.Shared.EnumHelper.PharmaEnums
 {
     public enum PrescriptionStatus
     {
-        Open = 1,
-        InProgress,
-        Completed,
-        Cancelled,
-        Expired,
+        Pending,
+        HasBids,
+        Closed,
+        Cancelled
     }
 }
