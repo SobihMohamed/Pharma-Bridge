@@ -1,5 +1,6 @@
 
 using PharmaBridge.Persistence.ProgramService;
+using PharmaBridge.Services.AutoMapper;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
 
@@ -19,6 +20,8 @@ namespace PharmaBridge.Web
             builder.Services.AddApplicationService();
             // inject the Rate Limiting Service
             builder.Services.InjectRateLimiting();
+            // inject automapper
+            builder.Services.InjectAutoMapperService();
             // Add services to the container.
             builder.Services.AddControllers();
             // Add Data Protection services
