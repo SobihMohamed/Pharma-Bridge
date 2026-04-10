@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace PharmaBridge.Shared.DTOs.Complaint
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string Status { get; set; }
+        public ComplaintStatus Status { get; set; }
         public int? OrderId { get; set; }
         // 1. Missing Timestamp added from BaseEntity
         public DateTime CreatedAt { get; set; } 

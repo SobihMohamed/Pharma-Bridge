@@ -7,8 +7,6 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyToUpdateDto
     {
-        [Required(ErrorMessage = "Pharmacy ID is required")]
-        public int Id { get; set; } 
     
         [Required(ErrorMessage = "Pharmacy Name is required")]
         [MaxLength(100)]

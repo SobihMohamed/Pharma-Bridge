@@ -6,12 +6,13 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyDto
     {
-        public string PharmacyName { get; set; }
+        public string PharmacyName { get; set; } = null!;
         public string? Area { get; set; } 
         public decimal AverageRating { get; set; }
         
         // 1. Social Proof: To build trust with patients
         public int CompleteOrderCount { get; set; }
+        public string Status { get; set; } = null!; // e.g., Approved, Pending, Rejected
 
         public bool Is24Hours { get; set; }
 

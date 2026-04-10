@@ -9,14 +9,14 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
     {
         [Required(ErrorMessage = "Pharmacy Name is required")]
         [MaxLength(100)]
-        public string PharmacyName { get; set; }
-    
+        public string PharmacyName { get; set; } = null!;
+
         [Required(ErrorMessage = "License Number is required")]
         [MaxLength(100)]
-        public string LicenseNumber { get; set; }
-    
+        public string LicenseNumber { get; set; } = null!;
+
         [Required(ErrorMessage = "License Image is required")]
-        public string LicenseImageUrl { get; set; }
+        public string LicenseImageUrl { get; set; } = null!;
     
         [Required]
         public decimal Latitude { get; set; } 

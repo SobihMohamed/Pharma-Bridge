@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Shared.DTOs.Complaint
 {
-    public class AdminComplaintDetailsDto : ComplaintDto
+    public class ComplaintDetailsDto : ComplaintDto
     {
         // Removed validation attributes because this is an Output/Read DTO
         public string? AdminNotes { get; set; }
