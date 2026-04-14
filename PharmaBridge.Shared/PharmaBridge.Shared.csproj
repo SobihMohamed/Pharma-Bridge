@@ -9,7 +9,9 @@
   <ItemGroup>
     <Compile Remove="DTOs\Pharmacy\UpdatePharmacyStatusDto.cs" />
   </ItemGroup>
-
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
   <ItemGroup>
     <None Include="DTOs\Pharmacy\UpdatePharmacyStatusDto.cs" />
   </ItemGroup>

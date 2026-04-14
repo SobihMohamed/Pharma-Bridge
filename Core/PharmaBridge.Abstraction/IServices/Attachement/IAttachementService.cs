@@ -8,9 +8,9 @@ namespace PharmaBridge.Abstraction.IServices.Attachement
     public interface IAttachementService
     {
         // Uploads a file using the provided DTO and returns the file path/URL
-        Task<string> UploadImageAsync(UploadFileDto uploadFileDto);
+        Task<string> UploadFileAsync(UploadFileDto uploadFileDto);
 
         // Deletes an existing file from the storage
-        Task<bool> DeleteImageAsync(string filePath);
+        Task<bool> DeleteFileAsync(string filePath);
     }
 }
