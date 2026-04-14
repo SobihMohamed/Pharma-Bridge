@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 
@@ -11,9 +12,11 @@ using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 namespace PharmaBridge.Persistence.Migrations
 {
     [DbContext(typeof(PharmaDbContext))]
-    partial class PharmaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260414105007_MedcinAndImageValidateCheckConstraint")]
+    partial class MedcinAndImageValidateCheckConstraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -455,7 +458,7 @@ namespace PharmaBridge.Persistence.Migrations
                     b.ToTable("Pharmacies", (string)null);
                 });
 
-            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", b =>
+            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -552,6 +555,7 @@ namespace PharmaBridge.Persistence.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("OldStatus")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -1177,7 +1181,7 @@ namespace PharmaBridge.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", "PrescriptionRequest")
+                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", "PrescriptionRequest")
                         .WithMany("Bids")
                         .HasForeignKey("PrescriptionRequestId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1221,7 +1225,7 @@ namespace PharmaBridge.Persistence.Migrations
                     b.Navigation("PharmaOwner");
                 });
 
-            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", b =>
+            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", b =>
                 {
                     b.HasOne("PharmaBridge.Domain.Models.User.PatientAddress", "DeliveryAddress")
                         .WithMany()
@@ -1248,7 +1252,7 @@ namespace PharmaBridge.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", "PrescriptionRequest")
+                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", "PrescriptionRequest")
                         .WithMany("PrescriptionRequestHistorys")
                         .HasForeignKey("PrescriptionRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1354,7 +1358,7 @@ namespace PharmaBridge.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", "PrescriptionRequest")
+                    b.HasOne("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", "PrescriptionRequest")
                         .WithOne("Order")
                         .HasForeignKey("PharmaBridge.Domain.Models.UserAccess.Order", "PrescriptionRequestId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1427,7 +1431,7 @@ namespace PharmaBridge.Persistence.Migrations
                     b.Navigation("PharmacyRatings");
                 });
 
-            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequestEntity", b =>
+            modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.PrescriptionRequest", b =>
                 {
                     b.Navigation("Bids");
 

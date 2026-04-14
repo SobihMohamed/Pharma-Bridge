@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PharmaBridge.Shared.DTOs.PharmaRequests;
+using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +11,7 @@ namespace PharmaBridge.Abstraction.IServices.PrescriptionRequest
         // --- Patient (Client) Operations ---
 
         // Creates a new request (uploads prescription / writes med names) and broadcasts it to nearby pharmacies.
-        //Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientId);
+        Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientId);
 
         // Patient can view all their past and current requests with filtering.
         //Task<Pagination<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams); 

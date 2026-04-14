@@ -26,12 +26,13 @@ namespace PharmaBridge.Persistence.Configurations.PharmaRequestsConfig
 
 
             builder.Property(x => x.NewStatus)
+                   .HasConversion<string>()
                    .HasMaxLength(50)
                    .IsRequired();
 
             builder.Property(x => x.OldStatus)
-                   .HasMaxLength(50)
-                   .IsRequired();
+                   .HasConversion<string>()
+                   .HasMaxLength(50);
 
             builder.Property(x => x.ChangedAt)
                    .IsRequired();

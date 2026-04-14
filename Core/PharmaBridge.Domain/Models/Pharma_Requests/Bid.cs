@@ -32,6 +32,6 @@ namespace PharmaBridge.Domain.Models.Pharma_Requests
 
         // 20 - PrescriptionRequest (1) To (Many) Bid (Has)
         public int PrescriptionRequestId { get; set; }
-        public virtual PrescriptionRequest PrescriptionRequest { get; set; }
+        public virtual PrescriptionRequestEntity PrescriptionRequest { get; set; }
     }
 }

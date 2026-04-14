@@ -36,7 +36,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
 
         // 17 - Order (1) To (1) PrescriptionRequest (Has)
         public int PrescriptionRequestId { get; set; }
-        public virtual PrescriptionRequest PrescriptionRequest { get; set; }
+        public virtual PrescriptionRequestEntity PrescriptionRequest { get; set; }
 
         // 19 - Order (1) To (Many) Payment (Pay)
         public virtual ICollection<Payment> Payments { get; set; } = new HashSet<Payment>();

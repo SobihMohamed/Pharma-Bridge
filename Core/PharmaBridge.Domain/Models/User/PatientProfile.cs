@@ -16,7 +16,7 @@ namespace PharmaBridge.Domain.Models.User
 
         
         public virtual ICollection<PatientAddress> PatientAddresses { get; set; } = new HashSet<PatientAddress>();
-        public virtual ICollection<PrescriptionRequest> PrescriptionRequests { get; set; } = new HashSet<PrescriptionRequest>();
+        public virtual ICollection<PrescriptionRequestEntity> PrescriptionRequests { get; set; } = new HashSet<PrescriptionRequestEntity>();
         public virtual ICollection<PharmacyRating> PharmacyRatings { get; set; } = new HashSet<PharmacyRating>();
 
     }

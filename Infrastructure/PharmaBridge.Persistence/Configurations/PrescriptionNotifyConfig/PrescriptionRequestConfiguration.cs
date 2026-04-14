@@ -7,13 +7,18 @@ using System.Text;
 
 namespace PharmaBridge.Persistence.Configurations.PharmaRequestsConfig
 {
-    public class PrescriptionRequestConfiguration : IEntityTypeConfiguration<PrescriptionRequest>
+    public class PrescriptionRequestConfiguration : IEntityTypeConfiguration<PrescriptionRequestEntity>
     {
-        public void Configure(EntityTypeBuilder<PrescriptionRequest> builder)
+        public void Configure(EntityTypeBuilder<PrescriptionRequestEntity> builder)
         {
             // Table & Key
 
-            builder.ToTable("PrescriptionRequests");
+            builder.ToTable("PrescriptionRequests", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_PrescriptionRequest_Content",
+                    "[ImageUrl] IS NOT NULL OR [MedicineName] IS NOT NULL");
+            });
 
             builder.HasKey(x => x.Id);
 
