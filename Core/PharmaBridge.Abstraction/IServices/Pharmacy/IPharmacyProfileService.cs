@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using PharmaBridge.Shared.DTOs.Pharmacy;
 
 namespace PharmaBridge.Abstraction.IServices.Pharmacy
 {
@@ -13,20 +15,20 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
         // =========================================================================
 
         // Pharmacy completes their profile (Location, Working Hours, License Documents).
-        //Task<PharmacyDetailsDto> RegisterPharmacyProfileAsync(PharmacyToCreateDto createDto, Guid userId);
+        Task<PharmacyDetailsDto> RegisterPharmacyProfileAsync(PharmacyToCreateDto createDto, Guid userId);
 
         // Pharmacy views their own profile details.
-        //Task<PharmacyDetailsDto> GetMyProfileAsync(int pharmacyId);
+        Task<PharmacyDetailsDto> GetMyProfileAsync(int pharmacyId, Guid userId);
 
         // Pharmacy updates their info (e.g., changing working hours or location on map).
-        //Task<PharmacyDetailsDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto);
+        Task<PharmacyDetailsDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, Guid userId);
 
         // =========================================================================
         // --- Patient (Client) Operations ---
         // =========================================================================
 
         // Patient views basic, non-sensitive info about a pharmacy (e.g., Name, Location, IsOpen).
-        //Task<PharmacyDto> GetPharmacyBasicInfoAsync(int pharmacyId);
+        Task<PharmacyDto> GetPharmacyBasicInfoAsync(int pharmacyId);
 
 
         // =========================================================================
