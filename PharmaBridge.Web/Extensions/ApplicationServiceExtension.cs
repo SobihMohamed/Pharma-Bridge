@@ -15,8 +15,7 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
             
-            //services.AddScoped<Domain.Contracts.GenericReposPattern.IGenericRepo, GenericRepo>();
-            // specification 
+            
             return services;
         }
     }

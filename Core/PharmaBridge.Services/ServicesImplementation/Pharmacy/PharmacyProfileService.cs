@@ -71,9 +71,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (owner == null)
             {
-                owner = new PharmaOwner { ApplicationUserId = userId, Status = PharmaOwnerStatus.Pending };
+                owner = new PharmaOwner { Id = Guid.NewGuid().ToString(), ApplicationUserId = userId, Status = PharmaOwnerStatus.Pending };
                 await unitOfWork.GetRepository<PharmaOwner, string>().AddAsync(owner);
-                // Cannot check Pharmacies if just created, but it's new so zero length.
             }
             else if (owner.Pharmacies != null && owner.Pharmacies.Any())
             {
