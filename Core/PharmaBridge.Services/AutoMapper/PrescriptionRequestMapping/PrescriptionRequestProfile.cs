@@ -2,7 +2,6 @@
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Services.Resolver;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
-using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +26,7 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
             CreateMap<PrescriptionRequestEntity, PrescriptionRequestDto>()
                 
                 .ForMember(dest => dest.ImageUrl, opt => 
-                opt.MapFrom<PictureResolver<PrescriptionRequestEntity, PrescriptionRequestDto>, string>(src => src.ImageUrl))
+                opt.MapFrom<PictureResolver<PrescriptionRequestEntity, PrescriptionRequestDto>, string>(src => src.ImageUrl!))
                 
                 .ForMember(dest => dest.Status , opt => opt.MapFrom(src => src.Status.ToString()))
 
