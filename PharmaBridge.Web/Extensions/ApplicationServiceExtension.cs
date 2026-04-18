@@ -10,7 +10,8 @@ namespace PharmaBridge.Web.Extensions
         public static IServiceCollection AddApplicationService(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped<Domain.Contracts.GenericReposPattern.IGenericRepo, GenericRepo>();
+            //services.AddScoped(typeof(IGenericRepo<,>), typeof(GenericRepo<,>)); // not needed because we have a generic method in unit of work that return the generic repo 
+
             // specification 
             return services;
         }
