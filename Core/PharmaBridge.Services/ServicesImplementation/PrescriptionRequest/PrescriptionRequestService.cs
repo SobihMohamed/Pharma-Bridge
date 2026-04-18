@@ -8,7 +8,6 @@ using PharmaBridge.Services.Specifications;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
-using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
