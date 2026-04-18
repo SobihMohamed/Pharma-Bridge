@@ -28,8 +28,17 @@ namespace PharmaBridge.Persistence.Evaluator
                 }
             }
 
+            //  Nested Includes
+            if (specifications.IncludeStrings is not null && specifications.IncludeStrings.Any())
+            {
+                foreach (var includeString in specifications.IncludeStrings)
+                {
+                    query = query.Include(includeString); // include nested properties like "PharmaOwner.ApplicationUser"
+                }
+            }
+
             // order by
-            if(specifications.OrderByExpressions is not null && specifications.OrderByExpressions.Any()) // order by price desc, order by name asc
+            if (specifications.OrderByExpressions is not null && specifications.OrderByExpressions.Any()) // order by price desc, order by name asc
             {
                 // 1- get the first orderby 
                 var firstOrderBy = specifications.OrderByExpressions.FirstOrDefault();

@@ -25,6 +25,12 @@ namespace PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec
             => Includes.Add(includeExpression);
         #endregion
 
+        #region nested include strings
+        public List<string> IncludeStrings { get; private set; } = new List<string>();
+        protected void AddInclude(string includeString)
+            => IncludeStrings.Add(includeString);
+        #endregion
+
         #region Apply OrderBy
         public List<OrderExpressionInfo<TEntity>> OrderByExpressions { get; private set; } = new List<OrderExpressionInfo<TEntity>>(); // OrderBy(p => p.Name) , OrderByDescending(p => p.Price)
         protected void AddOrderBy(Expression<Func<TEntity,object>> orderByExpression , bool isDescending = false)

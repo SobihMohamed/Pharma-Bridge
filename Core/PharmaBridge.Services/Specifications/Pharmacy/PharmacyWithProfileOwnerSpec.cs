@@ -10,14 +10,16 @@ namespace PharmaBridge.Services.Specifications.Pharmacy
             : base(p => p.Id == pharmacyId)
         {
             AddInclude(p => p.PharmaOwner);
-            AddInclude(p => p.PharmaOwner.ApplicationUser);
+            var nestedInclude = nameof(PharmaOwner) + "." + nameof(PharmaOwner.ApplicationUser);
+            AddInclude(nestedInclude);
         }
         
         public PharmacyWithProfileOwnerSpec(string ownerId)
             : base(p => p.PharmaOwnerId == ownerId)
         {
             AddInclude(p => p.PharmaOwner);
-            AddInclude(p => p.PharmaOwner.ApplicationUser);
+            var nestedInclude = nameof(PharmaOwner) + "." + nameof(PharmaOwner.ApplicationUser); // PharmaOwner.ApplicationUser
+            AddInclude(nestedInclude);
         }
     }
 
