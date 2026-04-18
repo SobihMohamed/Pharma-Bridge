@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\PharmaBridge.Shared\PharmaBridge.Shared.csproj" />
     <ProjectReference Include="..\PharmaBridge.Abstraction\PharmaBridge.Abstraction.csproj" />
     <ProjectReference Include="..\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
   </ItemGroup>

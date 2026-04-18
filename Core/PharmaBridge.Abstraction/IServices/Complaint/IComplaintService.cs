@@ -13,10 +13,10 @@ namespace PharmaBridge.Abstraction.IServices.Complaint
         // =========================================================================
 
         // Patient submits a complaint against a specific Order/Pharmacy.
-        //Task<ComplaintDetailsDto> SubmitComplaintAsync(CreateComplaintDto createDto, Guid patientId);
+        Task<ComplaintDetailsDto> SubmitComplaintAsync(CreateComplaintDto createDto, Guid patientId);
 
         // Patient views the status of their own submitted complaints.
-        //Task<Pagination<ComplaintDetailsDto>> GetPatientComplaintsAsync(Guid patientId);
+        Task<Pagination<ComplaintDetailsDto>> GetPatientComplaintsAsync(Guid patientId, int pageSize, int pageIndex);
 
 
         // =========================================================================
@@ -24,13 +24,13 @@ namespace PharmaBridge.Abstraction.IServices.Complaint
         // =========================================================================
 
         // Admin views all platform complaints to manage them.
-        //Task<Pagination<ComplaintDto>> GetAllPlatformComplaintsAsync(ComplaintQueryParams queryParams);
+        Task<Pagination<ComplaintDto>> GetAllPlatformComplaintsAsync(ComplaintQueryParams queryParams);
 
         // Admin views full details of a specific complaint (including attached evidence).
-        //Task<ComplaintDetailsDto> GetComplaintDetailsAsync(int complaintId);
+        Task<ComplaintDetailsDto> GetComplaintDetailsAsync(int complaintId);
 
         /// Admin updates the status of the complaint and optionally adds resolution notes and actions taken.
-        //Task<bool> UpdateComplaintStatusAsync(Guid complaintId, UpdateComplaintStatusDto updateDto);
+        Task<bool> UpdateComplaintStatusAsync(Guid complaintId, UpdateComplaintStatusDto updateDto);
     }
 }
 

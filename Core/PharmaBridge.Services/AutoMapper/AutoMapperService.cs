@@ -15,6 +15,8 @@ namespace PharmaBridge.Services.AutoMapper
             {
                 cfg.AddProfile(new AuthProfile());
                 cfg.AddProfile(new PrescriptionRequestProfile());
+                cfg.AddProfile(new ComplaintProfile());
+                cfg.AddProfile(new AdminComplaintProfile());
             });
             return services;
         }
