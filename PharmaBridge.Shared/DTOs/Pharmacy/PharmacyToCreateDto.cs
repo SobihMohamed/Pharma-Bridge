@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -16,7 +16,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         public string LicenseNumber { get; set; } = null!;
 
         [Required(ErrorMessage = "License Image is required")]
-        public string LicenseImageUrl { get; set; } = null!;
+        public Microsoft.AspNetCore.Http.IFormFile LicenseImage { get; set; } = null!;
     
         [Required]
         public decimal Latitude { get; set; } 

@@ -1,4 +1,5 @@
 
+using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.User;
@@ -9,7 +10,7 @@ using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
 using Scalar.AspNetCore;
-
+using PharmaBridge.Services.ServicesImplementation.Attachement;
 namespace PharmaBridge.Web
 {
     public class Program
@@ -24,7 +25,7 @@ namespace PharmaBridge.Web
             builder.Services.InjectIdentityCore();
             // get th application services 
             builder.Services.AddApplicationService();
-            // inject the Rate Limiting Service
+            builder.Services.AddScoped<IAttachementService, AttachmentService>();
             builder.Services.InjectRateLimiting();
             // inject automapper
             builder.Services.InjectAutoMapperService();
@@ -35,7 +36,6 @@ namespace PharmaBridge.Web
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
