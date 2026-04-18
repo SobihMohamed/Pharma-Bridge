@@ -5,6 +5,7 @@ using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Services.Specifications;
+using PharmaBridge.Services.Specifications.Request;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
@@ -78,11 +79,29 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
             return deliveryAddress; 
         }
-
         #endregion
-        public Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams)
+        public async Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams)
         {
-            throw new NotImplementedException();
+            var patientIdStr =  patientId.ToString();
+            var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+
+            // create the specification 
+            var dataSpec = new PatientRequestWithAddressandBidsSpec(patientIdStr, queryParams);
+            var countSpec = new PatientRequestWithAddressandBidsCountSpec(patientIdStr, queryParams);
+
+            // excute queries in database 
+            var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
+            var totalCount = await requestRepo.GetCountAsync(countSpec);
+
+            // map the result to Dto
+            var mappedRequests = mapper.Map<IReadOnlyList<PrescriptionRequestDto>>(requests);
+            return new PaginationResponse<PrescriptionRequestDto>
+            (
+                index :queryParams.PageIndex,
+                size : queryParams.PageSize,
+                total : totalCount,
+                data : mappedRequests
+            );
         }
     }
 }
