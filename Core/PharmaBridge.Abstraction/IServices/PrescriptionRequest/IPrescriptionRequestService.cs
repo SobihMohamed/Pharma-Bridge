@@ -1,7 +1,6 @@
 ﻿using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
-using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
 using System;
 using System.Collections.Generic;
 using System.Text;
