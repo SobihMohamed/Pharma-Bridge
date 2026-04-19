@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Services.Specifications
+namespace PharmaBridge.Services.Specifications.Request
 {
     public class PatientAddressWithPatientprofileSpec : BaseSpecifications<PatientAddress,int>
     {
