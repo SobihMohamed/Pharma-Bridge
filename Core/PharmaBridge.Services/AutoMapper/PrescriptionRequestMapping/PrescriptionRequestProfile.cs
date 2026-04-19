@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Services.Resolver;
+using PharmaBridge.Shared.DTOs.Bid;
+using PharmaBridge.Shared.DTOs.BidItem;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
 using System;
 using System.Collections.Generic;
@@ -34,6 +36,22 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
 
                 .ForMember(dest => dest.DeliveryArea , opt => opt.MapFrom(src => 
                     src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"));
+
+
+            CreateMap<BidItem, BidItemDto>();
+
+            CreateMap<Bid,BidDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.PharmacyName : "Unknown"))
+                .ForMember(dest => dest.PharmacyRating, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.AverageRating : 0))
+                .ForMember(dest => dest.BidItems, opt => opt.MapFrom(src => src.BidItems));
+           
+            // 3 - Mapping From Entity to Details Dto (Output)
+            CreateMap<PrescriptionRequestEntity, PrescriptionRequestDetailsDto>()
+               .IncludeBase<PrescriptionRequestEntity, PrescriptionRequestDto>() // Include base mapping
+               .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids));
+
+
         }
     }
 }

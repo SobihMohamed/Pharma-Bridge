@@ -2,6 +2,7 @@
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
+using PharmaBridge.Domain.Exceptions.NotFoundHandeler.Request;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Services.Specifications;
@@ -103,5 +104,25 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
                 data : mappedRequests
             );
         }
+
+        public async Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(int requestId, Guid patientId)
+        {
+            var patientIdStr = patientId.ToString();
+
+            // spec 
+            var spec = new PatientRequestDetailsWithIncludesSpec(requestId, patientIdStr);
+
+            // rep 
+            var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+            var requestDetails = requestRepo.GetByIdWithSpecAsync(spec);
+
+            if (requestDetails == null)
+            {
+                throw new RequestNotFoundException("Prescription Request Not Found");
+            }
+
+            return mapper.Map<PrescriptionRequestDetailsDto>(requestDetails);
+        }
+
     }
 }

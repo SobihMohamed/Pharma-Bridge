@@ -18,7 +18,7 @@ namespace PharmaBridge.Abstraction.IServices.PrescriptionRequest
         Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams);
 
         // View full details of a specific request (including attached images/notes).
-        //Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(Guid requestId, Guid patientId);
+        Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(int requestId, Guid patientId);
 
         // Patient can cancel the request BEFORE accepting any bids.
         //Task<bool> CancelRequestAsync(Guid requestId, Guid patientId);
