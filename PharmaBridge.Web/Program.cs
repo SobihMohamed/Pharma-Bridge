@@ -2,6 +2,7 @@
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Services.AutoMapper;
 using PharmaBridge.Shared.DTOs.Pharmacy;
@@ -37,7 +38,7 @@ namespace PharmaBridge.Web
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            await app.SeedDatabaseAsync();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
