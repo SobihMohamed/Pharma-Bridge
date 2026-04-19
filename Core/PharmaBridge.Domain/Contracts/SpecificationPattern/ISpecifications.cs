@@ -16,6 +16,9 @@ namespace PharmaBridge.Domain.Contracts.SpecificationPattern
         // 3 - OrderBy 
         List<OrderExpressionInfo<TEntity>> OrderByExpressions { get; }
 
+        // 4 - Include strings for navigation properties
+        List<string> IncludeStrings { get; }
+
 
 
         // 4 - Pagination

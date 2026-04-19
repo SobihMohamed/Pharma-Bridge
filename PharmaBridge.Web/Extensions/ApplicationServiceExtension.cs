@@ -1,7 +1,11 @@
-﻿using PharmaBridge.Domain.Contracts.GenericReposPattern;
+using PharmaBridge.Abstraction.IServices.Order;
+using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Domain.Contracts.GenericReposPattern;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Persistence.Implementations.ReposPattern;
 using PharmaBridge.Persistence.Implementations.UoWPattern;
+using PharmaBridge.Services.ServicesImplementation.OrderService;
+using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 
 namespace PharmaBridge.Web.Extensions
 {
@@ -10,9 +14,10 @@ namespace PharmaBridge.Web.Extensions
         public static IServiceCollection AddApplicationService(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped(typeof(IGenericRepo<,>), typeof(GenericRepo<,>)); // not needed because we have a generic method in unit of work that return the generic repo 
+            services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
+            services.AddScoped<IOrderService, OrderService>();
 
-            // specification 
+
             return services;
         }
     }

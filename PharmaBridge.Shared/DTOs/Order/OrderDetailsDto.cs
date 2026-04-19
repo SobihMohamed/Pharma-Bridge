@@ -20,7 +20,7 @@ namespace PharmaBridge.Shared.DTOs.Order
         public string? CancelReason { get; set; }
 
         public string PaymentMethod { get; set; }
-        public bool PaymentStatus { get; set; }
+        public string PaymentStatus { get; set; }
 
         // Lifecycle timestamps — patient wants to know when key events happened
         public DateTime CreatedAt { get; set; }

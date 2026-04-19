@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PharmaBridge.Shared.Common.Params.Order
 {
-    public class OrderQueryParams
+    public class OrderQueryParams : BaseQueryParam
     {
         // e.g., Preparing, OutForDelivery, Completed, Cancelled
         public OrderStatus? Status { get; set; }

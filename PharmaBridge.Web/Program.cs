@@ -1,14 +1,20 @@
 
+using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
+using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Services.AutoMapper;
+using PharmaBridge.Shared.DTOs.Pharmacy;
+using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
+using Scalar.AspNetCore;
 
 namespace PharmaBridge.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +42,7 @@ namespace PharmaBridge.Web
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference();
             }
             // add middleware for global exception handling
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
@@ -46,7 +53,6 @@ namespace PharmaBridge.Web
            
             app.UseStaticFiles();
             app.MapControllers();
-
             app.Run();
         }
     }
