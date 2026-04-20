@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Patient;
+using PharmaBridge.Shared.DTOs.PatientProfiles;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,22 +11,22 @@ namespace PharmaBridge.Abstraction.IServices.PatientProfiles
     // Handles patient personal info, medical notes, and Admin controls over patient accounts.
     public interface IPatientProfileService
     {
-        // =========================================================================
-        // --- Patient (Client) Operations ---
-        // =========================================================================
+        //  =========================================================================
+        //  --- Patient(Client) Operations ---
+        //  =========================================================================
 
-        // Patient views their own profile details (Name, Phone, Medical Notes, etc.).
-        //Task<PatientProfileDetailsDto> GetMyProfileAsync(Guid patientId);
+        //  Patient views their own profile details(Name, Phone, Medical Notes, etc.).
+        Task<PatientProfileDetailsDto> GetMyProfileAsync(Guid patientId);
 
         // Patient updates their personal info and medical notes.
-        //Task<PatientProfileDetailsDto> UpdateMyProfileAsync(Guid patientId, PatientProfileToUpdateDto updateDto);
+        Task<PatientProfileDetailsDto> UpdateMyProfileAsync(Guid patientId, PatientProfileToUpdateDto updateDto);
 
-        // =========================================================================
-        // --- Admin Operations ---
-        // =========================================================================
+        //  =========================================================================
+        //  --- Admin Operations ---
+        //  =========================================================================
 
-        // Admin views all registered patients with their status and violation history.
-        //Task<Pagination<PatientProfileDto>> GetAllPatientsAsync(PatientQueryParams queryParams);
+        //  Admin views all registered patients with their status and violation history.
+        Task<PaginationResponse<PatientProfileDto>> GetAllPatientsAsync(PatientQueryParams queryParams);
     }
 }
 
