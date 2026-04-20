@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PharmaBridge.Shared.DTOs.PharmaRequestsFlow
+namespace PharmaBridge.Shared.DTOs.PharmaRequests
 {
     public class PrescriptionRequestDto
     {

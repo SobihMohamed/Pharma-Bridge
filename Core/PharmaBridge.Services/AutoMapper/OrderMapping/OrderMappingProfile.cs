@@ -20,8 +20,8 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
         private void MapBidItemToBidItemDto()
         {
             CreateMap<BidItem, BidItemDto>()
-                .ForMember(dest => dest.Id,
-                    opt => opt.MapFrom(src => src.Id))
+                //.ForMember(dest => dest.Id,
+                //    opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.ItemName,
                     opt => opt.MapFrom(src => src.ItemName))
                 .ForMember(dest => dest.UnitPrice,

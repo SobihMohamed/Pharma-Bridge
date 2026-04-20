@@ -24,15 +24,13 @@ namespace PharmaBridge.Web.Controllers
             return Ok(result);
         }
 
-        [HttpPut("{orderId}/status/pharmacy/{pharmacyId}")]
+        [HttpPatch("{orderId}/status/pharmacy/{pharmacyId}")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, int pharmacyId, [FromBody] UpdateOrderStatusDto dto)
         {
             var result = await orderService.UpdateOrderStatusAsync(orderId, dto, pharmacyId);
             return Ok(result);
         }
 
-        // ⚠️ TEMPORARY — only for testing CreateOrderFromBidAsync
-        // Remove this endpoint before merging to develop
         [HttpPost("create-from-bid/{bidId}")]
         public async Task<IActionResult> CreateFromBid(int bidId)
         {
