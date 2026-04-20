@@ -20,7 +20,8 @@ namespace PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up
         ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
         public string Password { get; set; } = null!;
 
-        [Required, Phone]
+        [Required(ErrorMessage = "Phone number is required")]
+        [RegularExpression(@"^01[0125][0-9]{8}$", ErrorMessage = "Invalid phone number. It must be an 11-digit Egyptian number (e.g., 010..., 011..., 012..., 015...).")]
         public string PhoneNumber { get; set; } = null!;
 
         //The Missing Link: Which type of user is registering?
