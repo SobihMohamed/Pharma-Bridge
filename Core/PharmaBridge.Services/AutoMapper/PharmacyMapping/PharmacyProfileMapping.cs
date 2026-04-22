@@ -29,11 +29,14 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                 .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.PharmacyName))
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.AverageRating))
-                .ForMember(dest => dest.IsOpen, opt => opt.MapFrom(src => 
-                    src.Is24Hours || 
+                .ForMember(dest => dest.IsOpen, opt => opt.MapFrom(src =>
+                    src.Is24Hours ||
                     (src.OpenTime.HasValue && src.CloseTime.HasValue &&
-                     TimeOnly.FromDateTime(DateTime.UtcNow) >= src.OpenTime.Value && 
-                     TimeOnly.FromDateTime(DateTime.UtcNow) <= src.CloseTime.Value)));
+                     (src.OpenTime.Value <= src.CloseTime.Value
+                         ? (TimeOnly.FromDateTime(DateTime.UtcNow) >= src.OpenTime.Value &&
+                            TimeOnly.FromDateTime(DateTime.UtcNow) <= src.CloseTime.Value)
+                         : (TimeOnly.FromDateTime(DateTime.UtcNow) >= src.OpenTime.Value ||
+                            TimeOnly.FromDateTime(DateTime.UtcNow) <= src.CloseTime.Value)))));
 
             // Update Mapping (Complete Rewrite)
             CreateMap<PharmacyToUpdateDto, Pharmacy>()
