@@ -36,7 +36,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to register pharmacy profile.");
 
-            return mapper.Map<PharmacyOwnerProfileDto>(pharmacy);
+            var savedPharmacy = await GetPharmacyWithVerificationAsync(pharmacy.Id, userId.ToString());
+            return mapper.Map<PharmacyOwnerProfileDto>(savedPharmacy);
         }
 
         public async Task<PharmacyOwnerProfileDto> GetMyProfileAsync(int pharmacyId, Guid userId)
