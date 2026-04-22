@@ -103,8 +103,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                     ApplicationUser = user // connect the ApplicationUser to the PharmaOwner
                 };
                 await unitOfWork.GetRepository<PharmaOwner, string>().AddAsync(owner);
-                // Important to save changes to ensure owner is created
-                await unitOfWork.SaveChangesAsync();
             }
             else if (owner.Pharmacies != null && owner.Pharmacies.Any())
             {
