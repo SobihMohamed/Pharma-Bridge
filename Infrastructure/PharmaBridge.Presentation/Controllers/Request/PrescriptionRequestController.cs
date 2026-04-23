@@ -31,7 +31,7 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 1. Create a new prescription request
         [HttpPost]
-        public async Task<ActionResult> CreateRequest([FromBody] CreatePrescriptionRequestDto createDto)
+        public async Task<ActionResult> CreateRequest([FromForm] CreatePrescriptionRequestDto createDto)
         {
             var patientId = GetPatientIdFromToken();
             var result = await _prescriptionRequestService.CreateRequestAsync(createDto, patientId);
