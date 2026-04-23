@@ -59,7 +59,7 @@ namespace PharmaBridge.Presentation.Controllers
 
         // GET /api/pharmacy/{pharmacyId}
         [HttpGet("{pharmacyId}")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient,PharmacyOwner")]
         public async Task<IActionResult> GetPharmacyBasicInfo(int pharmacyId)
         {
             var result = await _pharmacyProfileService.GetPharmacyBasicInfoAsync(pharmacyId);
