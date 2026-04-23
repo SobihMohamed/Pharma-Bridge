@@ -10,6 +10,7 @@ using PharmaBridge.Persistence.Implementations.UoWPattern;
 using PharmaBridge.Services.ServicesImplementation.Auth;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using SoftBridge.Services.Services.Token;
+using System.Text.Json.Serialization;
 
 namespace PharmaBridge.Web.Extensions
 {
@@ -22,8 +23,13 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IDbInitializer, DbInitialized>();
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
-            
-            
+
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    // convert the enum from num to string
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             return services;
         }
     }
