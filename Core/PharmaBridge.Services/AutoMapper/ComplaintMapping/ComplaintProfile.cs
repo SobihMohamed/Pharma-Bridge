@@ -1,4 +1,7 @@
-﻿using System;
+﻿using AutoMapper;
+using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.DTOs.Complaint;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,7 +16,6 @@ namespace PharmaBridge.Services.AutoMapper.ComplaintMapping
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.AdminNotes, opt => opt.Ignore())
                 .ForMember(dest => dest.SubmittedById, opt => opt.Ignore())
-                .ForMember(dest => dest.SubmittedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.ResolvedAt, opt => opt.Ignore()) 
                 .ForMember(dest => dest.ResolvedById, opt => opt.Ignore());
         }   

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PharmaBridge.Services.AutoMapper.AuthMapping;
+using PharmaBridge.Services.AutoMapper.ComplaintMapping;
 using PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping;
 using System;
 using System.Collections.Generic;

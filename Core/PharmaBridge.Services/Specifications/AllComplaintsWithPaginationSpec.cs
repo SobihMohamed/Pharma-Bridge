@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
+using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.Common.Params.Complaint;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
