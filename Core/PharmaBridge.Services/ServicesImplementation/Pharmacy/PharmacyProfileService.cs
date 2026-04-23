@@ -28,7 +28,12 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (createDto.LicenseImage != null)
             {
-                var uploadDto = new UploadFileDto { File = createDto.LicenseImage, FolderName = "Images/Profiles/Licenses" };
+                var uploadDto = new UploadFileDto
+                {
+                    File = createDto.LicenseImage,
+                    FolderName = "requests",  // ? changed
+                    UserId = userId           // ? added ? wwwroot/requests/{userId}/
+                };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
 
@@ -65,22 +70,24 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (pharmacy.PharmaOwner.ApplicationUserId != userId)
                 throw new UnAuthorizedCustomeException("You are not authorized to update this profile.");
-            
+
             mapper.Map(updateDto, pharmacy);
 
             if (pharmacy.Status == PharmacyStatus.Active)
-            {
                 pharmacy.Status = PharmacyStatus.Pending;
-            }
 
             if (updateDto.LicenseImage != null)
             {
+                // ? Delete old file first (path already contains userId folder, no changes needed)
                 if (!string.IsNullOrEmpty(pharmacy.LicenseImageUrl))
-                {
                     await attachementService.DeleteFileAsync(pharmacy.LicenseImageUrl);
-                }
 
-                var uploadDto = new UploadFileDto { File = updateDto.LicenseImage, FolderName = "Images/Profiles/Licenses" };
+                var uploadDto = new UploadFileDto
+                {
+                    File = updateDto.LicenseImage,
+                    FolderName = "requests",  // ? changed
+                    UserId = userId           // ? added ? same user folder
+                };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
 
@@ -95,7 +102,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         {
             var spec = new PharmacyForPatientSpec(pharmacyId);
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
-            
+
             if (pharmacy == null)
                 throw new NotFoundCutomeException("Pharmacy not found or not active yet.");
 
@@ -107,7 +114,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             var user = await unitOfWork.GetRepository<ApplicationUser, string>().GetByIdAsync(userId);
             if (user == null)
                 throw new NotFoundCutomeException("User not found.");
-            
+
             if (user.Role != UserRole.PharmacyOwner)
                 throw new UnAuthorizedCustomeException("Only Pharmacy Owners are allowed to register a pharmacy profile.");
 
