@@ -20,16 +20,18 @@ namespace PharmaBridge.Web
 
             // get database config
             builder.Services.InjectDatabaseService(builder.Configuration);
+
             builder.Services.InjectIdentityCore();
             builder.Services.AddApplicationService();
+
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
-            builder.Services.AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    // convert the enum from num to string
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
+
+            // Custom Extensions (Security & CORS)
+            builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
+            builder.Services.AddCustomCors(builder.Configuration);
+
+
             builder.Services.AddDataProtection();
 
             // 💡 swagger configuration (Clean & Simple)

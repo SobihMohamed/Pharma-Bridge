@@ -4,38 +4,38 @@ using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Shared.Common.Params.Order;
 using PharmaBridge.Shared.DTOs.Order;
 
-namespace PharmaBridge.Web.Controllers
+namespace PharmaBridge.Presentation.Controllers.Order
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class OrderController(IOrderService orderService) : ControllerBase
+    public class OrderController(IOrderService orderService) : AppBaseController
     {
         [HttpGet("pharmacy/{pharmacyId}")]
-        public async Task<IActionResult> GetPharmacyOrders(int pharmacyId, [FromQuery] OrderQueryParams queryParams)
+        public async Task<IActionResult> GetPharmacyOrders(
+            int pharmacyId, [FromQuery] OrderQueryParams queryParams)
         {
             var result = await orderService.GetPharmacyOrdersAsync(pharmacyId, queryParams);
-            return Ok(result);
+            return Success(result);
         }
 
         [HttpGet("{orderId}/pharmacy/{pharmacyId}")]
         public async Task<IActionResult> GetPharmacyOrderDetails(int orderId, int pharmacyId)
         {
             var result = await orderService.GetPharmacyOrderDetailsAsync(orderId, pharmacyId);
-            return Ok(result);
+            return Success(result);
         }
 
         [HttpPatch("{orderId}/status/pharmacy/{pharmacyId}")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, int pharmacyId, [FromBody] UpdateOrderStatusDto dto)
+        public async Task<IActionResult> UpdateOrderStatus(
+            int orderId, int pharmacyId, [FromBody] UpdateOrderStatusDto dto)
         {
             var result = await orderService.UpdateOrderStatusAsync(orderId, dto, pharmacyId);
-            return Ok(result);
+            return Success(result, "Order status updated successfully");
         }
 
         [HttpPost("create-from-bid/{bidId}")]
         public async Task<IActionResult> CreateFromBid(int bidId)
         {
             var result = await orderService.CreateOrderFromBidAsync(bidId);
-            return Ok(result);
+            return Created(result, "Order created successfully");
         }
     }
 }
