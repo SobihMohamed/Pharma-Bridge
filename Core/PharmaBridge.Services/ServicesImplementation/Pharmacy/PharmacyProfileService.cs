@@ -78,7 +78,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (updateDto.LicenseImage != null)
             {
-                // ? Delete old file first (path already contains userId folder, no changes needed)
                 if (!string.IsNullOrEmpty(pharmacy.LicenseImageUrl))
                     await attachementService.DeleteFileAsync(pharmacy.LicenseImageUrl);
 
