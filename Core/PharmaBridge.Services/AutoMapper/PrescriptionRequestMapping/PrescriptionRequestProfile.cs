@@ -17,6 +17,7 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
             // 1 - Mapping From Creation Dto to Entity (Input)
             CreateMap<CreatePrescriptionRequestDto, PrescriptionRequestEntity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
                 .ForMember(dest => dest.Status, opt => opt.Ignore()) // Status is set to Pending by default in the entity
                 .ForMember(dest => dest.ExpiresAt, opt => opt.Ignore()) // system 
                 .ForMember(dest => dest.Order, opt => opt.Ignore()) // Order is null when creating a new request
