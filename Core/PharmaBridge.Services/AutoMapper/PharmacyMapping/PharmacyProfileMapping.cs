@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.DTOs.Pharmacy;
@@ -55,6 +55,8 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                 .ForMember(dest => dest.PharmaOwner, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.OpenTime, opt => opt.MapFrom(src => src.OpenTime))
+                .ForMember(dest => dest.CloseTime, opt => opt.MapFrom(src => src.CloseTime))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

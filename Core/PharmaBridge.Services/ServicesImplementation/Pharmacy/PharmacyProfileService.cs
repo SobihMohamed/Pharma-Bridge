@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
@@ -22,6 +22,9 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         {
             var owner = await ValidatePharmacyRegistrationAsync(userId);
 
+            // ✅ Validate working hours before mapping
+            ValidateWorkingHours(createDto.Is24Hours, createDto.OpenTime, createDto.CloseTime);
+
             var pharmacy = mapper.Map<Domain.Models.Pharma_Requests.Pharmacy>(createDto);
             pharmacy.PharmaOwnerId = owner.Id;
             pharmacy.Status = PharmacyStatus.Pending;
@@ -31,8 +34,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 var uploadDto = new UploadFileDto
                 {
                     File = createDto.LicenseImage,
-                    FolderName = "requests",  // ? changed
-                    UserId = userId           // ? added ? wwwroot/requests/{userId}/
+                    FolderName = "requests",
+                    UserId = userId
                 };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
@@ -71,6 +74,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (pharmacy.PharmaOwner.ApplicationUserId != userId)
                 throw new UnAuthorizedCustomeException("You are not authorized to update this profile.");
 
+            ValidateWorkingHours(updateDto.Is24Hours, updateDto.OpenTime, updateDto.CloseTime);
+
             mapper.Map(updateDto, pharmacy);
 
             if (pharmacy.Status == PharmacyStatus.Active)
@@ -84,8 +89,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 var uploadDto = new UploadFileDto
                 {
                     File = updateDto.LicenseImage,
-                    FolderName = "requests",  // ? changed
-                    UserId = userId           // ? added ? same user folder
+                    FolderName = "requests",
+                    UserId = userId
                 };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
@@ -106,6 +111,24 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 throw new NotFoundCutomeException("Pharmacy not found or not active yet.");
 
             return mapper.Map<PharmacyDto>(pharmacy);
+        }
+
+        // ✅ New private method — called in both Register and Update
+        private void ValidateWorkingHours(bool is24Hours, TimeOnly? openTime, TimeOnly? closeTime)
+        {
+            // Rule 1: If 24 hours → ignore times completely
+            if (is24Hours) return;
+
+            // Rule 2: Both must be provided together or both empty
+            if (openTime.HasValue && !closeTime.HasValue)
+                throw new BadRequestCustomeException("CloseTime is required when OpenTime is provided.");
+
+            if (!openTime.HasValue && closeTime.HasValue)
+                throw new BadRequestCustomeException("OpenTime is required when CloseTime is provided.");
+
+            // Rule 3: OpenTime and CloseTime cannot be equal
+            if (openTime.HasValue && closeTime.HasValue && openTime.Value == closeTime.Value)
+                throw new BadRequestCustomeException("OpenTime and CloseTime cannot be the same.");
         }
 
         private async Task<PharmaOwner> ValidatePharmacyRegistrationAsync(string userId)
