@@ -11,11 +11,12 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
     {
         public PharmacyProfileMapping()
         {
-            // Create Mapping
+            // A. PharmacyToCreateDto -> Pharmacy
             CreateMap<PharmacyToCreateDto, Pharmacy>()
-                .ForMember(dest => dest.LicenseImageUrl, opt => opt.Ignore()); // Handled manually via AttachmentService
+                .ForMember(dest => dest.LicenseImageUrl, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
 
-            // Owner Mapping
+            // B. Pharmacy -> PharmacyOwnerProfileDto
             CreateMap<Pharmacy, PharmacyOwnerProfileDto>()
                 .ForMember(dest => dest.OwnerName, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.FullName))
                 .ForMember(dest => dest.OwnerEmail, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.Email))
@@ -24,11 +25,14 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                 .ForMember(dest => dest.CloseTime, opt => opt.MapFrom(src => src.CloseTime.HasValue ? src.CloseTime.Value.ToString("HH:mm") : null))
                 .ForMember(dest => dest.LicenseImageUrl, opt => opt.MapFrom<PictureResolver<Pharmacy, PharmacyOwnerProfileDto>, string>(src => src.LicenseImageUrl));
 
-            // Patient Mapping
-            CreateMap<Pharmacy, PharmacyBasicDto>()
+            // C. Pharmacy -> PharmacyDto (patient-safe, data-masked)
+            CreateMap<Pharmacy, PharmacyDto>()
                 .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.PharmacyName))
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area))
+                .ForMember(dest => dest.TextAddress, opt => opt.MapFrom(src => src.TextAddress))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.AverageRating))
+                .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
+                .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
                 .ForMember(dest => dest.IsOpen, opt => opt.MapFrom(src =>
                     src.Is24Hours ||
                     (src.OpenTime.HasValue && src.CloseTime.HasValue &&
@@ -38,14 +42,19 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                          : (TimeOnly.FromDateTime(DateTime.UtcNow) >= src.OpenTime.Value ||
                             TimeOnly.FromDateTime(DateTime.UtcNow) <= src.CloseTime.Value)))));
 
-            // Update Mapping (Complete Rewrite)
+            // D. PharmacyToUpdateDto -> Pharmacy
             CreateMap<PharmacyToUpdateDto, Pharmacy>()
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.GeneralArea))
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.LicenseImageUrl, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.LicenseNumber, opt => opt.Ignore())
                 .ForMember(dest => dest.PharmaOwnerId, opt => opt.Ignore())
+                .ForMember(dest => dest.AverageRating, opt => opt.Ignore())
+                .ForMember(dest => dest.CompleteOrderCount, opt => opt.Ignore())
+                .ForMember(dest => dest.RejectedReasons, opt => opt.Ignore())
                 .ForMember(dest => dest.PharmaOwner, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

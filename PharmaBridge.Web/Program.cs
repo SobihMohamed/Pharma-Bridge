@@ -30,7 +30,8 @@ namespace PharmaBridge.Web
             // inject automapper
             builder.Services.InjectAutoMapperService();
             // Add services to the container.
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+             .AddApplicationPart(typeof(PharmaBridge.Presentation.Controllers.PharmacyController).Assembly);
             // Add Data Protection services
             builder.Services.AddDataProtection();
 
