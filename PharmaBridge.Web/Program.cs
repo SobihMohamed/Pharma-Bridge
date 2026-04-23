@@ -1,16 +1,19 @@
 
 using PharmaBridge.Abstraction.IServices.Attachement;
+
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
-using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Persistence.ProgramService;
+using PharmaBridge.Presentation.Extensions; 
 using PharmaBridge.Services.AutoMapper;
-using PharmaBridge.Shared.DTOs.Pharmacy;
-using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
 using Scalar.AspNetCore;
 using PharmaBridge.Services.ServicesImplementation.Attachement;
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace PharmaBridge.Web
 {
     public class Program
@@ -21,37 +24,46 @@ namespace PharmaBridge.Web
 
             // get database config
             builder.Services.InjectDatabaseService(builder.Configuration);
-            // get from identity Layer in web project (Identity Core)
             builder.Services.InjectIdentityCore();
-            // get th application services 
             builder.Services.AddApplicationService();
             builder.Services.AddScoped<IAttachementService, AttachmentService>();
             builder.Services.InjectRateLimiting();
-            // inject automapper
             builder.Services.InjectAutoMapperService();
-            // Add services to the container.
+
+            // Add controllers, application parts (Scalar fix), and JSON options (Enum fix) all together
             builder.Services.AddControllers()
-             .AddApplicationPart(typeof(PharmaBridge.Presentation.Controllers.PharmacyController).Assembly);
-            // Add Data Protection services
+                .AddApplicationPart(typeof(PharmaBridge.Presentation.Controllers.PharmacyController).Assembly)
+                .AddJsonOptions(options =>
+                {
+                    // convert the enum from num to string
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
+            // Add Data Protection services (Only once)
             builder.Services.AddDataProtection();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            // 💡 swagger configuration (Clean & Simple)
+            builder.Services.AddSwaggerDocumentation();
+
             var app = builder.Build();
+            await app.SeedDatabaseAsync();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.UseSwaggerDocumentation();
             }
+
             // add middleware for global exception handling
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
-           
+
             app.UseStaticFiles();
             app.MapControllers();
             app.Run();

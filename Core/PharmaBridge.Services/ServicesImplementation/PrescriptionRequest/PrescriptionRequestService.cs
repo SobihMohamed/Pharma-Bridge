@@ -2,11 +2,14 @@
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
+using PharmaBridge.Domain.Exceptions.NotFoundHandeler.Request;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Services.Specifications;
+using PharmaBridge.Services.Specifications.Request;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
-using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
@@ -14,7 +17,7 @@ using System.Text;
 
 namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 {
-    public class PrescriptionRequestService(IUnitOfWork unitOfWork , IMapper mapper) : IPrescriptionRequestService
+    public class PrescriptionRequestService(IUnitOfWork unitOfWork, IMapper mapper) : IPrescriptionRequestService
     {
         public async Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientIdGuid)
         {
@@ -23,16 +26,16 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             ValidateRequestInput(createDto);
 
             // 2 - validate the delivery address id exist and belong to the patient
-            await GetValidAddressAsync(createDto.DeliveryAddressId, PatientId);
+            var patientAddress = await GetValidAddressAsync(createDto.DeliveryAddressId, PatientId);
 
             // 3 - create the Prescription Request Object to send to Db 
             var request = BuidPrescriptionRequestEntity(createDto, PatientId);
-          
+            request.DeliveryAddress = patientAddress;
             // 4 - Get the Repo of the request
             await unitOfWork.GetRepository<PrescriptionRequestEntity, int>().AddAsync(request);
-
             var result = await unitOfWork.SaveChangesAsync();
-            if(result <= 0) throw new BadRequestCustomeException("Failed to create prescription request");
+
+            if (result <= 0) throw new BadRequestCustomeException("Failed to create prescription request");
 
             // 5 - Map the result to PrescriptionRequestDto to send it to client 
             var requestDto = mapper.Map<PrescriptionRequestDto>(request);
@@ -67,16 +70,59 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             });
             return request;
         }
-        private async Task GetValidAddressAsync(int addressId, string patientId) 
+        private async Task<PatientAddress> GetValidAddressAsync(int addressId, string patientId)
         {
-            // 1 - Data Check Address Id exist and belong to the patient =>  where patient.addressid == createDto.DeliveryAddressId 
             var addressSpec = new PatientAddressWithPatientprofileSpec(addressId, patientId);
+            var addressRepo = unitOfWork.GetRepository<PatientAddress, int>();
 
-            // 2 - get the repo and send query to databse
-            var AddressRepo = unitOfWork.GetRepository<PatientAddress, int>();
-            var deliveryAddress = await AddressRepo.GetByIdWithSpecAsync(addressSpec);
+            var deliveryAddress = await addressRepo.GetByIdWithSpecAsync(addressSpec);
             if (deliveryAddress == null) throw new UnAuthorizedCustomeException();
+
+            return deliveryAddress; 
         }
         #endregion
+        public async Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams)
+        {
+            var patientIdStr =  patientId.ToString();
+            var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+
+            // create the specification 
+            var dataSpec = new PatientRequestWithAddressandBidsSpec(patientIdStr, queryParams);
+            var countSpec = new PatientRequestWithAddressandBidsCountSpec(patientIdStr, queryParams);
+
+            // excute queries in database 
+            var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
+            var totalCount = await requestRepo.GetCountAsync(countSpec);
+
+            // map the result to Dto
+            var mappedRequests = mapper.Map<IReadOnlyList<PrescriptionRequestDto>>(requests);
+            return new PaginationResponse<PrescriptionRequestDto>
+            (
+                index :queryParams.PageIndex,
+                size : queryParams.PageSize,
+                total : totalCount,
+                data : mappedRequests
+            );
+        }
+
+        public async Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(int requestId, Guid patientId)
+        {
+            var patientIdStr = patientId.ToString();
+
+            // spec 
+            var spec = new PatientRequestDetailsWithIncludesSpec(requestId, patientIdStr);
+
+            // rep 
+            var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+            var requestDetails = requestRepo.GetByIdWithSpecAsync(spec);
+
+            if (requestDetails == null)
+            {
+                throw new RequestNotFoundException("Prescription Request Not Found");
+            }
+
+            return mapper.Map<PrescriptionRequestDetailsDto>(requestDetails);
+        }
+
     }
 }

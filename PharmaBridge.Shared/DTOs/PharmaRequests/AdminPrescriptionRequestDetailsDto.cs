@@ -1,5 +1,4 @@
-﻿using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
-using PharmaBridge.Shared.DTOs.PrescriptionRequestHistory;
+﻿using PharmaBridge.Shared.DTOs.PrescriptionRequestHistory;
 using System;
 using System.Collections.Generic;
 using System.Text;

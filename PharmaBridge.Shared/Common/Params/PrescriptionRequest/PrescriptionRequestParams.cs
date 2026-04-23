@@ -17,7 +17,6 @@ namespace PharmaBridge.Shared.Common.Params.PrescriptionRequest
         // Specifically for Pharmacy to filter by distance (Defaults to 5km if not provided)
         public double? RadiusInKm { get; set; } = 5.0;
 
-        // For Admin to filter requests of a specific patient
-        public Guid? PatientId { get; set; }
+
     }
 }
