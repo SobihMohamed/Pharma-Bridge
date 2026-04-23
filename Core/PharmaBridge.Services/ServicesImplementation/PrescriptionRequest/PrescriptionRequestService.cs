@@ -19,29 +19,6 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 {
     public class PrescriptionRequestService(IUnitOfWork unitOfWork, IMapper mapper) : IPrescriptionRequestService
     {
-        public async Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientIdGuid)
-        {
-            var PatientId = patientIdGuid.ToString();
-            // 1 - validate the input form user 
-            ValidateRequestInput(createDto);
-
-            // 2 - validate the delivery address id exist and belong to the patient
-            var patientAddress = await GetValidAddressAsync(createDto.DeliveryAddressId, PatientId);
-
-            // 3 - create the Prescription Request Object to send to Db 
-            var request = BuidPrescriptionRequestEntity(createDto, PatientId);
-            request.DeliveryAddress = patientAddress;
-            // 4 - Get the Repo of the request
-            await unitOfWork.GetRepository<PrescriptionRequestEntity, int>().AddAsync(request);
-            var result = await unitOfWork.SaveChangesAsync();
-
-            if (result <= 0) throw new BadRequestCustomeException("Failed to create prescription request");
-
-            // 5 - Map the result to PrescriptionRequestDto to send it to client 
-            var requestDto = mapper.Map<PrescriptionRequestDto>(request);
-            return requestDto;
-
-        }
         #region Helper Methods In CreateRequest Service
         private void ValidateRequestInput(CreatePrescriptionRequestDto requestDto) 
         {
@@ -81,6 +58,29 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             return deliveryAddress; 
         }
         #endregion
+        public async Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientIdGuid)
+        {
+            var PatientId = patientIdGuid.ToString();
+            // 1 - validate the input form user 
+            ValidateRequestInput(createDto);
+
+            // 2 - validate the delivery address id exist and belong to the patient
+            var patientAddress = await GetValidAddressAsync(createDto.DeliveryAddressId, PatientId);
+
+            // 3 - create the Prescription Request Object to send to Db 
+            var request = BuidPrescriptionRequestEntity(createDto, PatientId);
+            request.DeliveryAddress = patientAddress;
+            // 4 - Get the Repo of the request
+            await unitOfWork.GetRepository<PrescriptionRequestEntity, int>().AddAsync(request);
+            var result = await unitOfWork.SaveChangesAsync();
+
+            if (result <= 0) throw new BadRequestCustomeException("Failed to create prescription request");
+
+            // 5 - Map the result to PrescriptionRequestDto to send it to client 
+            var requestDto = mapper.Map<PrescriptionRequestDto>(request);
+            return requestDto;
+
+        }
         public async Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams)
         {
             var patientIdStr =  patientId.ToString();
