@@ -8,7 +8,7 @@ using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
-using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 namespace PharmaBridge.Web
 {
@@ -24,7 +24,12 @@ namespace PharmaBridge.Web
             builder.Services.AddApplicationService();
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    // convert the enum from num to string
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             builder.Services.AddDataProtection();
 
             // 💡 swagger configuration (Clean & Simple)
