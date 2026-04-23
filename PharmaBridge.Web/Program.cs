@@ -42,9 +42,7 @@ namespace PharmaBridge.Web
             // Add Data Protection services (Only once)
             builder.Services.AddDataProtection();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-
+           
             // 💡 swagger configuration (Clean & Simple)
             builder.Services.AddSwaggerDocumentation();
 
