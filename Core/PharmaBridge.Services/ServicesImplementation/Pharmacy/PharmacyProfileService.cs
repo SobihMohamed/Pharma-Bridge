@@ -126,19 +126,13 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         // ✅ New private method — called in both Register and Update
         private void ValidateWorkingHours(bool is24Hours, TimeOnly? openTime, TimeOnly? closeTime)
         {
-            // Rule 1: If 24 hours → ignore times completely
             if (is24Hours) return;
 
-            // Rule 2: Both must be provided together or both empty
-            if (openTime.HasValue && !closeTime.HasValue)
-                throw new BadRequestCustomeException("CloseTime is required when OpenTime is provided.");
+            if (!openTime.HasValue || !closeTime.HasValue)
+                throw new BadRequestCustomeException("Opening and closing times must be specified as long as the pharmacy does not operate 24 hours a day.");
 
-            if (!openTime.HasValue && closeTime.HasValue)
-                throw new BadRequestCustomeException("OpenTime is required when CloseTime is provided.");
-
-            // Rule 3: OpenTime and CloseTime cannot be equal
-            if (openTime.HasValue && closeTime.HasValue && openTime.Value == closeTime.Value)
-                throw new BadRequestCustomeException("OpenTime and CloseTime cannot be the same.");
+            if (openTime.Value == closeTime.Value)
+                throw new BadRequestCustomeException("The opening and closing times cannot be identical.");
         }
 
         private async Task<PharmaOwner> ValidatePharmacyRegistrationAsync(string userId)

@@ -45,7 +45,7 @@ namespace PharmaBridge.Presentation.Controllers
         }
 
         // PUT /api/pharmacy/my-profile/{pharmacyId}
-        [HttpPut("my-profile/{pharmacyId}")]
+        [HttpPatch("my-profile/{pharmacyId}")]
         [Authorize(Roles = "PharmacyOwner")]
         public async Task<IActionResult> UpdateMyProfile(int pharmacyId, [FromForm] PharmacyToUpdateDto updateDto)
         {
