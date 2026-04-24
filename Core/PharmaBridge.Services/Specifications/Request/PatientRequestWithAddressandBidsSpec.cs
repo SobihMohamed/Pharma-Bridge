@@ -15,6 +15,7 @@ namespace PharmaBridge.Services.Specifications.Request
                   request => request.PatientProfileId == patientId &&
                   // optional filters
                   (!queryParams.Status.HasValue || request.Status == queryParams.Status.Value) &&
+                  (string.IsNullOrEmpty(queryParams.Search) || request.MedicineName!.Contains(queryParams.Search)) &&
                   (!queryParams.FromDate.HasValue || request.CreatedAt >= queryParams.FromDate.Value) && 
                   (!queryParams.ToDate.HasValue || request.CreatedAt <= queryParams.ToDate.Value)
             )
