@@ -9,7 +9,7 @@ namespace PharmaBridge.Presentation.Controllers
 {
     [Route("api/pharmacy")]
     [ApiController]
-    public class PharmacyController : ControllerBase
+    public class PharmacyController : AppBaseController
     {
         private readonly IPharmacyProfileService _pharmacyProfileService;
 

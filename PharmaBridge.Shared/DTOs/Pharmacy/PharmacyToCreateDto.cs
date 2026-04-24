@@ -29,12 +29,13 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         public TimeOnly? OpenTime { get; set; }
         public TimeOnly? CloseTime { get; set; }
         public bool Is24Hours { get; set; }
-    
+        [Required]
         [MaxLength(500)]
         public string? TextAddress { get; set; } // not shown to user
         [MaxLength(15)]
         [RegularExpression(@"^[a-zA-Z\u0600-\u06FF\s]+$",
     ErrorMessage = "Area must contain letters only, no numbers or special characters.")]
+        [Required]
         public string? Area {get; set;} // which shown in the pharamcyDto for user only
         
         [Phone]

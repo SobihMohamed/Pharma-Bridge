@@ -160,8 +160,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (owner.Status != PharmaOwnerStatus.Approved)
                 throw new BadRequestCustomeException("Your owner account is not yet approved by the admin.");
             //To DO 
-            //if (owner.Pharmacies != null && owner.Pharmacies.Any())
-            //    throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
+            if (owner.Pharmacies != null && owner.Pharmacies.Any())
+                throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
 
             return owner;
         }

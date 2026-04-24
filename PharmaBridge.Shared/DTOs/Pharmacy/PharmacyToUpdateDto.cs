@@ -31,6 +31,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         public bool Is24Hours { get; set; }
     
         [MaxLength(500)]
+        [Required]
         public string? TextAddress { get; set; }
     
         [Phone]
