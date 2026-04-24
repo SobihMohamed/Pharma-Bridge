@@ -1,5 +1,8 @@
-using PharmaBridge.Abstraction.IServices.Attachement;
+using PharmaBridge.Abstraction.IServices.Order;
+using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.Auth;
+using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Abstraction.IServices.Token;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
@@ -18,6 +21,7 @@ using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
 using SoftBridge.Services.Services.Token;
 using System.Text.Json.Serialization;
+using PharmaBridge.Abstraction.IServices.Attachement;
 
 namespace PharmaBridge.Web.Extensions
 {

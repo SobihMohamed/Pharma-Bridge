@@ -1,3 +1,8 @@
+
+using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Persistence.Extensions;
@@ -51,8 +56,7 @@ namespace PharmaBridge.Web
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwaggerDocumentation();
-            }
+                app.UseSwaggerDocumentation();            }
             app.UseCors("DevPolicy");
             // add middleware for global exception handling
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
