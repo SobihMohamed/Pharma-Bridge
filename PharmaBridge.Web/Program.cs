@@ -1,14 +1,12 @@
-
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
-using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Persistence.ProgramService;
+using PharmaBridge.Presentation.Extensions; 
 using PharmaBridge.Services.AutoMapper;
-using PharmaBridge.Shared.DTOs.Pharmacy;
-using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
-using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 namespace PharmaBridge.Web
 {
@@ -20,37 +18,39 @@ namespace PharmaBridge.Web
 
             // get database config
             builder.Services.InjectDatabaseService(builder.Configuration);
-            // get from identity Layer in web project (Identity Core)
+
             builder.Services.InjectIdentityCore();
-            // get th application services 
             builder.Services.AddApplicationService();
-            // inject the Rate Limiting Service
+
             builder.Services.InjectRateLimiting();
-            // inject automapper
             builder.Services.InjectAutoMapperService();
-            // Add services to the container.
-            builder.Services.AddControllers();
-            // Add Data Protection services
+
+            // Custom Extensions (Security & CORS)
+            builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
+            builder.Services.AddCustomCors(builder.Configuration);
+
+
             builder.Services.AddDataProtection();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            // 💡 swagger configuration (Clean & Simple)
+            builder.Services.AddSwaggerDocumentation();
 
             var app = builder.Build();
+            await app.SeedDatabaseAsync();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.UseSwaggerDocumentation();
             }
+
             // add middleware for global exception handling
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
-           
+
             app.UseStaticFiles();
             app.MapControllers();
             app.Run();
