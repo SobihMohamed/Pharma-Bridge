@@ -1,5 +1,6 @@
-﻿using PharmaBridge.Shared.DTOs.PharmaRequests;
-using PharmaBridge.Shared.DTOs.PharmaRequestsFlow;
+﻿using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
+using PharmaBridge.Shared.DTOs.PharmaRequests;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,10 +15,10 @@ namespace PharmaBridge.Abstraction.IServices.PrescriptionRequest
         Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid patientId);
 
         // Patient can view all their past and current requests with filtering.
-        //Task<Pagination<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams); 
+        Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams);
 
         // View full details of a specific request (including attached images/notes).
-        //Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(Guid requestId, Guid patientId);
+        Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(int requestId, Guid patientId);
 
         // Patient can cancel the request BEFORE accepting any bids.
         //Task<bool> CancelRequestAsync(Guid requestId, Guid patientId);

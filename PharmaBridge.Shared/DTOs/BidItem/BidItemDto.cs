@@ -6,8 +6,6 @@ namespace PharmaBridge.Shared.DTOs.BidItem
 {
     public class BidItemDto
     {
-        public int Id { get; set; }
-
         public string ItemName { get; set; }
 
         public decimal UnitPrice { get; set; }
