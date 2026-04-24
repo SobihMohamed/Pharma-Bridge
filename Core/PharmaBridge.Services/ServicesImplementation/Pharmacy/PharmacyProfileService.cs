@@ -79,14 +79,26 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
 
             if (pharmacy == null)
-                throw new NotFoundCutomeException("Pharmacy not found");
+                throw new NotFoundCutomeException("Pharmacy not found.");
 
             if (pharmacy.PharmaOwner.ApplicationUserId != userId)
                 throw new UnAuthorizedCustomeException("You are not authorized to update this profile.");
 
-            ValidateWorkingHours(updateDto.Is24Hours, updateDto.OpenTime, updateDto.CloseTime);
+            if (pharmacy.Status == PharmacyStatus.Pending)
+                throw new BadRequestCustomeException("You cannot update the pharmacy profile while it is under review by the administration. Please wait for a response.");
+
+            if (!string.IsNullOrEmpty(updateDto.ContactPhone) && updateDto.ContactPhone != pharmacy.ContactPhone)
+            {
+                var isPhoneExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
+                    .AnyAsync(p => p.ContactPhone == updateDto.ContactPhone);
+
+                if (isPhoneExist)
+                    throw new BadRequestCustomeException("The new phone number is already registered to another pharmacy.");
+            }
 
             mapper.Map(updateDto, pharmacy);
+
+            ValidateWorkingHours(pharmacy.Is24Hours, pharmacy.OpenTime, pharmacy.CloseTime);
 
             if (pharmacy.Status == PharmacyStatus.Active)
                 pharmacy.Status = PharmacyStatus.Pending;
@@ -105,6 +117,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
 
+            // Update the entity in the database
             unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().UpdateAsync(pharmacy);
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to update pharmacy profile.");

@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Shared.DTOs.Pharmacy;
-
 namespace PharmaBridge.Presentation.Controllers
 {
     [Route("api/pharmacy")]
@@ -25,10 +24,11 @@ namespace PharmaBridge.Presentation.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+                return UnauthorizedError(); 
 
             var result = await _pharmacyProfileService.RegisterPharmacyProfileAsync(createDto, userId);
-            return Ok(result);
+
+            return Created(result, "The pharmacy has been successfully registered and is now under review.");
         }
 
         // GET /api/pharmacy/my-profile/{pharmacyId}
@@ -38,23 +38,25 @@ namespace PharmaBridge.Presentation.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+                return UnauthorizedError();
 
             var result = await _pharmacyProfileService.GetMyProfileAsync(pharmacyId, userId);
-            return Ok(result);
+
+            return Success(result);
         }
 
-        // PUT /api/pharmacy/my-profile/{pharmacyId}
+        // PATCH /api/pharmacy/my-profile/{pharmacyId}
         [HttpPatch("my-profile/{pharmacyId}")]
         [Authorize(Roles = "PharmacyOwner")]
         public async Task<IActionResult> UpdateMyProfile(int pharmacyId, [FromForm] PharmacyToUpdateDto updateDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+                return UnauthorizedError();
 
             var result = await _pharmacyProfileService.UpdateMyProfileAsync(pharmacyId, updateDto, userId);
-            return Ok(result);
+
+            return Success(result, "The pharmacy data has been successfully updated.");
         }
 
         // GET /api/pharmacy/{pharmacyId}
@@ -63,7 +65,7 @@ namespace PharmaBridge.Presentation.Controllers
         public async Task<IActionResult> GetPharmacyBasicInfo(int pharmacyId)
         {
             var result = await _pharmacyProfileService.GetPharmacyBasicInfoAsync(pharmacyId);
-            return Ok(result);
+            return Success(result);
         }
     }
 }
