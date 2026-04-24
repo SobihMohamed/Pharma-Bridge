@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Linq.Expressions;
 namespace PharmaBridge.Domain.Contracts.GenericReposPattern
 {
     public interface IGenericRepo<TEntity , TKey> where TEntity : IEntity<TKey>
@@ -28,5 +28,6 @@ namespace PharmaBridge.Domain.Contracts.GenericReposPattern
 
         // Count 
         Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications);
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

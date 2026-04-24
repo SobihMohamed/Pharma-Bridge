@@ -24,6 +24,16 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             // ✅ Validate working hours before mapping
             ValidateWorkingHours(createDto.Is24Hours, createDto.OpenTime, createDto.CloseTime);
+            //Verify the uniqueness of the license number 
+            var isLicenseExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
+             .AnyAsync(p => p.LicenseNumber == createDto.LicenseNumber);
+            if (isLicenseExist)
+                throw new BadRequestCustomeException("This license number is already registered to another pharmacy.");
+            //Verifying the uniqueness of the pharmacy's telephone number
+            var isPhoneExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
+            .AnyAsync(p => p.ContactPhone == createDto.ContactPhone);
+            if (isPhoneExist)
+                throw new BadRequestCustomeException("The pharmacy's phone number is already registered.");
 
             var pharmacy = mapper.Map<Domain.Models.Pharma_Requests.Pharmacy>(createDto);
             pharmacy.PharmaOwnerId = owner.Id;
@@ -34,7 +44,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 var uploadDto = new UploadFileDto
                 {
                     File = createDto.LicenseImage,
-                    FolderName = "requests",
+                    FolderName = $"requests/{userId}",
                     UserId = userId
                 };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
@@ -89,7 +99,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 var uploadDto = new UploadFileDto
                 {
                     File = updateDto.LicenseImage,
-                    FolderName = "requests",
+                    FolderName = $"requests/{userId}",
                     UserId = userId
                 };
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
@@ -149,9 +159,9 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (owner.Status != PharmaOwnerStatus.Approved)
                 throw new BadRequestCustomeException("Your owner account is not yet approved by the admin.");
-
-            if (owner.Pharmacies != null && owner.Pharmacies.Any())
-                throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
+            //To DO 
+            //if (owner.Pharmacies != null && owner.Pharmacies.Any())
+            //    throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
 
             return owner;
         }

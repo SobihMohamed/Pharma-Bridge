@@ -7,6 +7,7 @@ using PharmaBridge.Persistence.Evaluator;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace PharmaBridge.Persistence.Implementations.ReposPattern
@@ -47,6 +48,10 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
             var BaseQuery = _dbSet.AsNoTracking();
             var Query = SpecificationEvaluator.GenerateQuery(BaseQuery, specifications);
             return await Query.CountAsync();
+        }
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
         }
     }
 }
