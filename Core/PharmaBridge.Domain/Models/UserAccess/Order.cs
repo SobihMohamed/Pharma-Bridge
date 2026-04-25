@@ -1,5 +1,6 @@
 ﻿using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,8 @@ namespace PharmaBridge.Domain.Models.UserAccess
         public decimal Amount { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public string? CancelReason { get; set; }
-        public string PaymentMethod { get; set; }
-        public bool PaymentStatus { get; set; }
+        public PaymentMethodType PaymentMethod { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public DateTime? CancelledAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
         public DateTime? CompletedAt { get; set; }
