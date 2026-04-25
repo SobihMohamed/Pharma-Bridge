@@ -130,7 +130,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
         #region Helper Methods In Complaint Service
         private void ValidateRequestInput(CreateComplaintDto requestDto)
         {
-            if (string.IsNullOrEmpty(requestDto.Title) && string.IsNullOrEmpty(requestDto.Description))
+            if (string.IsNullOrEmpty(requestDto.Title) || string.IsNullOrEmpty(requestDto.Description))
             {
                 throw new BadRequestCustomeException("Please Write the Title and Description");
             }
@@ -173,6 +173,11 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
             if (!string.IsNullOrWhiteSpace(adminNotes))
             {
                 complaint.AdminNotes = adminNotes;
+            }
+            if (newStatus == ComplaintStatus.Resolved || newStatus == ComplaintStatus.Rejected)
+            {
+                complaint.ResolvedAt = DateTime.UtcNow;
+                complaint.ResolvedById = adminId;
             }
         }
         private async Task<Domain.Models.UserAccess.Complaint> GetComplaintOrThrowAsync(int id, ISpecifications<Domain.Models.UserAccess.Complaint, int>? spec = null)
