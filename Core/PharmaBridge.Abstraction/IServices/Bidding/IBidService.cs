@@ -1,4 +1,8 @@
-﻿namespace PharmaBridge.Abstraction.IServices.Bidding
+﻿using PharmaBridge.Shared.Common.Params.Bid;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.DTOs.Bid;
+
+namespace PharmaBridge.Abstraction.IServices.Bidding
 {
     // This interface defines the contract for the Bidding workflow.
     // Handles pharmacies submitting bids (prices & items) for prescription requests 
@@ -9,13 +13,13 @@
 
         // Pharmacy submits a bid containing multiple BidItems (prices, notes) for a specific request.
         // Triggers PrescriptionRequest status update to 'HasBids'.
-        //Task<BidDetailsDto> CreateBidAsync(CreateBidDto createBidDto, Guid pharmacyId);
+        Task<BidDetailsDto> CreateBidAsync(CreateBidDto createBidDto, int pharmacyId);
 
         // Pharmacy can update their bid (e.g., adjust price) BEFORE the patient accepts it.
         //Task<BidDetailsDto> UpdateBidAsync(UpdateBidDto updateBidDto, Guid pharmacyId);
 
         // Pharmacy can view all their submitted bids with filtering options.
-        //Task<Pagination<BidDto>> GetPharmacyBidsAsync(Guid pharmacyId, BidQueryParams queryParams);
+        Task<PaginationResponse<BidDto>> GetPharmacyBidsAsync(int pharmacyId, BidQueryParams queryParams);
 
 
         // --- Patient (Client) Operations ---
@@ -40,10 +44,10 @@
         // --- Admin Operations ---
 
         // Admin views all bids across the platform for monitoring.
-        //Task<Pagination<BidDto>> GetAllPlatformBidsAsync(BidQueryParams queryParams);
+        Task<PaginationResponse<BidDto>> GetAllPlatformBidsAsync(BidQueryParams queryParams);
 
         // Admin views sensitive/full details of a bid using the specific Admin DTO.
-        //Task<AdminBidDetailsDto> GetAdminBidDetailsAsync(Guid bidId);
+        Task<AdminBidDetailsDto> GetAdminBidDetailsAsync(int bidId);
     }
 }
 
