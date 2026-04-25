@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\PharmaBridge.Abstraction\PharmaBridge.Abstraction.csproj" />
+    <ProjectReference Include="..\..\Core\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
   </ItemGroup>
 
 </Project>

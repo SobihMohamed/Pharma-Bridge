@@ -15,7 +15,7 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
     public class GenericRepo<TEntity, TKey>
         : IGenericRepo<TEntity, TKey> where TEntity : class, IEntity<TKey>
     {
-        private readonly DbSet<TEntity> _dbSet; 
+        private readonly DbSet<TEntity> _dbSet; // specific table in the DB
         public GenericRepo(PharmaDbContext dbContext)
         {
             _dbSet = dbContext.Set<TEntity>();
@@ -42,6 +42,11 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
 
         public void DeleteAsync(TEntity entity) => _dbSet.Remove(entity);
 
-        
+        public async Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications)
+        {
+            var BaseQuery = _dbSet.AsNoTracking();
+            var Query = SpecificationEvaluator.GenerateQuery(BaseQuery, specifications);
+            return await Query.CountAsync();
+        }
     }
 }
