@@ -7,6 +7,7 @@ using PharmaBridge.Persistence.Evaluator;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace PharmaBridge.Persistence.Implementations.ReposPattern
@@ -41,7 +42,6 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
 
         public void DeleteAsync(TEntity entity) => _dbSet.Remove(entity);
 
-        // this method is used to get the count of the entities that match the specifications, it is used in pagination to get the total count of the entities that match the specifications
         public async Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications)
         {
             var BaseQuery = _dbSet.AsNoTracking();

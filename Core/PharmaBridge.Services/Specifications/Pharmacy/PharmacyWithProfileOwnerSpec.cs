@@ -12,13 +12,18 @@ namespace PharmaBridge.Services.Specifications.Pharmacy
             AddInclude(p => p.PharmaOwner);
             var nestedInclude = nameof(PharmaOwner) + "." + nameof(PharmaOwner.ApplicationUser);
             AddInclude(nestedInclude);
+            AddInclude(p => p.PharmacyRatings);
+            AddInclude(p => p.PharmaPerformSnapshots);
         }
-        
-        public PharmacyWithProfileOwnerSpec(string ownerId)
+    }
+
+    public class PharmaciesByOwnerSpec : BaseSpecifications<Domain.Models.Pharma_Requests.Pharmacy, int>
+    {
+        public PharmaciesByOwnerSpec(string ownerId)
             : base(p => p.PharmaOwnerId == ownerId)
         {
             AddInclude(p => p.PharmaOwner);
-            var nestedInclude = nameof(PharmaOwner) + "." + nameof(PharmaOwner.ApplicationUser); // PharmaOwner.ApplicationUser
+            var nestedInclude = nameof(PharmaOwner) + "." + nameof(PharmaOwner.ApplicationUser);
             AddInclude(nestedInclude);
         }
     }
