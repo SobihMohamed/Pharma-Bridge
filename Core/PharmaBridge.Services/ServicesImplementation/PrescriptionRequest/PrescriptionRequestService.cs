@@ -13,7 +13,7 @@ using PharmaBridge.Shared.DTOs.PharmaRequests;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 {
@@ -43,15 +43,15 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
         }
         #region Helper Methods In CreateRequest Service
-        private void ValidateRequestInput(CreatePrescriptionRequestDto requestDto) 
+        private void ValidateRequestInput(CreatePrescriptionRequestDto requestDto)
         {
             // Business Rule : Not Valid if Null of Medicin Name and Image Url 
-            if(string.IsNullOrEmpty(requestDto.MedicineName) && string.IsNullOrEmpty(requestDto.ImageUrl))
+            if (string.IsNullOrEmpty(requestDto.MedicineName) && string.IsNullOrEmpty(requestDto.ImageUrl))
             {
                 throw new BadRequestCustomeException("Please Provide at least a medicin name or image of request");
             }
         }
-        private PrescriptionRequestEntity BuidPrescriptionRequestEntity(CreatePrescriptionRequestDto createRequestDto, string patientId) 
+        private PrescriptionRequestEntity BuidPrescriptionRequestEntity(CreatePrescriptionRequestDto createRequestDto, string patientId)
         {
             var request = mapper.Map<PrescriptionRequestEntity>(createRequestDto);
 
@@ -78,12 +78,13 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             var deliveryAddress = await addressRepo.GetByIdWithSpecAsync(addressSpec);
             if (deliveryAddress == null) throw new UnAuthorizedCustomeException();
 
-            return deliveryAddress; 
+            return deliveryAddress;
         }
         #endregion
+
         public async Task<PaginationResponse<PrescriptionRequestDto>> GetPatientRequestsAsync(Guid patientId, PrescriptionRequestQueryParams queryParams)
         {
-            var patientIdStr =  patientId.ToString();
+            var patientIdStr = patientId.ToString();
             var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
 
             // create the specification 
@@ -92,16 +93,19 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
             // excute queries in database 
             var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
-            var totalCount = await requestRepo.GetCountAsync(countSpec);
+
+            var requestsForCount = await requestRepo.GetAllWithSpecAsync(countSpec);
+            var totalCount = requestsForCount.Count;
 
             // map the result to Dto
             var mappedRequests = mapper.Map<IReadOnlyList<PrescriptionRequestDto>>(requests);
+
             return new PaginationResponse<PrescriptionRequestDto>
             (
-                index :queryParams.PageIndex,
-                size : queryParams.PageSize,
-                total : totalCount,
-                data : mappedRequests
+                index: queryParams.PageIndex,
+                size: queryParams.PageSize,
+                total: totalCount, 
+                data: mappedRequests
             );
         }
 
@@ -114,7 +118,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
             // rep 
             var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
-            var requestDetails = requestRepo.GetByIdWithSpecAsync(spec);
+
+            var requestDetails = await requestRepo.GetByIdWithSpecAsync(spec);
 
             if (requestDetails == null)
             {

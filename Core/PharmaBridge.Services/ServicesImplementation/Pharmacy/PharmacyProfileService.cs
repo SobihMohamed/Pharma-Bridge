@@ -22,17 +22,19 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         {
             var owner = await ValidatePharmacyRegistrationAsync(userId);
 
-            // ✅ Validate working hours before mapping
+            // Validate working hours before mapping
             ValidateWorkingHours(createDto.Is24Hours, createDto.OpenTime, createDto.CloseTime);
-            //Verify the uniqueness of the license number 
-            var isLicenseExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
-             .AnyAsync(p => p.LicenseNumber == createDto.LicenseNumber);
-            if (isLicenseExist)
+
+            var licenseSpec = new PharmacyByLicenseNumberSpec(createDto.LicenseNumber);
+            var existingLicense = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(licenseSpec);
+
+            if (existingLicense != null)
                 throw new BadRequestCustomeException("This license number is already registered to another pharmacy.");
-            //Verifying the uniqueness of the pharmacy's telephone number
-            var isPhoneExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
-            .AnyAsync(p => p.ContactPhone == createDto.ContactPhone);
-            if (isPhoneExist)
+
+            var phoneSpec = new PharmacyByContactPhoneSpec(createDto.ContactPhone!);
+            var existingPhone = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(phoneSpec);
+
+            if (existingPhone != null)
                 throw new BadRequestCustomeException("The pharmacy's phone number is already registered.");
 
             var pharmacy = mapper.Map<Domain.Models.Pharma_Requests.Pharmacy>(createDto);
@@ -89,10 +91,10 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (!string.IsNullOrEmpty(updateDto.ContactPhone) && updateDto.ContactPhone != pharmacy.ContactPhone)
             {
-                var isPhoneExist = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>()
-                    .AnyAsync(p => p.ContactPhone == updateDto.ContactPhone);
+                var phoneSpec = new PharmacyByContactPhoneSpec(updateDto.ContactPhone!);
+                var existingPhone = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(phoneSpec);
 
-                if (isPhoneExist)
+                if (existingPhone != null)
                     throw new BadRequestCustomeException("The new phone number is already registered to another pharmacy.");
             }
 
@@ -166,7 +168,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             if (owner.Status != PharmaOwnerStatus.Approved)
                 throw new BadRequestCustomeException("Your owner account is not yet approved by the admin.");
-            //To DO 
+
             if (owner.Pharmacies != null && owner.Pharmacies.Any())
                 throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
 

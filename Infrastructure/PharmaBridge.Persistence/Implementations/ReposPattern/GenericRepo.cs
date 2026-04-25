@@ -42,16 +42,6 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
 
         public void DeleteAsync(TEntity entity) => _dbSet.Remove(entity);
 
-        // this method is used to get the count of the entities that match the specifications, it is used in pagination to get the total count of the entities that match the specifications
-        public async Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications)
-        {
-            var BaseQuery = _dbSet.AsNoTracking();
-            var Query = SpecificationEvaluator.GenerateQuery(BaseQuery, specifications);
-            return await Query.CountAsync();
-        }
-        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            return await _dbSet.AnyAsync(predicate);
-        }
+        
     }
 }
