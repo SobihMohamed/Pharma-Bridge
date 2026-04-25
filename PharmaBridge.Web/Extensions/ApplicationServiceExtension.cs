@@ -1,5 +1,6 @@
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Auth;
+using PharmaBridge.Abstraction.IServices.Complaint;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Abstraction.IServices.Token;
@@ -12,6 +13,7 @@ using PharmaBridge.Persistence.Implementations.UoWPattern;
 using PharmaBridge.Services.Resolver;
 using PharmaBridge.Services.ServicesImplementation.Attachement;
 using PharmaBridge.Services.ServicesImplementation.Auth;
+using PharmaBridge.Services.ServicesImplementation.Complaint;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
 using SoftBridge.Services.Services.Token;
@@ -31,6 +33,11 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IPrescriptionRequestService, PrescriptionRequestService>();
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
 
+
+
+
+
+            services.AddScoped<IComplaintService, ComplaintService>();
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {

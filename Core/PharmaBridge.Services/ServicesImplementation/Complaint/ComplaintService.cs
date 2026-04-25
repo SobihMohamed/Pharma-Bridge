@@ -70,7 +70,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
         public async Task<bool> UpdateComplaintStatusAsync(int complaintId, UpdateComplaintStatusDto updateDto, string adminId)
         {
             var complaint = await GetComplaintOrThrowAsync(complaintId);
-            var newStatus = ParseAndValidateStatus(updateDto.Status);
+            var newStatus = updateDto.Status;
             ValidateResolutionNotes(newStatus, updateDto.AdminNotes);
             ApplyStatusUpdates(complaint, newStatus, updateDto.AdminNotes, adminId);
             var repo = GetComplaintRepo();
@@ -80,52 +80,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
                 throw new BadRequestCustomeException("Failed to save the updated complaint status to the database.");
             return true;
         }
-
-        //public async Task<bool> UpdateComplaintStatusAsync(Guid complaintId, UpdateComplaintStatusDto updateDto)
-        //{
-        //    var repo = GetComplaintRepo();
-
-        //    // 1. بما إن الـ Interface بيجبرنا نستخدم Guid، والـ Repo بيحتاج int،
-        //    // هنستخدم Specification عشان نبحث عن الشكوى بالـ Guid بدل GetByIdAsync
-        //    var spec = new ComplaintByGuidSpec(complaintId);
-        //    var complaint = await repo.GetByIdWithSpecAsync(spec);
-
-        //    if (complaint == null)
-        //        throw new NotFoundCutomeException($"Complaint with ID {complaintId} was not found on the platform.");
-
-        //    // 2. Parse Enum Status (باستخدام الـ Helper Method اللي عملناها)
-        //    var newStatus = ParseAndValidateStatus(updateDto.Status);
-
-        //    // 3. Validate Business Rules
-        //    ValidateResolutionNotes(newStatus, updateDto.AdminNotes);
-
-        //    // 4. Apply Updates
-        //    complaint.Status = newStatus;
-
-        //    if (!string.IsNullOrWhiteSpace(updateDto.AdminNotes))
-        //    {
-        //        complaint.AdminNotes = updateDto.AdminNotes;
-        //    }
-
-        //    if (newStatus == ComplaintStatus.Resolved || newStatus == ComplaintStatus.Rejected)
-        //    {
-        //        complaint.ResolvedAt = DateTime.UtcNow;
-
-        //        // لحل مشكلة الـ adminId من غير ما نغير الـ Interface،
-        //        // المفروض يتم حقن IHttpContextAccessor في الـ Constructor بتاع الـ Service
-        //        // وتقرأ الـ ID الخاص بالأدمن من الـ Token كالتالي (متروكة كتعليق لتشغيل الكود الآن):
-
-        //        // complaint.ResolvedById = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    }
-
-        //    repo.UpdateAsync(complaint);
-
-        //    var result = await unitOfWork.SaveChangesAsync();
-        //    if (result <= 0)
-        //        throw new BadRequestCustomeException("Failed to save the updated complaint status to the database.");
-
-        //    return true;
-        //}
 
         #region Helper Methods In Complaint Service
         private void ValidateRequestInput(CreateComplaintDto requestDto)
@@ -145,14 +99,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
         #endregion
 
         #region Private Helper Methods Admin Operations
-        private ComplaintStatus ParseAndValidateStatus(string statusString)
-        {
-            if (!Enum.TryParse<ComplaintStatus>(statusString, true, out var parsedStatus))
-            {
-                throw new BadRequestCustomeException("Invalid complaint status format.");
-            }
-            return parsedStatus;
-        }
         private IGenericRepo<Domain.Models.UserAccess.Complaint, int> GetComplaintRepo()
         {
             return unitOfWork.GetRepository<Domain.Models.UserAccess.Complaint, int>();
