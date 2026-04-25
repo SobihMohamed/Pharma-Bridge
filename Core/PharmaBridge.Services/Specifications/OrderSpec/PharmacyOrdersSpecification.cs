@@ -1,4 +1,5 @@
 ﻿using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
+using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.Common.Params.Order;
 
@@ -10,10 +11,15 @@ namespace PharmaBridge.Services.Specifications.OrderSpec
             : base(order => order.PharmacyId == pharmacyId
                 && (!queryParams.Status.HasValue || order.OrderStatus == queryParams.Status.Value)
                 && (!queryParams.FromDate.HasValue || order.CreatedAt >= queryParams.FromDate.Value)
-                && (!queryParams.ToDate.HasValue || order.CreatedAt <= queryParams.ToDate.Value.Date.AddDays(1)))
+                && (!queryParams.ToDate.HasValue || order.CreatedAt <= queryParams.ToDate.Value.Date.AddDays(1)) && (string.IsNullOrEmpty(queryParams.Search)
+                || order.Id.ToString().Contains(queryParams.Search)
+                || order.PatientProfile.ApplicationUser.FullName.ToLower().Contains(queryParams.Search.ToLower())
+                
+            )
+)
         {
             AddInclude(o => o.Pharmacy);
-            AddInclude(o => o.PatientProfile);
+            AddInclude($"{nameof(Order.PatientProfile)}.{nameof(PatientProfile.ApplicationUser)}");
 
             // Most recent orders first
             AddOrderBy(o => o.CreatedAt, isDescending: true);

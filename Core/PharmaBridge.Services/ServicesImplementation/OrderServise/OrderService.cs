@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using PharmaBridge.Abstraction.IServices.CurrentUser;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
@@ -16,7 +18,7 @@ using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 
 namespace PharmaBridge.Services.ServicesImplementation.OrderService
 {
-    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper) : IOrderService
+    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUser) : IOrderService
     {
 
         //System / Internal Operations
@@ -46,6 +48,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         public async Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync( int pharmacyId, OrderQueryParams queryParams)
         {
+            ValidatePharmacyAccess(pharmacyId);
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
             var dataSpec = new PharmacyOrdersSpecification(pharmacyId, queryParams);
@@ -62,20 +65,22 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
         public async Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int pharmacyId)
         {
             var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
+            ValidatePharmacyAccess(pharmacyId);
 
-            ValidatePharmacyOwnership(order, pharmacyId);
+            EnsureOrderBelongsToPharmacy(order, pharmacyId);
 
             return mapper.Map<OrderDetailsDto>(order);
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto,int pharmacyId)
         {
+            ValidatePharmacyAccess(pharmacyId);
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
             var order = await orderRepo.GetByIdAsync(orderId)
                         ?? throw new NotFoundCutomeException($"Order with Id '{orderId}' was not found.");
 
-            ValidatePharmacyOwnership(order, pharmacyId);
+            EnsureOrderBelongsToPharmacy(order, pharmacyId);
             ValidateStatusTransition(order.OrderStatus, updateStatusDto.OrderStatus); 
             ApplyStatusChange(order, updateStatusDto);
 
@@ -129,7 +134,23 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
         #endregion
 
         #region Helper Methods — Shared Across Operations
+        private void ValidatePharmacyAccess(int pharmacyId)
+        {
+            if (currentUser.IsAdmin)
+                return;
 
+            if (currentUser.IsPharmacyOwner)
+            {
+                var ownerPharmacyId = currentUser.GetPharmacyIdAsync().GetAwaiter().GetResult();
+
+                if (pharmacyId != ownerPharmacyId)
+                    throw new UnAuthorizedCustomeException();
+
+                return;
+            }
+
+            throw new UnAuthorizedCustomeException();
+        }
         private async Task<Order> FetchOrderWithDetailsOrThrowAsync(int orderId)
         {
             var spec = new OrderWithDetailsSpecification(orderId);
@@ -138,10 +159,11 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
                 ?? throw new NotFoundCutomeException($"Order with Id '{orderId}' was not found.");
         }
 
-        private static void ValidatePharmacyOwnership(Order order, int pharmacyId)
+        private static void EnsureOrderBelongsToPharmacy(Order order, int pharmacyId)
         {
             if (order.PharmacyId != pharmacyId)
-                throw new UnAuthorizedCustomeException();
+                throw new NotFoundCutomeException($"Order {order.Id} was not found.");
+            // Surface as 404, not 403 — do not leak that the order exists under a different pharmacy.
         }
 
         private static void ValidateStatusTransition(OrderStatus current, string requestedString)
@@ -177,7 +199,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
                     break;
             }
         }
-
+        
         #endregion
 
         #region Status Transition Logic

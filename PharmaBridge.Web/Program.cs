@@ -41,23 +41,28 @@ namespace PharmaBridge.Web
 
             // 💡 swagger configuration (Clean & Simple)
             builder.Services.AddSwaggerDocumentation();
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("DevPolicy", policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
-            });
+
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("DevPolicy", policy =>
+            //    {
+            //        policy.AllowAnyOrigin()
+            //              .AllowAnyMethod()
+            //              .AllowAnyHeader();
+            //    });
+            //});
+
             var app = builder.Build();
             await app.SeedDatabaseAsync();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwaggerDocumentation();            }
-            app.UseCors("DevPolicy");
+                app.UseSwaggerDocumentation(); 
+            }
+
+            //app.UseCors("DevPolicy");
+
             // add middleware for global exception handling
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();

@@ -14,8 +14,10 @@ namespace PharmaBridge.Shared.Common.Params.Order
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
+        public string? Search { get; set; }
+
         // For Admin: filtering by a specific pharmacy or patient
-        public Guid? PharmacyId { get; set; }
+        public int? PharmacyId { get; set; }
         public Guid? PatientId { get; set; }
     }
 }
