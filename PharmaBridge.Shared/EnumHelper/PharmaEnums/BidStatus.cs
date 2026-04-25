@@ -6,7 +6,7 @@ namespace PharmaBridge.Shared.EnumHelper.PharmaEnums
 {
     public enum BidStatus
     {
-        Pending = 1,
+        Pending = 0,
         Accepted,
         Rejected,
         Cancelled

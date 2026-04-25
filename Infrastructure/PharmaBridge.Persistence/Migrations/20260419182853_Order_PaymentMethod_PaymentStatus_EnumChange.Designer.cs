@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 
@@ -11,9 +12,11 @@ using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 namespace PharmaBridge.Persistence.Migrations
 {
     [DbContext(typeof(PharmaDbContext))]
-    partial class PharmaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419182853_Order_PaymentMethod_PaymentStatus_EnumChange")]
+    partial class Order_PaymentMethod_PaymentStatus_EnumChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

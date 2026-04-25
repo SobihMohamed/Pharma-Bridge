@@ -1,4 +1,8 @@
 ﻿
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Order;
+using PharmaBridge.Shared.DTOs.Order;
+
 namespace PharmaBridge.Abstraction.IServices.Order
 {
     // This interface defines the contract for the Order workflow.
@@ -10,15 +14,15 @@ namespace PharmaBridge.Abstraction.IServices.Order
 
         // Triggered automatically by IBidService when a patient accepts a bid.
         // It takes the winning Bid details, extracts the items and prices, and creates a new Order.
-        //Task<OrderDetailsDto> CreateOrderFromBidAsync(Guid winningBidId);
+        Task<OrderDetailsDto> CreateOrderFromBidAsync(int winningBidId);
 
 
         // =========================================================================
         // --- Pharmacy (Provider) Operations ---
         // =========================================================================
-        //Task<Pagination<OrderDto>> GetPharmacyOrdersAsync(Guid pharmacyId, OrderQueryParams queryParams);
-        //Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(Guid orderId, Guid pharmacyId);
-        //Task<bool> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto updateStatusDto, Guid pharmacyId);
+        Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync(int pharmacyId, OrderQueryParams queryParams);
+        Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int pharmacyId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto, int pharmacyId);
 
 
         // =========================================================================
