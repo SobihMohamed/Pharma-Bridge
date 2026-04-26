@@ -18,7 +18,7 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
     public class PrescriptionRequestService(IUnitOfWork unitOfWork, IMapper mapper, IAttachementService attachementService ) : IPrescriptionRequestService
     {
         #region Helper Methods In CreateRequest Service
-        private void ValidateRequestInput(CreatePrescriptionRequestDto requestDto) 
+        private void ValidateRequestInput(CreatePrescriptionRequestDto requestDto)
         {
             // Business Rule : Not Valid if Null of Medicin Name and Image Url 
             bool hasMedicineName = !string.IsNullOrWhiteSpace(requestDto.MedicineName);
@@ -57,7 +57,7 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             var deliveryAddress = await addressRepo.GetByIdWithSpecAsync(addressSpec);
             if (deliveryAddress == null) throw new BadRequestCustomeException("Invalid delivery address");
 
-            return deliveryAddress; 
+            return deliveryAddress;
         }
         #endregion
         public async Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid userIdFromToken)
@@ -120,16 +120,19 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
             // excute queries in database 
             var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
-            var totalCount = await requestRepo.GetCountAsync(countSpec);
+
+            var requestsForCount = await requestRepo.GetAllWithSpecAsync(countSpec);
+            var totalCount = requestsForCount.Count;
 
             // map the result to Dto
             var mappedRequests = mapper.Map<IReadOnlyList<PrescriptionRequestDto>>(requests);
+
             return new PaginationResponse<PrescriptionRequestDto>
             (
-                index :queryParams.PageIndex,
-                size : queryParams.PageSize,
-                total : totalCount,
-                data : mappedRequests
+                index: queryParams.PageIndex,
+                size: queryParams.PageSize,
+                total: totalCount, 
+                data: mappedRequests
             );
         }
 

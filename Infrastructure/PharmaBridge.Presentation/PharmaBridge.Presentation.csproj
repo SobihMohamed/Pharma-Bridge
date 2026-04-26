@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\PharmaBridge.Abstraction\PharmaBridge.Abstraction.csproj" />
+    <ProjectReference Include="..\..\Core\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
   </ItemGroup>
 
 </Project>
