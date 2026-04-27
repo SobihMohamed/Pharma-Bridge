@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using PharmaBridge.Services.AutoMapper.AuthMapping;
+using PharmaBridge.Services.AutoMapper.PatientMapping;
 using PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace PharmaBridge.Services.AutoMapper
                 cfg.AddProfile(new AuthProfile());
                 cfg.AddProfile(new PrescriptionRequestProfile());
                 cfg.AddProfile(new PharmaBridge.Services.AutoMapper.PharmacyMapping.PharmacyProfileMapping());
+                cfg.AddProfile(new PatientProfileMapping());
             });
             return services;
         }

@@ -14,9 +14,9 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient;
 
 public class PatientProfileService(IUnitOfWork unitOfWork, IMapper mapper) : IPatientProfileService
 {
-    public async Task<PatientProfileDetailsDto> GetMyProfileAsync(Guid patientId)
+    public async Task<PatientProfileDetailsDto> GetMyProfileAsync(string patientId)
     {
-        var spec = new PatientProfileWithDetailsSpec(patientId.ToString());
+        var spec = new PatientProfileWithDetailsSpec(patientId);
 
         var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
 
@@ -28,11 +28,11 @@ public class PatientProfileService(IUnitOfWork unitOfWork, IMapper mapper) : IPa
         return mapper.Map<PatientProfileDetailsDto>(patient);
     }
 
-    public async Task<PatientProfileDetailsDto> UpdateMyProfileAsync(Guid patientId, PatientProfileToUpdateDto updateDto)
+    public async Task<PatientProfileDetailsDto> UpdateMyProfileAsync(string patientId, PatientProfileToUpdateDto updateDto)
     {
         var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
 
-        var spec = new PatientProfileWithDetailsSpec(patientId.ToString());
+        var spec = new PatientProfileWithDetailsSpec(patientId);
 
         var patient = await patientRepo.GetByIdWithSpecAsync(spec);
 
