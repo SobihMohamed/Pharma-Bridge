@@ -8,7 +8,7 @@ namespace PharmaBridge.Shared.Common.Pagination
     {
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
-        public int TotalCount { get; set; } // total items in databsse that match the query you have been sent 
+        public int TotalCount { get; set; } // The total number of items in the database that match the query you were given
         public IReadOnlyList<TData> Data { get; set; }
         public PaginationResponse(int index , int size , int total , IReadOnlyList<TData> data)
         {

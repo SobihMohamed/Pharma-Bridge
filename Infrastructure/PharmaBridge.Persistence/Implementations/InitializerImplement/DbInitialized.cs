@@ -28,6 +28,8 @@ namespace PharmaBridge.Persistence.Implementations.InitializerImplement
             await SeederAsync.SeedAdminUserAsync(userManager);
             // seed dummy users
             await SeederAsync.SeedDummyUsersAsync(userManager);
+            
+            await SeederAsync.SeedOrderTestDataAsync(projectDbContext);
         }
     }
 }

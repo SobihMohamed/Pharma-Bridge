@@ -9,6 +9,8 @@ namespace PharmaBridge.Shared.Dto_s.Attachment
         public IFormFile File { get; set; } = null!;
 
         // wwwroot ( "Images/Profiles" or "Documents/CVs")
+        public string UserId { get; set; } 
+
         public string FolderName { get; set; } = null!;
     }
 }

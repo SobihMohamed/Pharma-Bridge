@@ -9,6 +9,6 @@ namespace PharmaBridge.Shared.Common.Params.Complaint
     {
         // e.g., Open, InReview, Resolved
         public ComplaintStatus? Status { get; set; }
-        public Guid? PharmacyId { get; set; }
+        public int? PharmacyId { get; set; }
     }
 }

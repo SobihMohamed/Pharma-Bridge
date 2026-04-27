@@ -20,9 +20,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Attachement
         public async Task<string> UploadFileAsync(UploadFileDto uploadFileDto)
         {
             if (uploadFileDto.File == null || uploadFileDto.File.Length == 0)
-            {
                 throw new ArgumentNullException(nameof(uploadFileDto.File), "File cannot be null or empty");
-            }
 
             // 1 - check allowed extensions
             var fileExtension = Path.GetExtension(uploadFileDto.File.FileName).ToLowerInvariant();
@@ -30,22 +28,21 @@ namespace PharmaBridge.Services.ServicesImplementation.Attachement
                 throw new BadRequestCustomeException("File type is not allowed. Allowed types are: jpg, png, jpeg, pdf");
 
             // 2 - check file size
-            var fileSize = uploadFileDto.File.Length;
-            if (fileSize > _fileSizeLimit)
+            if (uploadFileDto.File.Length > _fileSizeLimit)
                 throw new BadRequestCustomeException("This file is too large. Max size is 8MB.");
 
-            // 3 - Get Root Path (wwwroot) + SubFolder
+            // 3 - Get Root Path + Build per-user folder ✅ ONLY THIS CHANGED
             var webRootPath = webHostEnvironment.WebRootPath;
-
-            // if wwwroot path is null,
-            // we can set it to a default value (like "wwwroot" in the current directory)
-            // to avoid errors when trying to save files
             if (string.IsNullOrWhiteSpace(webRootPath))
-            {
                 webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            }
 
-            var folderPath = Path.Combine(webRootPath, uploadFileDto.FolderName);
+            // ✅ If UserId provided → requests/{userId}/
+            // ✅ If no UserId       → original FolderName (fallback, nothing breaks)
+            var relativeFolderPath = !string.IsNullOrEmpty(uploadFileDto.UserId)
+                ? Path.Combine(uploadFileDto.FolderName, uploadFileDto.UserId)
+                : uploadFileDto.FolderName;
+
+            var folderPath = Path.Combine(webRootPath, relativeFolderPath);
 
             // 4 - check if folderPath Exist
             if (!Directory.Exists(folderPath))
@@ -54,18 +51,17 @@ namespace PharmaBridge.Services.ServicesImplementation.Attachement
             // 5 - create unique file name
             var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
 
-            // 6 - create Full Path 
+            // 6 - create Full Path
             var fullPath = Path.Combine(folderPath, uniqueFileName);
 
-            // 7 - Save inside HARDDISK
+            // 7 - Save to disk
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await uploadFileDto.File.CopyToAsync(stream);
             }
 
-            // return the relative path to the file
-            // (to be stored in the database or used for accessing the file later)
-            return Path.Combine(uploadFileDto.FolderName, uniqueFileName).Replace("\\", "/");
+            // ✅ Returns: requests/{userId}/guid.jpg
+            return Path.Combine(relativeFolderPath, uniqueFileName).Replace("\\", "/");
         }
 
         public Task<bool> DeleteFileAsync(string filePath)
