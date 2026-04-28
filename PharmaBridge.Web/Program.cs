@@ -1,14 +1,14 @@
-
+using Microsoft.OpenApi.Models; // تأكد من وجود هذا السطر لـ Swagger
+using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Persistence.Extensions;
-using PharmaBridge.Abstraction.IServices.Pharmacy;
-using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
-using PharmaBridge.Persistence.Extensions;
+using PharmaBridge.Persistence.Extensions; 
 using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Presentation.Extensions;
 using PharmaBridge.Services.AutoMapper;
+using PharmaBridge.Services.Resolver;
+using PharmaBridge.Services.ServicesImplementation.Attachement;
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
@@ -30,8 +30,8 @@ namespace PharmaBridge.Web
             builder.Services.AddApplicationService();
             builder.Services.AddScoped<IAttachementService, AttachmentService>();
 
-            builder.Services.AddHttpContextAccessor();                      
-            builder.Services.AddScoped(typeof(PictureResolver<,>));         
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped(typeof(PictureResolver<,>));
 
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
@@ -61,6 +61,7 @@ namespace PharmaBridge.Web
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PharmaBridge API", Version = "v1" });
+            });
 
             //builder.Services.AddCors(options =>
             //{
@@ -78,7 +79,7 @@ namespace PharmaBridge.Web
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwaggerDocumentation(); 
+                app.UseSwaggerDocumentation();
             }
 
             //app.UseCors("DevPolicy");

@@ -1,37 +1,53 @@
-﻿using PharmaBridge.Abstraction.IServices.PatientProfiles;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PharmaBridge.Abstraction.IServices.CurrentUser;
+using PharmaBridge.Abstraction.IServices.PatientProfiles;
 using PharmaBridge.Shared.Common.Params.Patient;
 using PharmaBridge.Shared.DTOs.PatientProfiles;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace PharmaBridge.Presentation.Controllers.PatientProfile
 {
     public class PatientProfileController : AppBaseController
     {
         private readonly IPatientProfileService _patientService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PatientProfileController(IPatientProfileService patientService)
+        public PatientProfileController(
+            IPatientProfileService patientService,
+            ICurrentUserService currentUserService)
         {
             _patientService = patientService;
+            _currentUserService = currentUserService;
         }
 
         // 1. Get My Profile
-        [HttpGet("{patientId}")]
-        public async Task<ActionResult> GetMyProfile(string patientId)
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> GetMyProfile()
         {
-            var result = await _patientService.GetMyProfileAsync(patientId);
+            var userId = _currentUserService.UserId;
+
+            var result = await _patientService.GetMyProfileAsync(userId);
+
             return Success(result, "Profile Retrieved Successfully");
         }
 
         // 2. Update My Profile
-        [HttpPut("{patientId}")]
-        public async Task<ActionResult> UpdateMyProfile(string patientId, [FromBody] PatientProfileToUpdateDto dto)
+        [Authorize]
+        [HttpPut]
+        public async Task<ActionResult> UpdateMyProfile([FromBody] PatientProfileToUpdateDto dto)
         {
-            var result = await _patientService.UpdateMyProfileAsync(patientId, dto);
+            var userId = _currentUserService.UserId;
+
+            var result = await _patientService.UpdateMyProfileAsync(userId, dto);
+            
             return Success(result, "Profile Updated Successfully");
         }
 
         // 3. Get All Patients (Admin)
-        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        [HttpGet("all")]
         public async Task<ActionResult> GetAllPatients([FromQuery] PatientQueryParams queryParams)
         {
             var result = await _patientService.GetAllPatientsAsync(queryParams);

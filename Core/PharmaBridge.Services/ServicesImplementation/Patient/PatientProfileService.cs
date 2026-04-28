@@ -39,8 +39,16 @@ public class PatientProfileService(IUnitOfWork unitOfWork, IMapper mapper) : IPa
         if (patient == null)
             throw new NotFoundCutomeException("Patient not found");
 
-        patient.ApplicationUser.FullName = updateDto.FullName;
-        patient.ApplicationUser.PhoneNumber = updateDto.PhoneNumber;
+        if (string.IsNullOrWhiteSpace(updateDto.FullName))
+            throw new BadRequestCustomeException("Full name cannot be empty");
+
+        patient.ApplicationUser.FullName = updateDto.FullName.Trim();
+
+
+        if (!string.IsNullOrWhiteSpace(updateDto.PhoneNumber))
+        {
+            patient.ApplicationUser.PhoneNumber = updateDto.PhoneNumber;
+        }
 
         patientRepo.UpdateAsync(patient);
 
@@ -50,17 +58,22 @@ public class PatientProfileService(IUnitOfWork unitOfWork, IMapper mapper) : IPa
             throw new BadRequestCustomeException("Failed to update patient profile");
 
         return mapper.Map<PatientProfileDetailsDto>(patient);
-        }
+    }
 
     public async Task<PaginationResponse<PatientProfileDto>> GetAllPatientsAsync(PatientQueryParams queryParams)
     {
+        if (queryParams.PageIndex <= 0)
+            queryParams.PageIndex = 1;
+
+        if (queryParams.PageSize <= 0 || queryParams.PageSize > 50)
+            queryParams.PageSize = 10;
+
         var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
 
         var dataSpec = new PatientWithFiltersSpec(queryParams);
         var countSpec = new PatientWithFiltersSpec(queryParams.Search);
 
         var patients = await patientRepo.GetAllWithSpecAsync(dataSpec);
-
         var totalItems = await patientRepo.GetCountAsync(countSpec);
 
         var data = mapper.Map<IReadOnlyList<PatientProfileDto>>(patients);

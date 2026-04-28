@@ -1,6 +1,7 @@
 ﻿using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Shared.Common.Params.Patient;
+using Microsoft.EntityFrameworkCore;
 
 namespace PharmaBridge.Services.Specifications.Patient
 {
@@ -9,12 +10,16 @@ namespace PharmaBridge.Services.Specifications.Patient
         public PatientWithFiltersSpec(PatientQueryParams queryParams)
             : base(p =>
                 string.IsNullOrEmpty(queryParams.Search) ||
-                p.ApplicationUser!.FullName.ToLower().Contains(queryParams.Search) ||
-                p.ApplicationUser.Email!.ToLower().Contains(queryParams.Search) ||
-                p.ApplicationUser.PhoneNumber!.Contains(queryParams.Search)
+                (p.ApplicationUser != null &&
+                 (
+                     EF.Functions.Like(p.ApplicationUser.FullName, $"%{queryParams.Search}%") ||
+                     EF.Functions.Like(p.ApplicationUser.Email!, $"%{queryParams.Search}%") ||
+                     (p.ApplicationUser.PhoneNumber != null &&
+                      EF.Functions.Like(p.ApplicationUser.PhoneNumber, $"%{queryParams.Search}%"))
+                 ))
             )
         {
-            AddInclude(p => p.ApplicationUser!);
+            AddInclude(p => p.ApplicationUser);
             AddOrderBy(p => p.CreatedAt, isDescending: true);
             ApplyPaging(queryParams.PageSize, queryParams.PageIndex);
         }
@@ -22,9 +27,13 @@ namespace PharmaBridge.Services.Specifications.Patient
         public PatientWithFiltersSpec(string? search)
             : base(p =>
                 string.IsNullOrEmpty(search) ||
-                p.ApplicationUser!.FullName.ToLower().Contains(search) ||
-                p.ApplicationUser.Email!.ToLower().Contains(search) ||
-                p.ApplicationUser.PhoneNumber!.Contains(search)
+                (p.ApplicationUser != null &&
+                 (
+                     EF.Functions.Like(p.ApplicationUser.FullName, $"%{search}%") ||
+                     EF.Functions.Like(p.ApplicationUser.Email!, $"%{search}%") ||
+                     (p.ApplicationUser.PhoneNumber != null &&
+                      EF.Functions.Like(p.ApplicationUser.PhoneNumber, $"%{search}%"))
+                 ))
             )
         {
         }
