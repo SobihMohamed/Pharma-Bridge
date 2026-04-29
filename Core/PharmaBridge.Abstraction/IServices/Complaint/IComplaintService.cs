@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Complaint;
+using PharmaBridge.Shared.DTOs.Complaint;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,10 +16,10 @@ namespace PharmaBridge.Abstraction.IServices.Complaint
         // =========================================================================
 
         // Patient submits a complaint against a specific Order/Pharmacy.
-        //Task<ComplaintDetailsDto> SubmitComplaintAsync(CreateComplaintDto createDto, Guid patientId);
+        Task<ComplaintDetailsDto> SubmitComplaintAsync(CreateComplaintDto createDto, Guid patientId);
 
         // Patient views the status of their own submitted complaints.
-        //Task<Pagination<ComplaintDetailsDto>> GetPatientComplaintsAsync(Guid patientId);
+        Task<PaginationResponse<ComplaintDetailsDto>> GetPatientComplaintsAsync(Guid patientId, int pageSize, int pageIndex);
 
 
         // =========================================================================
@@ -24,13 +27,13 @@ namespace PharmaBridge.Abstraction.IServices.Complaint
         // =========================================================================
 
         // Admin views all platform complaints to manage them.
-        //Task<Pagination<ComplaintDto>> GetAllPlatformComplaintsAsync(ComplaintQueryParams queryParams);
+        Task<PaginationResponse<ComplaintDto>> GetAllPlatformComplaintsAsync(ComplaintQueryParams queryParams);
 
         // Admin views full details of a specific complaint (including attached evidence).
-        //Task<ComplaintDetailsDto> GetComplaintDetailsAsync(int complaintId);
+        Task<ComplaintDetailsDto> GetComplaintDetailsAsync(int complaintId);
 
         /// Admin updates the status of the complaint and optionally adds resolution notes and actions taken.
-        //Task<bool> UpdateComplaintStatusAsync(Guid complaintId, UpdateComplaintStatusDto updateDto);
+        Task<bool> UpdateComplaintStatusAsync(int complaintId, UpdateComplaintStatusDto updateDto, string adminId);
     }
 }
 

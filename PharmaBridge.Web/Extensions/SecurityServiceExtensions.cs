@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -49,7 +49,7 @@ namespace PharmaBridge.Web.Extensions
 
                     ValidateLifetime = true,
 
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtTokenSettings:SecretKey"])), // 💡 اتعدلت
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtTokenSettings:SecretKey"] ?? string.Empty)), // 💡 اتعدلت
                     ClockSkew = TimeSpan.Zero
                 };
 

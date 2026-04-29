@@ -14,7 +14,7 @@ namespace PharmaBridge.Shared.DTOs.Order
 
         public string PaymentMethod { get; set; }
 
-        public bool PaymentStatus { get; set; }
+        public string PaymentStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
         

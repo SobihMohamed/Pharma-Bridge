@@ -964,13 +964,12 @@ namespace PharmaBridge.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
+                    b.Property<int>("PaymentMethod")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("int");
 
-                    b.Property<bool>("PaymentStatus")
-                        .HasColumnType("bit");
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("PharmacyId")
                         .HasColumnType("int");
