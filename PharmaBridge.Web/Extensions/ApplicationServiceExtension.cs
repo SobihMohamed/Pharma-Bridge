@@ -11,6 +11,8 @@ using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.DbInitializer;
 using PharmaBridge.Persistence.Implementations.InitializerImplement;
 using PharmaBridge.Persistence.Implementations.ReposPattern;
+using PharmaBridge.Persistence.Implementations.SpecificReposPattern;
+using PharmaBridge.Domain.Contracts.SpecificReposPattern;
 using PharmaBridge.Persistence.Implementations.UoWPattern;
 using PharmaBridge.Services.Resolver;
 using PharmaBridge.Services.ServicesImplementation.Attachement;
@@ -38,6 +40,8 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPharmacyRatingService, PharmacyRatingService>();
+            services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddHttpContextAccessor();
 
 

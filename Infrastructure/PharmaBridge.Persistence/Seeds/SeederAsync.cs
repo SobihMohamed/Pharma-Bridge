@@ -127,7 +127,7 @@ namespace PharmaBridge.Persistence.Seeds
         "Omeprazole 20mg x1, Gaviscon Syrup x1",
         "Leave at the door if no answer",
         85.00m, 5.00m, 10.00m, 90.00m, 20,
-        OrderStatus.Delivered,
+        OrderStatus.Completed,
         new() {
             ("Omeprazole 20mg", 35.00m, 1, false),
             ("Gaviscon Syrup",  55.00m, 1, false)
@@ -191,7 +191,7 @@ namespace PharmaBridge.Persistence.Seeds
                 {
                     Amount = data.Total,
                     PaymentMethod = PaymentMethodType.CashOnDelivery,
-                    PaymentStatus = data.OrderStatus == OrderStatus.Delivered
+                    PaymentStatus = data.OrderStatus == OrderStatus.Completed
                                                 ? PaymentStatus.Succeeded
                                                 : PaymentStatus.Pending,
                     OrderStatus = data.OrderStatus,
@@ -206,7 +206,7 @@ namespace PharmaBridge.Persistence.Seeds
                     CancelledAt = data.OrderStatus == OrderStatus.Cancelled
                                                 ? DateTime.UtcNow.AddDays(-1)
                                                 : null,
-                    DeliveredAt = data.OrderStatus == OrderStatus.Delivered
+                    DeliveredAt = data.OrderStatus == OrderStatus.Completed
                                                 ? DateTime.UtcNow.AddHours(-2)
                                                 : null,
                 };

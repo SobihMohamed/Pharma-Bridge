@@ -1,4 +1,4 @@
-﻿using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
+using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
@@ -11,7 +11,7 @@ namespace PharmaBridge.Services.Specifications.Ratings
             : base(o => o.Id == orderId &&
                         o.PharmacyId == pharmacyId &&
                         o.PatientProfileId == patientId &&
-                        o.OrderStatus == OrderStatus.Delivered)
+                        o.OrderStatus == OrderStatus.Completed)
         {
         }
     }
