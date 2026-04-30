@@ -1,14 +1,15 @@
 
+using Microsoft.OpenApi.Models;
+using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Persistence.Extensions;
-using PharmaBridge.Abstraction.IServices.Pharmacy;
-using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
-using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Persistence.ProgramService;
-using PharmaBridge.Presentation.Extensions; 
+using PharmaBridge.Presentation.Extensions;
 using PharmaBridge.Services.AutoMapper;
+using PharmaBridge.Services.Resolver;
+using PharmaBridge.Services.ServicesImplementation.Attachement;
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
@@ -23,34 +24,62 @@ namespace PharmaBridge.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // get database config
             builder.Services.InjectDatabaseService(builder.Configuration);
-
             builder.Services.InjectIdentityCore();
+
+            // 2. الخدمات الأساسية
             builder.Services.AddApplicationService();
+            builder.Services.AddScoped<IAttachementService, AttachmentService>();
+
+            builder.Services.AddHttpContextAccessor();                      
+            builder.Services.AddScoped(typeof(PictureResolver<,>));         
 
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
 
-            // Custom Extensions (Security & CORS)
+            // 3. الحماية والـ CORS
             builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
             builder.Services.AddCustomCors(builder.Configuration);
 
+            // 💡 السطر ده عشان السيرفر يقرا الـ Controllers وميضربش 404
+            builder.Services.AddControllers()
+                .AddApplicationPart(typeof(PharmaBridge.Presentation.Controllers.PharmacyController).Assembly)
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
             builder.Services.AddDataProtection();
 
-            // 💡 swagger configuration (Clean & Simple)
-            builder.Services.AddSwaggerDocumentation();
+            // 💡 4. إعدادات Swagger عشان "القفل" يظهر وتقدر تحط التوكن
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PharmaBridge API", Version = "v1" });
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("DevPolicy", policy =>
-            //    {
-            //        policy.AllowAnyOrigin()
-            //              .AllowAnyMethod()
-            //              .AllowAnyHeader();
-            //    });
-            //});
+                // 🔒 JWT Bearer — shows the "Authorize" button in Swagger UI
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter your JWT token: **Bearer {your token}**",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                c.AddSecurityDefinition("Bearer", securityScheme);
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { securityScheme, Array.Empty<string>() }
+                });
+            });
 
             var app = builder.Build();
             await app.SeedDatabaseAsync();
@@ -67,10 +96,20 @@ namespace PharmaBridge.Web
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
 
+            // تشغيل واجهة Swagger
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.UseStaticFiles();
+            app.UseRouting();
+
+            // تأكد إن اسم الـ Policy هنا مطابق للي جوه AddCustomCors
+            app.UseCors("CorsPolicy");
+
+            // 💡 التأكد من الهوية والصلاحيات
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStaticFiles();
             app.MapControllers();
             app.Run();
         }

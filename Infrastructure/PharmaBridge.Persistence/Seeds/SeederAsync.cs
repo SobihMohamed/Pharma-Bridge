@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
@@ -56,7 +56,7 @@ namespace PharmaBridge.Persistence.Seeds
 
             var patientUser = await context.Users
                 .Include(u => u.PatientProfile)
-                    .ThenInclude(p => p.PatientAddresses)
+                    .ThenInclude(p => p!.PatientAddresses)
                 .FirstOrDefaultAsync(u => u.Email == "nour.patient@softbridge.com");
 
             var pharmacy = await context.Set<Pharmacy>().FirstOrDefaultAsync(p => p.PharmacyName == "Nour Pharmacy");

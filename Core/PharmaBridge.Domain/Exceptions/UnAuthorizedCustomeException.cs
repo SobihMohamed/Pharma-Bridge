@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace PharmaBridge.Domain.Exceptions
 {
-    public class UnAuthorizedCustomeException() :Exception("Invalid Operation")
+    public class UnAuthorizedCustomeException(string message = "Invalid Operation") : Exception(message)
     {
     }
 }

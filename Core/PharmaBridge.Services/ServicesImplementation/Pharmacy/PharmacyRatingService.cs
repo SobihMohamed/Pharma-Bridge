@@ -18,6 +18,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
     public class PharmacyRatingService(IUnitOfWork unitOfWork, IMapper mapper) : IPharmacyRatingService
     {
+        // Test update
         public async Task<bool> SubmitRatingAsync(CreatePharmacyRatingDto createRatingDto, string patientId)
         {
             var orderRepo = unitOfWork.GetRepository<Order, int>();
