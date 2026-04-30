@@ -35,7 +35,7 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IPrescriptionRequestService, PrescriptionRequestService>();
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
             services.AddScoped<IOrderService, OrderService>();
-
+            services.AddScoped<IPharmacyRatingService, PharmacyRatingService>();
             services.AddHttpContextAccessor();
 
 

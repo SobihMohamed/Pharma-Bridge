@@ -2,7 +2,8 @@ using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
-
+using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.DTOs.PharmacyRating;
 namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
 {
     public class PharmacyProfileMapping : Profile
@@ -27,6 +28,13 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.GeneralArea))
                 .ForMember(dest => dest.LicenseImageUrl, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<CreatePharmacyRatingDto, PharmacyRating>();
+
+            CreateMap<PharmacyRating, PharmacyRatingDto>()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src =>
+                    src.PatientProfile != null && src.PatientProfile.ApplicationUser != null
+                        ? src.PatientProfile.ApplicationUser.FullName
+                        : "Anonymous"));
         }
     }
 }

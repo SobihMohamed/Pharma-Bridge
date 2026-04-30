@@ -1,5 +1,6 @@
 ﻿using PharmaBridge.Shared.DTOs.PharmacyRating;
 using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Pharmacy;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +24,6 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
         // =========================================================================
 
         // Get paginated list of reviews for a specific pharmacy (To display on their profile).
-        Task<PaginationResponse<PharmacyRatingDto>> GetPharmacyReviewsAsync(int pharmacyId);
+        Task<PaginationResponse<PharmacyRatingDto>> GetPharmacyReviewsAsync(int pharmacyId, PharmacyRatingQueryParams queryParams);
     }
 }
