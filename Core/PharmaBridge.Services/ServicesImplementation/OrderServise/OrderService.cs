@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using PharmaBridge.Abstraction.IServices.CurrentUser;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
@@ -8,17 +7,20 @@ using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Services.Specifications.BidSpec;
 using PharmaBridge.Services.Specifications.OrderSpec;
+using PharmaBridge.Services.Specifications.PharmacySpec;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Order;
 using PharmaBridge.Shared.DTOs.Order;
 using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using PharmacyEntity = PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy;
 
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
+using System.Security.Claims;
 
 namespace PharmaBridge.Services.ServicesImplementation.OrderService
 {
-    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUser) : IOrderService
+    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IOrderService
     {
 
         //System / Internal Operations
@@ -48,7 +50,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         public async Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync( int pharmacyId, OrderQueryParams queryParams)
         {
-            ValidatePharmacyAccess(pharmacyId);
+            await ValidatePharmacyAccess(pharmacyId);
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
             var dataSpec = new PharmacyOrdersSpecification(pharmacyId, queryParams);
@@ -64,8 +66,8 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         public async Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int pharmacyId)
         {
+            await ValidatePharmacyAccess(pharmacyId);
             var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
-            ValidatePharmacyAccess(pharmacyId);
 
             EnsureOrderBelongsToPharmacy(order, pharmacyId);
 
@@ -74,7 +76,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto,int pharmacyId)
         {
-            ValidatePharmacyAccess(pharmacyId);
+            await ValidatePharmacyAccess(pharmacyId);
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
             var order = await orderRepo.GetByIdAsync(orderId)
@@ -134,16 +136,28 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
         #endregion
 
         #region Helper Methods — Shared Across Operations
-        private void ValidatePharmacyAccess(int pharmacyId)
+        private async Task ValidatePharmacyAccess(int pharmacyId)
         {
-            if (currentUser.IsAdmin)
-                return;
+            var user = httpContextAccessor.HttpContext?.User;
+            if (user == null) throw new UnAuthorizedCustomeException();
 
-            if (currentUser.IsPharmacyOwner)
+            // Admin → skip ownership check
+            if (user.IsInRole("Admin")) return;
+
+            // PharmaOwner → resolve their pharmacyId and compare
+            if (user.IsInRole("PharmacyOwner"))
             {
-                var ownerPharmacyId = currentUser.GetPharmacyIdAsync().GetAwaiter().GetResult();
+                var ownerId = user.FindFirstValue(ClaimTypes.NameIdentifier)
+                               ?? throw new UnAuthorizedCustomeException();
 
-                if (pharmacyId != ownerPharmacyId)
+                var spec = new PharmacyByOwnerAppUserIdSpec(ownerId);
+                var pharmacy = await unitOfWork
+                                   .GetRepository<PharmacyEntity, int>()
+                                   .GetByIdWithSpecAsync(spec)
+                               ?? throw new NotFoundCutomeException(
+                                      "No active pharmacy found for this account.");
+
+                if (pharmacy.Id != pharmacyId)
                     throw new UnAuthorizedCustomeException();
 
                 return;

@@ -23,44 +23,24 @@ namespace PharmaBridge.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // get database config
             builder.Services.InjectDatabaseService(builder.Configuration);
+
             builder.Services.InjectIdentityCore();
-
-            // 2. الخدمات الأساسية
             builder.Services.AddApplicationService();
-            builder.Services.AddScoped<IAttachementService, AttachmentService>();
-
-            builder.Services.AddHttpContextAccessor();                      
-            builder.Services.AddScoped(typeof(PictureResolver<,>));         
 
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
 
-            // 💡 السطر ده هو اللي هيحل الإيرور بتاعك (تسجيل خدمة رفع الصور)
-            builder.Services.AddScoped<IAttachementService, AttachmentService>();
-
-            builder.Services.InjectRateLimiting();
-            builder.Services.InjectAutoMapperService();
-
-            // 3. الحماية والـ CORS
+            // Custom Extensions (Security & CORS)
             builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
             builder.Services.AddCustomCors(builder.Configuration);
 
-            // 💡 السطر ده عشان السيرفر يقرا الـ Controllers وميضربش 404
-            builder.Services.AddControllers()
-                .AddApplicationPart(typeof(PharmaBridge.Presentation.Controllers.PharmacyController).Assembly)
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
 
             builder.Services.AddDataProtection();
 
-            // 💡 4. إعدادات Swagger عشان "القفل" يظهر وتقدر تحط التوكن
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PharmaBridge API", Version = "v1" });
+            // 💡 swagger configuration (Clean & Simple)
+            builder.Services.AddSwaggerDocumentation();
 
             //builder.Services.AddCors(options =>
             //{
@@ -78,7 +58,7 @@ namespace PharmaBridge.Web
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwaggerDocumentation(); 
+                app.UseSwaggerDocumentation();
             }
 
             //app.UseCors("DevPolicy");
@@ -87,20 +67,10 @@ namespace PharmaBridge.Web
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
 
-            // تشغيل واجهة Swagger
-            app.UseSwagger();
-            app.UseSwaggerUI();
-
-            app.UseStaticFiles();
-            app.UseRouting();
-
-            // تأكد إن اسم الـ Policy هنا مطابق للي جوه AddCustomCors
-            app.UseCors("CorsPolicy");
-
-            // 💡 التأكد من الهوية والصلاحيات
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseStaticFiles();
             app.MapControllers();
             app.Run();
         }
