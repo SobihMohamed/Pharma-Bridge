@@ -92,6 +92,56 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
             return true;
         }
 
+        // phase 2
+
+        public async Task<PaginationResponse<OrderDto>> GetPatientOrdersAsync(Guid patientID, OrderQueryParams queryParams)
+        {
+            var patientId = patientID.ToString();
+            var orderRepo = unitOfWork.GetRepository<Order, int>();
+            var dataSpec = new PatientOrdersSpecification(patientId, queryParams);
+            var countSpec = new PatientOrdersCountSpecification(patientId, queryParams);
+            var orders = await orderRepo.GetAllWithSpecAsync(dataSpec);
+            var totalCount = await orderRepo.GetCountAsync(countSpec);
+            var dtos = mapper.Map<IReadOnlyList<OrderDto>>(orders);
+
+            return new PaginationResponse<OrderDto>(
+                queryParams.PageIndex, queryParams.PageSize, totalCount, dtos);
+
+        }
+
+        public async Task<OrderDetailsDto> GetPatientOrderDetailsAsync(int orderId, Guid patientId)
+        {
+            var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
+
+            // Security: verify this order belongs to the requesting patient
+            EnsureOrderBelongsToPatient(order, patientId.ToString());
+
+            return mapper.Map<OrderDetailsDto>(order);
+        }
+
+        public async Task<PaginationResponse<OrderDto>> GetAllPlatformOrdersAsync(OrderQueryParams queryParams)
+        {
+            var orderRepo = unitOfWork.GetRepository<Order, int>();
+            var dataSpec = new AllPlatformOrdersSpecification(queryParams);
+            var countSpec = new AllPlatformOrdersCountSpecification(queryParams);
+            var orders = await orderRepo.GetAllWithSpecAsync(dataSpec);
+            var totalCount = await orderRepo.GetCountAsync(countSpec);
+            var dtos = mapper.Map<IReadOnlyList<OrderDto>>(orders);
+
+            return new PaginationResponse<OrderDto>(
+                queryParams.PageIndex, queryParams.PageSize, totalCount, dtos);
+        }
+
+        public async Task<AdminOrderDetailsDto> GetAdminOrderDetailsAsync(int orderId)
+        {
+            var spec = new AdminOrderWithDetailsSpecification(orderId);
+            var order = await unitOfWork.GetRepository<Order, int>().GetByIdWithSpecAsync(spec)
+                        ?? throw new NotFoundCutomeException(
+                               $"Order with Id '{orderId}' was not found.");
+
+            return mapper.Map<AdminOrderDetailsDto>(order);
+        }
+
 
         #region Helper Methods - CreateOrderFromBidAsync 
 
@@ -194,7 +244,11 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
             if (!allowed.Contains(requested))
                 throw new InvalidOrderStatusTransitionException(current, requested);
         }
-
+        private static void EnsureOrderBelongsToPatient(Order order, string patientId)
+        {
+            if (order.PatientProfileId != patientId)
+                throw new NotFoundCutomeException($"Order {order.Id} was not found.");
+        }
         private static void ApplyStatusChange(Order order, UpdateOrderStatusDto dto)
         {
             var newStatus = Enum.Parse<OrderStatus>(dto.OrderStatus, ignoreCase: true);
@@ -213,7 +267,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
                     break;
             }
         }
-        
+
         #endregion
 
         #region Status Transition Logic
