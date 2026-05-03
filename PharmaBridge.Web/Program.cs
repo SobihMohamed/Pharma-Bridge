@@ -14,6 +14,10 @@ using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
 using System.Text.Json.Serialization;
+using Microsoft.OpenApi.Models;
+using PharmaBridge.Abstraction.IServices.Attachement;
+using PharmaBridge.Services.Resolver;
+using PharmaBridge.Services.ServicesImplementation.Attachement;
 
 namespace PharmaBridge.Web
 {
@@ -30,8 +34,8 @@ namespace PharmaBridge.Web
             builder.Services.AddApplicationService();
             builder.Services.AddScoped<IAttachementService, AttachmentService>();
 
-            builder.Services.AddHttpContextAccessor();                      
-            builder.Services.AddScoped(typeof(PictureResolver<,>));         
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped(typeof(PictureResolver<,>));
 
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
@@ -62,47 +66,47 @@ namespace PharmaBridge.Web
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PharmaBridge API", Version = "v1" });
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("DevPolicy", policy =>
-            //    {
-            //        policy.AllowAnyOrigin()
-            //              .AllowAnyMethod()
-            //              .AllowAnyHeader();
-            //    });
-            //});
+                //builder.Services.AddCors(options =>
+                //{
+                //    options.AddPolicy("DevPolicy", policy =>
+                //    {
+                //        policy.AllowAnyOrigin()
+                //              .AllowAnyMethod()
+                //              .AllowAnyHeader();
+                //    });
+            });
 
             var app = builder.Build();
-            await app.SeedDatabaseAsync();
+                await app.SeedDatabaseAsync();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwaggerDocumentation(); 
-            }
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwaggerDocumentation();
+                }
+            
+                //app.UseCors("DevPolicy");
 
-            //app.UseCors("DevPolicy");
+                // add middleware for global exception handling
+                app.UseMiddleware<GlobalErrorHandlerMiddleware>();
+                app.UseHttpsRedirection();
 
-            // add middleware for global exception handling
-            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
-            app.UseHttpsRedirection();
+                // تشغيل واجهة Swagger
+                app.UseSwagger();
+                app.UseSwaggerUI();
 
-            // تشغيل واجهة Swagger
-            app.UseSwagger();
-            app.UseSwaggerUI();
+                app.UseStaticFiles();
+                app.UseRouting();
 
-            app.UseStaticFiles();
-            app.UseRouting();
+                // تأكد إن اسم الـ Policy هنا مطابق للي جوه AddCustomCors
+                app.UseCors("CorsPolicy");
 
-            // تأكد إن اسم الـ Policy هنا مطابق للي جوه AddCustomCors
-            app.UseCors("CorsPolicy");
+                // 💡 التأكد من الهوية والصلاحيات
+                app.UseAuthentication();
+                app.UseAuthorization();
 
-            // 💡 التأكد من الهوية والصلاحيات
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
-            app.Run();
-        }
+                app.MapControllers();
+                app.Run();    
+            } 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PharmaBridge.Shared.DTOs.PatientAddresses;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,18 +15,18 @@ namespace PharmaBridge.Abstraction.IServices.PatientAddresses
 
         // Get all saved addresses for a specific patient. 
         // Notice it returns IReadOnlyList instead of Pagination because a user usually has 2-5 addresses max.
-        //Task<IReadOnlyList<PatientAddressDto>> GetPatientAddressesAsync(Guid patientId);
+        Task<IReadOnlyList<PatientAddressDto>> GetPatientAddressesAsync(string patientId);
 
         // Add a new delivery address (includes Lat, Lng, TextAddress, and Label like "Home").
-        //Task<PatientAddressDto> AddAddressAsync(Guid patientId, CreatePatientAddressDto createDto);
+        Task<PatientAddressDto> AddAddressAsync(string patientId, CreatePatientAddressDto createDto);
 
         // Update an existing address.
-        //Task<PatientAddressDto> UpdateAddressAsync(int addressId, Guid patientId, UpdatePatientAddressDto updateDto);
+        Task<PatientAddressDto> UpdateAddressAsync(int addressId, string patientId, UpdatePatientAddressDto updateDto);
 
         // Delete an address.
-        //Task<bool> DeleteAddressAsync(int addressId, Guid patientId);
+        Task<bool> DeleteAddressAsync(int addressId, string patientId);
 
         // Set a specific address as the default delivery address.
-        //Task<bool> SetDefaultAddressAsync(int addressId, Guid patientId);
+        Task<bool> SetDefaultAddressAsync(int addressId, string patientId);
     }
 }
