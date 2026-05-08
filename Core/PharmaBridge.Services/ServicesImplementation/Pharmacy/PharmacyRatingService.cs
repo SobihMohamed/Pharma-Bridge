@@ -18,7 +18,11 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
     public class PharmacyRatingService(IUnitOfWork unitOfWork, IMapper mapper) : IPharmacyRatingService
     {
-        // Test update
+        /// <summary>
+        /// Validates and submits a new rating for a pharmacy from a patient.
+        /// It ensures the patient has a completed order, prevents duplicate ratings,
+        /// and recalculates the pharmacy's average rating in a single transaction.
+        /// </summary>
         public async Task<bool> SubmitRatingAsync(CreatePharmacyRatingDto createRatingDto, string patientId)
         {
             var orderRepo = unitOfWork.GetRepository<Order, int>();
@@ -77,6 +81,10 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             // 6. Single SaveChanges — both the new rating and updated average are saved atomically
             var saveResult = await unitOfWork.SaveChangesAsync();
+
+            // [Team Note] After persisting the rating, we must call the Performance Snapshot Service 
+            // to recalculate the AverageRating and update the pharmacy's real-time dashboard data.
+            // (Cross-service synchronization requirement discussed on May 8th)
 
             return saveResult > 0;
         }
