@@ -5,6 +5,7 @@ using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Presentation.Extensions;
 using PharmaBridge.Services.AutoMapper;
 using PharmaBridge.Web.Extensions;
+using PharmaBridge.Web.Hubs;
 using PharmaBridge.Web.Middleware;
 using System.Text.Json.Serialization;
 
@@ -84,7 +85,7 @@ namespace PharmaBridge.Web
             app.UseAuthorization();
 
             app.MapControllers();
-
+            app.MapHub<NotificationHub>("/notify");
             app.Run();
         }
     }
