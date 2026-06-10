@@ -138,6 +138,20 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             return mapper.Map<PharmacyDto>(pharmacy);
         }
 
+        public async Task<int> GetPharmacyIdByUserIdAsync(string userId)
+        {
+            var pharmacyRepo = unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>();
+
+            var spec = new PharmacyByAppUserIdSpec(userId);
+
+            var pharmacy = await pharmacyRepo.GetByIdWithSpecAsync(spec);
+
+            if (pharmacy == null)
+                throw new NotFoundCutomeException("No pharmacy found assigned to this user account.");
+
+            return pharmacy.Id;
+        }
+
         // ✅ New private method — called in both Register and Update
         private void ValidateWorkingHours(bool is24Hours, TimeOnly? openTime, TimeOnly? closeTime)
         {
@@ -169,7 +183,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (owner.Status != PharmaOwnerStatus.Approved)
                 throw new BadRequestCustomeException("Your owner account is not yet approved by the admin.");
 
-            if (owner.Pharmacies != null && owner.Pharmacies.Any())
+            if (owner.Pharmacy != null)
                 throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
 
             return owner;
