@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using MediatR;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
+using PharmaBridge.Domain.Events;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Exceptions.NotFoundHandeler.Request;
 using PharmaBridge.Domain.Models.Pharma_Requests;
@@ -17,7 +19,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
     public partial class PrescriptionRequestService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        IAttachementService attachementService) : IPrescriptionRequestService
+        IAttachementService attachementService,
+        IMediator mediator) : IPrescriptionRequestService
     {
         #region Patient Services
         public async Task<PrescriptionRequestDto> CreateRequestAsync(CreatePrescriptionRequestDto createDto, Guid userIdFromToken)
@@ -46,6 +49,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             var result = await unitOfWork.SaveChangesAsync();
 
             if (result <= 0) throw new BadRequestCustomeException("Failed to create prescription request");
+            // Publish event for new prescription request creation
+            await mediator.Publish(new PrescriptionRequestCreatedEvent(request.Id));
 
             var requestDto = mapper.Map<PrescriptionRequestDto>(request);
             requestDto.DeliveryArea = $"{patientAddress.City} - {patientAddress.AddressLine}";
@@ -133,6 +138,7 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
         }
 
         #endregion
+
         #region Admin Services
         public async Task<PaginationResponse<AdminPrescriptionRequestDto>> GetAllPlatformRequestsAsync(PrescriptionRequestQueryParams queryParams)
         {
