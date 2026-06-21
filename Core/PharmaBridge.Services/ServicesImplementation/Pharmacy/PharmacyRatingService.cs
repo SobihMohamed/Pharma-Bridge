@@ -18,6 +18,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
     public class PharmacyRatingService(IUnitOfWork unitOfWork, IMapper mapper) : IPharmacyRatingService
     {
+        // Test update
         /// <summary>
         /// Validates and submits a new rating for a pharmacy from a patient.
         /// It ensures the patient has a completed order, prevents duplicate ratings,

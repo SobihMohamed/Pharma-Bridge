@@ -63,7 +63,6 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
             CreateMap<CreatePharmacyRatingDto, PharmacyRating>();
 
             CreateMap<PharmacyRating, PharmacyRatingDto>()
-                .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.PharmacyName : null))
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src =>
                     src.PatientProfile != null && src.PatientProfile.ApplicationUser != null
                         ? src.PatientProfile.ApplicationUser.FullName
