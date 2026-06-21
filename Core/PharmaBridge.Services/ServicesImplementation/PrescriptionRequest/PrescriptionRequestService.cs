@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
@@ -157,7 +157,7 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
                 size: queryParams.PageSize,
                 total: totalCount,
                 data: mappedRequests
-            );
+            ); 
         }
 
         public async Task<AdminPrescriptionRequestDetailsDto> GetAdminRequestDetailsAsync(int requestId)
