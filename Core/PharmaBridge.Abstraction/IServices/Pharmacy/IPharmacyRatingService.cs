@@ -1,6 +1,10 @@
-﻿using System;
+﻿using PharmaBridge.Shared.DTOs.PharmacyRating;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Pharmacy;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PharmaBridge.Abstraction.IServices.Pharmacy
 {
@@ -12,7 +16,7 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
 
         // Patient submits a rating (1-5 stars) and an optional comment.
         // Validation needed inside: Check if Order is Completed and belongs to this Patient or not.
-        //Task<bool> SubmitRatingAsync(CreatePharmacyRatingDto createRatingDto, Guid patientId);
+        Task<bool> SubmitRatingAsync(CreatePharmacyRatingDto createRatingDto, string patientId);
 
 
         // =========================================================================
@@ -20,6 +24,6 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
         // =========================================================================
 
         // Get paginated list of reviews for a specific pharmacy (To display on their profile).
-        //Task<Pagination<PharmacyRatingDto>> GetPharmacyReviewsAsync(Guid pharmacyId);
+        Task<PaginationResponse<PharmacyRatingDto>> GetPharmacyReviewsAsync(int pharmacyId, PharmacyRatingQueryParams queryParams);
     }
 }
