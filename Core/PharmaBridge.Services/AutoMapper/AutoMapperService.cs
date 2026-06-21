@@ -4,6 +4,7 @@ using PharmaBridge.Services.AutoMapper.ComplaintMapping;
 using PharmaBridge.Services.AutoMapper.OrderMapping;
 using PharmaBridge.Services.AutoMapper.PatientAddressMapping;
 using PharmaBridge.Services.AutoMapper.PharmacyMapping;
+using PharmaBridge.Services.AutoMapper.PatientMapping;
 using PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace PharmaBridge.Services.AutoMapper
                 cfg.AddProfile(new AdminComplaintProfile());
                 cfg.AddProfile(new PharmacyProfileMapping());
                 cfg.AddProfile(new OrderMappingProfile());
+                cfg.AddProfile(new PatientProfileMapping());
 
 
 
