@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
@@ -257,7 +257,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
             switch (newStatus)
             {
-                case OrderStatus.Delivered:
+                case OrderStatus.Completed:
                     order.DeliveredAt = DateTime.UtcNow;
                     break;
 
@@ -288,10 +288,10 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
                 [OrderStatus.Preparing] = new[] { OrderStatus.InTransit, OrderStatus.Cancelled },
 
                 // Rider is on the way => can be delivered or returned ( patient not home)
-                [OrderStatus.InTransit] = new[] { OrderStatus.Delivered, OrderStatus.Returned },
+                [OrderStatus.InTransit] = new[] { OrderStatus.Completed, OrderStatus.Returned },
 
                 // Terminal states => no further transitions allowed
-                [OrderStatus.Delivered] = Array.Empty<OrderStatus>(),
+                [OrderStatus.Completed] = Array.Empty<OrderStatus>(),
                 [OrderStatus.Cancelled] = Array.Empty<OrderStatus>(),
                 [OrderStatus.Returned] = Array.Empty<OrderStatus>(),
             };

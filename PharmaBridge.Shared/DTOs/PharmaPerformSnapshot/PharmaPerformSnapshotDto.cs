@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,6 +24,9 @@ namespace PharmaBridge.Shared.DTOs.PharmaPerformSnapshot
         public decimal CompletionRate { get; set; }
 
         public decimal TotalRevenue { get; set; }
+        
+        public decimal AverageRating { get; set; }
+        public int PendingOrders { get; set; }
         
         // owner and admin only
         public decimal TotalPlatformFee { get; set; }
