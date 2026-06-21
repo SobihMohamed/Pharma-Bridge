@@ -11,6 +11,10 @@ using System.Text.Json.Serialization;
 
 namespace PharmaBridge.Web
 {
+    /// <summary>
+    /// ???? ????? ??????
+    /// ////////////////////////////LAST Version////////////////////////////////////////////////
+    /// </summary>
     public class Program
     {
         public static async Task Main(string[] args)
