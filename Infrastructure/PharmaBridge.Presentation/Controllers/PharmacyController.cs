@@ -67,5 +67,16 @@ namespace PharmaBridge.Presentation.Controllers
             var result = await _pharmacyProfileService.GetPharmacyBasicInfoAsync(pharmacyId);
             return Success(result);
         }
+
+        // GET /api/pharmacy/{pharmacyId}/dashboard/snapshot
+        [HttpGet("{pharmacyId}/dashboard/snapshot")]
+        [Authorize(Roles = "Admin,PharmacyOwner")]
+        public async Task<IActionResult> GetPharmacyPerformanceSnapshot(
+            int pharmacyId, 
+            [FromServices] IPharmacyDashboardService pharmacyDashboardService)
+        {
+            var result = await pharmacyDashboardService.GetMyPerformanceSnapshotAsync(pharmacyId);
+            return Success(result);
+        }
     }
 }

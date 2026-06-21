@@ -21,20 +21,20 @@ namespace PharmaBridge.Presentation.Controllers
         }
 
         // Helper Method: to extract the patient ID from the JWT token
-        private Guid GetPatientIdFromToken()
+        private Guid GetUserIdFromToken()
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdStr, out var patientId))
-                throw new UnauthorizedAccessException("Invalid Patient ID in token.");
-            return patientId;
+            if (!Guid.TryParse(userIdStr, out var userId))
+                throw new UnauthorizedAccessException("Invalid User ID in token.");
+            return userId;
         }
 
         // 1. Create a new prescription request
         [HttpPost]
         public async Task<ActionResult> CreateRequest([FromForm] CreatePrescriptionRequestDto createDto)
         {
-            var patientId = GetPatientIdFromToken();
-            var result = await _prescriptionRequestService.CreateRequestAsync(createDto, patientId);
+            var userId = GetUserIdFromToken();
+            var result = await _prescriptionRequestService.CreateRequestAsync(createDto, userId);
             return Created(result, "Prescription request created successfully");
         }
 
@@ -42,8 +42,8 @@ namespace PharmaBridge.Presentation.Controllers
         [HttpGet]
         public async Task<ActionResult> GetPatientRequests([FromQuery] PrescriptionRequestQueryParams queryParams)
         {
-            var patientId = GetPatientIdFromToken();
-            var result = await _prescriptionRequestService.GetPatientRequestsAsync(patientId, queryParams);
+            var userId = GetUserIdFromToken();
+            var result = await _prescriptionRequestService.GetPatientRequestsAsync(userId, queryParams);
             return Success(result, "Requests retrieved successfully");
         }
 
@@ -51,9 +51,21 @@ namespace PharmaBridge.Presentation.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetPatientRequestDetails(int id)
         {
-            var patientId = GetPatientIdFromToken();
-            var result = await _prescriptionRequestService.GetPatientRequestDetailsAsync(id, patientId);
+            var userId = GetUserIdFromToken();
+            var result = await _prescriptionRequestService.GetPatientRequestDetailsAsync(id, userId);
             return Success(result, "Request details retrieved successfully");
+        }
+
+        [HttpPatch("{id}/cancel")]
+        public async Task<ActionResult> CancelRequest(int id)
+        {
+            var userId = GetUserIdFromToken();
+            var result = await _prescriptionRequestService.CancelRequestAsync(id, userId);
+
+            if (result)
+                return Success("Request cancelled successfully");
+
+            return BadRequestError("Failed to cancel request. It might already have accepted bids or is already closed.");
         }
     }
 }

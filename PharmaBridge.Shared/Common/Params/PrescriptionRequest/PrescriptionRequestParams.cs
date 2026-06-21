@@ -10,6 +10,7 @@ namespace PharmaBridge.Shared.Common.Params.PrescriptionRequest
         // e.g., Pending, HasBids, Closed, Cancelled
         public PrescriptionStatus? Status { get; set; }
 
+        public string? PatientId { get; set; }
         // For date filtering
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
