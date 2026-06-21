@@ -1,23 +1,25 @@
 
+using Microsoft.OpenApi.Models;
+using PharmaBridge.Abstraction.IServices.Attachement;
+using PharmaBridge.Abstraction.IServices.PatientAddresses;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Persistence.Extensions;
-using PharmaBridge.Abstraction.IServices.Pharmacy;
-using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Persistence.Extensions;
 using PharmaBridge.Persistence.ProgramService;
 using PharmaBridge.Presentation.Extensions;
 using PharmaBridge.Services.AutoMapper;
+using PharmaBridge.Services.Resolver;
+using PharmaBridge.Services.ServicesImplementation.Attachement;
+using PharmaBridge.Services.ServicesImplementation.PatientAddress;
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Web.Extensions;
 using PharmaBridge.Web.Middleware;
 using System.Text.Json.Serialization;
-using Microsoft.OpenApi.Models;
-using PharmaBridge.Abstraction.IServices.Attachement;
-using PharmaBridge.Services.Resolver;
-using PharmaBridge.Services.ServicesImplementation.Attachement;
 
 namespace PharmaBridge.Web
 {
@@ -40,6 +42,8 @@ namespace PharmaBridge.Web
             builder.Services.InjectRateLimiting();
             builder.Services.InjectAutoMapperService();
 
+
+            builder.Services.AddScoped<IPatientAddressService, PatientAddressService>();
             // 💡 السطر ده هو اللي هيحل الإيرور بتاعك (تسجيل خدمة رفع الصور)
             builder.Services.AddScoped<IAttachementService, AttachmentService>();
 
@@ -74,7 +78,9 @@ namespace PharmaBridge.Web
                 //              .AllowAnyMethod()
                 //              .AllowAnyHeader();
                 //    });
-            });
+
+
+                });
 
             var app = builder.Build();
                 await app.SeedDatabaseAsync();
