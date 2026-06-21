@@ -450,7 +450,8 @@ namespace PharmaBridge.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PharmaOwnerId");
+                    b.HasIndex("PharmaOwnerId")
+                        .IsUnique();
 
                     b.ToTable("Pharmacies", (string)null);
                 });
@@ -964,13 +965,12 @@ namespace PharmaBridge.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
+                    b.Property<int>("PaymentMethod")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("int");
 
-                    b.Property<bool>("PaymentStatus")
-                        .HasColumnType("bit");
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("PharmacyId")
                         .HasColumnType("int");
@@ -1213,8 +1213,8 @@ namespace PharmaBridge.Persistence.Migrations
             modelBuilder.Entity("PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy", b =>
                 {
                     b.HasOne("PharmaBridge.Domain.Models.User.PharmaOwner", "PharmaOwner")
-                        .WithMany("Pharmacies")
-                        .HasForeignKey("PharmaOwnerId")
+                        .WithOne("Pharmacy")
+                        .HasForeignKey("PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy", "PharmaOwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1462,7 +1462,7 @@ namespace PharmaBridge.Persistence.Migrations
 
             modelBuilder.Entity("PharmaBridge.Domain.Models.User.PharmaOwner", b =>
                 {
-                    b.Navigation("Pharmacies");
+                    b.Navigation("Pharmacy");
                 });
 
             modelBuilder.Entity("PharmaBridge.Domain.Models.UserAccess.Order", b =>

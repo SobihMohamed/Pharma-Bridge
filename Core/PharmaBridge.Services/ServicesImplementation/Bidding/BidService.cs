@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Domain.Contracts.GenericReposPattern;
-using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
-using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Services.Specifications.Bidding;
 using PharmaBridge.Services.Specifications.PharmaOwners;
 using PharmaBridge.Services.Specifications.Request;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
+using PharmaBridge.Domain.Exceptions;
+using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Bid;
 using PharmaBridge.Shared.DTOs.Bid;
@@ -166,40 +167,6 @@ namespace PharmaBridge.Services.Bidding
             return _mapper.Map<BidDetailsDto>(bid);
         }
 
-
-
-        // Private Helpers
-        /*
-        private async Task EnsurePharmacyOwnershipAsync(int pharmacyId)
-        {
-            var currentUserId = _httpContextAccessor.HttpContext?
-                .User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(currentUserId))
-                throw new UnAuthorizedCustomeException();
-                //throw new UnAuthorizedCustomeException("Unable to identify the authenticated user.");
-
-            var pharmacyRepo = _unitOfWork.GetRepository<Pharmacy, int>();
-            var pharmacy = await pharmacyRepo.GetByIdAsync(pharmacyId);
-
-
-            if (pharmacy is null || pharmacy.IsDeleted)
-                throw new NotFoundCutomeException($"Pharmacy with ID {pharmacyId} was not found.");
-
-            //error    
-            //if (pharmacy.PharmaOwnerId != currentUserId)
-            //    throw new UnAuthorizedCustomeException();
-            //    //throw new UnAuthorizedCustomeException("You are not authorized to submit a bid for this pharmacy.");
-            
-
-            if (pharmacy.Status == PharmacyStatus.Pending)
-                throw new BadRequestCustomeException("Your pharmacy account is not approved yet. You cannot submit bids.");
-
-            if (pharmacy.Status == PharmacyStatus.Blocked)
-                throw new BadRequestCustomeException("Your pharmacy account is Blocked. You cannot submit bids.");
-        }
-        */
-
         private async Task EnsurePharmacyOwnershipAsync(int pharmacyId)
         {
             var currentUserId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -306,15 +273,6 @@ namespace PharmaBridge.Services.Bidding
             var data = _mapper.Map<IReadOnlyList<TDto>>(bids);
             return new PaginationResponse<TDto>(queryParams.PageIndex, queryParams.PageSize, totalCount, data);
         }
-        /*
-        private void EnsureAdmin()
-        {
-            var user = _httpContextAccessor.HttpContext?.User;
-
-            if (user is null || !user.IsInRole("Admin"))
-                throw new UnAuthorizedCustomeException();
-        }
-        */
 
         // Phase 2 - private
 

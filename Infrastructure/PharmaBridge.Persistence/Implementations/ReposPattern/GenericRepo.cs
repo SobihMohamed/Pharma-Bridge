@@ -7,6 +7,7 @@ using PharmaBridge.Persistence.Evaluator;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace PharmaBridge.Persistence.Implementations.ReposPattern
@@ -14,7 +15,7 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
     public class GenericRepo<TEntity, TKey>
         : IGenericRepo<TEntity, TKey> where TEntity : class, IEntity<TKey>
     {
-        private readonly DbSet<TEntity> _dbSet; 
+        private readonly DbSet<TEntity> _dbSet; // specific table in the DB
         public GenericRepo(PharmaDbContext dbContext)
         {
             _dbSet = dbContext.Set<TEntity>();
@@ -31,7 +32,7 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
         public async Task<TEntity?> GetByIdAsync(TKey id) => await _dbSet.FindAsync(id);
         public async Task<TEntity?> GetByIdWithSpecAsync(ISpecifications<TEntity, TKey> specifications)
         {
-            var BaseQuery = _dbSet.AsNoTracking();
+            var BaseQuery = _dbSet.AsQueryable();
             var Query = SpecificationEvaluator.GenerateQuery(BaseQuery, specifications);
             return await Query.FirstOrDefaultAsync();
         }
@@ -41,7 +42,6 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
 
         public void DeleteAsync(TEntity entity) => _dbSet.Remove(entity);
 
-        // this method is used to get the count of the entities that match the specifications, it is used in pagination to get the total count of the entities that match the specifications
         public async Task<int> GetCountAsync(ISpecifications<TEntity, TKey> specifications)
         {
             var BaseQuery = _dbSet.AsNoTracking();

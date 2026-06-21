@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
   </ItemGroup>
 
 	<ItemGroup>
+    <ProjectReference Include="..\..\PharmaBridge.Shared\PharmaBridge.Shared.csproj" />
 		<ProjectReference Include="..\PharmaBridge.Abstraction\PharmaBridge.Abstraction.csproj" />
 		<ProjectReference Include="..\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
 	</ItemGroup>

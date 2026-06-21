@@ -11,14 +11,14 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
     {
        
 
-        Task<PharmacyDetailsDto> RegisterPharmacyProfileAsync(PharmacyToCreateDto createDto, Guid userId);
+        Task<PharmacyOwnerProfileDto> RegisterPharmacyProfileAsync(PharmacyToCreateDto createDto, string userId);
 
-        Task<PharmacyDetailsDto> GetMyProfileAsync(int pharmacyId, Guid userId);
+        Task<PharmacyOwnerProfileDto> GetMyProfileAsync(int pharmacyId, string userId);
 
-        Task<PharmacyDetailsDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, Guid userId);
+        Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, string userId);
 
-       
         Task<PharmacyDto> GetPharmacyBasicInfoAsync(int pharmacyId);
+        Task<int> GetPharmacyIdByUserIdAsync(string userId);
     }
 }
 

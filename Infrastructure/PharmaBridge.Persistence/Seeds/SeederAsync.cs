@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
+using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 namespace PharmaBridge.Persistence.Seeds
 {
@@ -48,7 +50,178 @@ namespace PharmaBridge.Persistence.Seeds
                 }
             }
         }
+        public static async Task SeedOrderTestDataAsync(PharmaDbContext context)
+        {
+            if (await context.Set<Domain.Models.UserAccess.Order>().AnyAsync()) return;
 
+            var patientUser = await context.Users
+                .Include(u => u.PatientProfile)
+                    .ThenInclude(p => p!.PatientAddresses)
+                .FirstOrDefaultAsync(u => u.Email == "nour.patient@softbridge.com");
+
+            var pharmacy = await context.Set<Pharmacy>().FirstOrDefaultAsync(p => p.PharmacyName == "Nour Pharmacy");
+            var pharmacy2 = await context.Set<Pharmacy>().FirstOrDefaultAsync(p => p.PharmacyName == "Hossam Pharmacy");
+
+            if (patientUser?.PatientProfile == null || pharmacy == null)
+            {
+                Console.WriteLine("❌ Seed failed: Run SeedDummyUsersAsync first.");
+                return;
+            }
+
+            var patientProfile = patientUser.PatientProfile;
+            var deliveryAddress = patientProfile.PatientAddresses.FirstOrDefault();
+
+            if (deliveryAddress == null)
+            {
+                Console.WriteLine("❌ Seed failed: No address found for patient.");
+                return;
+            }
+
+            var seedData = new List<(
+                string MedicineName,
+                string PatientNotes,
+                decimal Subtotal,
+                decimal Discount,
+                decimal Delivery,
+                decimal Total,
+                int DeliveryTime,
+                OrderStatus OrderStatus,
+                List<(string Name, decimal Unit, short Qty, bool IsAlt)> Items,
+                Pharmacy Pharmacy
+            )>
+{
+    (
+        "Panadol 500mg x2, Amoxicillin 250mg x1",
+        "Please deliver before 5 PM",
+        150.00m, 10.00m, 20.00m, 160.00m, 30,
+        OrderStatus.Pending,
+        new() {
+            ("Panadol 500mg",     25.00m, 2, false),
+            ("Amoxicillin 250mg", 100.00m, 1, false)
+        },
+        pharmacy
+    ),
+    (
+        "Voltaren Gel x1, Vitamin C 1000mg x3",
+        "Ring the bell twice",
+        200.00m, 0.00m, 15.00m, 215.00m, 45,
+        OrderStatus.Accepted,
+        new() {
+            ("Voltaren Gel",     120.00m, 1, false),
+            ("Vitamin C 1000mg",  30.00m, 3, false)
+        },
+        pharmacy
+    ),
+    (
+        "Insulin Pen x1, Glucometer Strips x2",
+        "Fragile items — handle with care",
+        400.00m, 20.00m, 25.00m, 405.00m, 60,
+        OrderStatus.Preparing,
+        new() {
+            ("Insulin Pen",       300.00m, 1, false),
+            ("Glucometer Strips",  50.00m, 2, false)
+        },
+        pharmacy2 ?? pharmacy
+    ),
+    (
+        "Omeprazole 20mg x1, Gaviscon Syrup x1",
+        "Leave at the door if no answer",
+        85.00m, 5.00m, 10.00m, 90.00m, 20,
+        OrderStatus.Completed,
+        new() {
+            ("Omeprazole 20mg", 35.00m, 1, false),
+            ("Gaviscon Syrup",  55.00m, 1, false)
+        },
+        pharmacy2 ?? pharmacy
+    ),
+    (
+        "Augmentin 625mg x1, Brufen 400mg x2",
+        "Call before arriving",
+        175.00m, 15.00m, 20.00m, 180.00m, 35,
+        OrderStatus.Cancelled,
+        new() {
+            ("Augmentin 625mg", 125.00m, 1, false),
+            ("Brufen 400mg",     25.00m, 2, false)
+        },
+        pharmacy
+    ),
+};
+
+            int bidIndex = 1;
+            foreach (var data in seedData)
+            {
+                // 1 — PrescriptionRequest
+                var prescription = new PrescriptionRequestEntity
+                {
+                    MedicineName = data.MedicineName,
+                    PatientNotes = data.PatientNotes,
+                    Status = PrescriptionStatus.Pending,
+                    ExpiresAt = DateTime.UtcNow.AddHours(24),
+                    PatientProfileId = patientProfile.Id,
+                    DeliveryAddressId = deliveryAddress.Id
+                };
+                await context.Set<PrescriptionRequestEntity>().AddAsync(prescription);
+                await context.SaveChangesAsync();
+                // 2 — Bid
+                var bid = new Bid
+                {
+                    Subtotal = data.Subtotal,
+                    DiscountAmount = data.Discount,
+                    DeliveryFee = data.Delivery,
+                    TotalPrice = data.Total,
+                    Status = BidStatus.Accepted,
+                    Notes = $"Bid {bidIndex} — all items available",
+                    DeliveryTimeInMinutes = data.DeliveryTime,
+                    PharmacyId = data.Pharmacy.Id,
+                    PrescriptionRequestId = prescription.Id,
+                    BidItems = data.Items.Select(i => new BidItem
+                    {
+                        ItemName = i.Name,
+                        UnitPrice = i.Unit,
+                        Quantity = i.Qty,
+                        LineTotal = i.Unit * i.Qty,
+                        IsAlternative = i.IsAlt
+                    }).ToList()
+                };
+                await context.Set<Bid>().AddAsync(bid);
+                await context.SaveChangesAsync();
+
+                // 3 — Order
+                var order = new Domain.Models.UserAccess.Order
+                {
+                    Amount = data.Total,
+                    PaymentMethod = PaymentMethodType.CashOnDelivery,
+                    PaymentStatus = data.OrderStatus == OrderStatus.Completed
+                                                ? PaymentStatus.Succeeded
+                                                : PaymentStatus.Pending,
+                    OrderStatus = data.OrderStatus,
+                    BidId = bid.Id,
+                    PharmacyId = data.Pharmacy.Id,
+                    PrescriptionRequestId = prescription.Id,
+                    PatientProfileId = patientProfile.Id,
+                    PatientAddressId = deliveryAddress.Id,
+                    CancelReason = data.OrderStatus == OrderStatus.Cancelled
+                                                ? "Patient changed their mind"
+                                                : null,
+                    CancelledAt = data.OrderStatus == OrderStatus.Cancelled
+                                                ? DateTime.UtcNow.AddDays(-1)
+                                                : null,
+                    DeliveredAt = data.OrderStatus == OrderStatus.Completed
+                                                ? DateTime.UtcNow.AddHours(-2)
+                                                : null,
+                };
+                await context.Set<Domain.Models.UserAccess.Order>().AddAsync(order);
+                await context.SaveChangesAsync();
+
+                Console.WriteLine($"   ✅ Order {bidIndex} seeded — Status: {data.OrderStatus} | Bid ID: {bid.Id} | Pharmacy ID: {data.Pharmacy.Id}");
+                bidIndex++;
+            }
+            Console.WriteLine("==============================================");
+            Console.WriteLine("✅ OrderTestSeeder completed — 5 orders created");
+            Console.WriteLine($"   Pharmacy ID (Nour)   : {pharmacy.Id}");
+            Console.WriteLine($"   Pharmacy ID (Hossam) : {pharmacy2?.Id ?? pharmacy.Id}");
+            Console.WriteLine("==============================================");
+        }
         public static async Task SeedDummyUsersAsync(UserManager<ApplicationUser> userManager)
         {
             var teamMembers = new List<string> { "nour", "hossam", "adel", "maryam", "essam", "sobih" };
@@ -113,8 +286,7 @@ namespace PharmaBridge.Persistence.Seeds
                             NationalId = $"2900101123450{uniqueCounter}",
                             Status = PharmaOwnerStatus.Approved,
 
-                            Pharmacies = new List<Pharmacy>
-                    {
+                            Pharmacy = 
                         new Pharmacy
                         {
                             PharmacyName = $"{CapitalizedName} Pharmacy",
@@ -131,7 +303,6 @@ namespace PharmaBridge.Persistence.Seeds
                             ContactPhone = $"0100000000{uniqueCounter}", 
                             AverageRating = 0.0m
                         }
-                    }
                         }
                     };
 
