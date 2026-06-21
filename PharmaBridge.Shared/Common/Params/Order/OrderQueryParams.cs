@@ -18,6 +18,12 @@ namespace PharmaBridge.Shared.Common.Params.Order
 
         // For Admin: filtering by a specific pharmacy or patient
         public int? PharmacyId { get; set; }
-        public Guid? PatientId { get; set; }
+
+        private string? _patientId;
+        public string? PatientId
+        {
+            get => _patientId;
+            set => _patientId = value?.Trim().ToLower();
+        }
     }
 }

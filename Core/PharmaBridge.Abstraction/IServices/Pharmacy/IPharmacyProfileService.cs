@@ -17,8 +17,8 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
 
         Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, string userId);
 
-       
         Task<PharmacyDto> GetPharmacyBasicInfoAsync(int pharmacyId);
+        Task<int> GetPharmacyIdByUserIdAsync(string userId);
     }
 }
 

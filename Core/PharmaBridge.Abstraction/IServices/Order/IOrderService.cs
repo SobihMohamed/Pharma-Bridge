@@ -28,15 +28,15 @@ namespace PharmaBridge.Abstraction.IServices.Order
         // =========================================================================
         // --- Patient (Client) Operations ---
         // =========================================================================
-        //Task<Pagination<OrderDto>> GetPatientOrdersAsync(Guid patientId, OrderQueryParams queryParams);
-        //Task<OrderDetailsDto> GetPatientOrderDetailsAsync(Guid orderId, Guid patientId);
+        Task<PaginationResponse<OrderDto>> GetPatientOrdersAsync(Guid patientId, OrderQueryParams queryParams);
+        Task<OrderDetailsDto> GetPatientOrderDetailsAsync(int orderId, Guid patientId);
 
 
         // =========================================================================
         // --- Admin Operations (Read-Only Observer) ---
         // =========================================================================
-        //Task<Pagination<OrderDto>> GetAllPlatformOrdersAsync(OrderQueryParams queryParams);
-        //Task<OrderDetailsDto> GetAdminOrderDetailsAsync(Guid orderId);
+        Task<PaginationResponse<OrderDto>> GetAllPlatformOrdersAsync(OrderQueryParams queryParams);
+        Task<AdminOrderDetailsDto> GetAdminOrderDetailsAsync(int orderId);
     }
 }
 /*

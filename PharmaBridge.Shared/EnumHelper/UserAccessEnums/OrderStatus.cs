@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +10,7 @@ namespace PharmaBridge.Shared.EnumHelper.UserAccessEnums
         Accepted = 2,
         InTransit = 3,
         Preparing = 4,
-        Delivered = 5,
+        Completed = 5,
         Cancelled = 6,
         Returned = 7,
     }

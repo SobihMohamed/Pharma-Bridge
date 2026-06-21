@@ -11,7 +11,8 @@ namespace PharmaBridge.Services.Specifications.Bidding
         {
             AddInclude(b => b.BidItems);
             AddInclude(b => b.Pharmacy);
-            AddInclude(b => b.Order);  // needed for nullable OrderId
+            //AddInclude(b => b.Order);  // needed for nullable OrderId
+            AddInclude(b => b.PrescriptionRequest);
         }
     }
 }

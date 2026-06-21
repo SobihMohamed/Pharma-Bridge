@@ -22,6 +22,6 @@ namespace PharmaBridge.Domain.Models.User
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
 
-        public virtual ICollection<Pharmacy> Pharmacies { get; set; } =new HashSet<Pharmacy>();
+        public virtual Pharmacy? Pharmacy { get; set; }
     }
 }
