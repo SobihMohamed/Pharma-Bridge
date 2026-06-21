@@ -12,6 +12,7 @@ namespace PharmaBridge.Services.Specifications.Ratings
         {
             AddInclude(r => r.PatientProfile);
             AddInclude("PatientProfile.ApplicationUser");
+            AddInclude(r => r.Pharmacy);
             AddOrderBy(r => r.CreatedAt, true); // Most recent first
         }
 
@@ -22,6 +23,7 @@ namespace PharmaBridge.Services.Specifications.Ratings
         {
             AddInclude(r => r.PatientProfile);
             AddInclude("PatientProfile.ApplicationUser");
+            AddInclude(r => r.Pharmacy);
             AddOrderBy(r => r.CreatedAt, true); // Most recent first
 
             if (queryParams.PageSize > 0)

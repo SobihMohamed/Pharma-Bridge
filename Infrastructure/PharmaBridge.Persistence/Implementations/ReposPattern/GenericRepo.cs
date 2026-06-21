@@ -32,7 +32,7 @@ namespace PharmaBridge.Persistence.Implementations.ReposPattern
         public async Task<TEntity?> GetByIdAsync(TKey id) => await _dbSet.FindAsync(id);
         public async Task<TEntity?> GetByIdWithSpecAsync(ISpecifications<TEntity, TKey> specifications)
         {
-            var BaseQuery = _dbSet.AsNoTracking();
+            var BaseQuery = _dbSet.AsQueryable();
             var Query = SpecificationEvaluator.GenerateQuery(BaseQuery, specifications);
             return await Query.FirstOrDefaultAsync();
         }

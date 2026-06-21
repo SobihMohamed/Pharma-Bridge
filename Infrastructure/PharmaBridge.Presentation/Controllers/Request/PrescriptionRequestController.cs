@@ -55,5 +55,17 @@ namespace PharmaBridge.Presentation.Controllers
             var result = await _prescriptionRequestService.GetPatientRequestDetailsAsync(id, patientId);
             return Success(result, "Request details retrieved successfully");
         }
+
+        [HttpPatch("{id}/cancel")]
+        public async Task<ActionResult> CancelRequest(int id)
+        {
+            var patientId = GetPatientIdFromToken();
+            var result = await _prescriptionRequestService.CancelRequestAsync(id, patientId);
+
+            if (result)
+                return Success("Request cancelled successfully");
+
+            return BadRequestError("Failed to cancel request. It might already have accepted bids or is already closed.");
+        }
     }
 }

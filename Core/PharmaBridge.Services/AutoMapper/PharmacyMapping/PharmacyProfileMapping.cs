@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.DTOs.Pharmacy;

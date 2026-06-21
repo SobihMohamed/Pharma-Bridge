@@ -286,8 +286,7 @@ namespace PharmaBridge.Persistence.Seeds
                             NationalId = $"2900101123450{uniqueCounter}",
                             Status = PharmaOwnerStatus.Approved,
 
-                            Pharmacies = new List<Pharmacy>
-                    {
+                            Pharmacy = 
                         new Pharmacy
                         {
                             PharmacyName = $"{CapitalizedName} Pharmacy",
@@ -304,7 +303,6 @@ namespace PharmaBridge.Persistence.Seeds
                             ContactPhone = $"0100000000{uniqueCounter}", 
                             AverageRating = 0.0m
                         }
-                    }
                         }
                     };
 
