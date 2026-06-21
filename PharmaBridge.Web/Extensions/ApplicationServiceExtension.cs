@@ -5,6 +5,7 @@ using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Abstraction.IServices.Complaint;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Order;
+using PharmaBridge.Abstraction.IServices.PatientProfiles;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Abstraction.IServices.Token;
@@ -22,6 +23,7 @@ using PharmaBridge.Services.ServicesImplementation.Complaint;
 using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.ServicesImplementation.Notification.StrategyPattern;
 using PharmaBridge.Services.ServicesImplementation.OrderService;
+using PharmaBridge.Services.ServicesImplementation.Patient;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
 using PharmaBridge.Web.Hubs;
@@ -63,6 +65,8 @@ namespace PharmaBridge.Web.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped(typeof(PictureResolver<,>));
 
+
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             // 5. MediatR Registration 
             services.AddMediatR(cfg =>
             {
@@ -71,6 +75,7 @@ namespace PharmaBridge.Web.Extensions
 
 
 
+            services.AddScoped<IPatientProfileService, PatientProfileService>();
 
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddControllers()
