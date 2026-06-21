@@ -1,7 +1,8 @@
-﻿using PharmaBridge.Shared.Dto_s.Notificaiton;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Notification;
+using PharmaBridge.Shared.Dto_s.Notificaiton;
+using PharmaBridge.Shared.DTOs.Notificaiton;
+using PharmaBridge.Shared.EnumHelper.NotificationEnums;
 
 namespace PharmaBridge.Abstraction.IServices.Notification
 {
@@ -10,12 +11,12 @@ namespace PharmaBridge.Abstraction.IServices.Notification
     // (e.g., email, SMS, push notifications).
     public interface INotificationService
     {
-        Task SendNotificationAsync(MessageDto message, NotificationType type);
+        Task SendNotificationAsync(NotificationContentDto message, params NotificationType[] types);
 
         // --- User/Client Operations (The Bell Icon) ---
-        //Task<Pagination<NotificationDto>> GetUserNotificationsAsync(Guid userId);
-        //Task<bool> MarkAsReadAsync(Guid notificationId, Guid userId);
-        //Task<bool> MarkAllAsReadAsync(Guid userId);
+        Task<PaginationResponse<NotificationDto>> GetUserNotificationsAsync(string userId, NotificationQueryParams queryParams);
+        Task<bool> MarkAsReadAsync(int notificationId, string userId);
+        Task<bool> MarkAllAsReadAsync(string userId);
 
     }
 }

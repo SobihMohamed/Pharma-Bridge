@@ -65,8 +65,8 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
                    .HasMaxLength(500);
 
             builder.HasOne(x => x.PharmaOwner)
-                   .WithMany(o => o.Pharmacies)
-                   .HasForeignKey(x => x.PharmaOwnerId)
+                   .WithOne(o => o.Pharmacy)
+                   .HasForeignKey<Pharmacy>(x => x.PharmaOwnerId)
                    .OnDelete(DeleteBehavior.Restrict);
 
         }
