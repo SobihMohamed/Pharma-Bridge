@@ -58,6 +58,7 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IBidService, BidService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPharmacyRatingService, PharmacyRatingService>();
+            services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IComplaintService, ComplaintService>();
 
