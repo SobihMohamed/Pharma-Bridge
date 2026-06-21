@@ -1,6 +1,4 @@
-﻿// Path: PharmaBridge.Services/AutoMapper/OrderMapping/OrderMappingProfile.cs
-
-using AutoMapper;
+﻿using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Shared.DTOs.BidItem;
@@ -15,6 +13,7 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
             MapBidItemToBidItemDto();
             MapOrderToOrderDto();
             MapOrderToOrderDetailsDto();
+            MapOrderToAdminOrderDetailsDto();
         }
 
         private void MapBidItemToBidItemDto()
@@ -101,6 +100,49 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
             // Id, Amount, CancelReason, PaymentMethod, PaymentStatus,
             // CreatedAt, CancelledAt, DeliveredAt, CompletedAt,
             // PharmacyId, BidId, PrescriptionRequestId
+        }
+        private void MapOrderToAdminOrderDetailsDto()
+        {
+            CreateMap<Order, AdminOrderDetailsDto>()
+                .ForMember(dest => dest.OrderStatus,
+                    opt => opt.MapFrom(src => src.OrderStatus.ToString()))
+
+                .ForMember(dest => dest.PaymentMethod,
+                    opt => opt.MapFrom(src => src.PaymentMethod.ToString()))
+                .ForMember(dest => dest.PaymentStatus,
+                    opt => opt.MapFrom(src => src.PaymentStatus.ToString()))
+
+                // Price breakdown from Bid
+                .ForMember(dest => dest.Subtotal,
+                    opt => opt.MapFrom(src => src.Bid.Subtotal))
+                .ForMember(dest => dest.DeliveryFee,
+                    opt => opt.MapFrom(src => src.Bid.DeliveryFee))
+                .ForMember(dest => dest.DiscountAmount,
+                    opt => opt.MapFrom(src => src.Bid.DiscountAmount))
+
+                // Pharmacy
+                .ForMember(dest => dest.PharmacyName,
+                    opt => opt.MapFrom(src => src.Pharmacy.PharmacyName))
+                .ForMember(dest => dest.PharmacyPhone,
+                    opt => opt.MapFrom(src => src.Pharmacy.ContactPhone))
+
+                // Patient Admin sees PatientProfileId too
+                .ForMember(dest => dest.PatientId,
+                    opt => opt.MapFrom(src => src.PatientProfileId))
+                .ForMember(dest => dest.PatientName,
+                    opt => opt.MapFrom(src => src.PatientProfile.ApplicationUser.FullName))
+                .ForMember(dest => dest.PatientPhone,
+                    opt => opt.MapFrom(src => src.PatientProfile.ApplicationUser.PhoneNumber))
+
+                // Delivery address
+                .ForMember(dest => dest.DeliveryAddress,
+                    opt => opt.MapFrom(src =>
+                        src.PatientAddress == null
+                            ? string.Empty : $"{src.PatientAddress.AddressLine}, {src.PatientAddress.City}"))
+
+                // Items
+                .ForMember(dest => dest.Items,
+                    opt => opt.MapFrom(src => src.Bid.BidItems));
         }
     }
 }

@@ -73,6 +73,18 @@ namespace PharmaBridge.Web.Extensions
                 cfg.RegisterServicesFromAssembly(typeof(PrescriptionRequestService).Assembly);
             });
 
+
+
+
+            services.AddScoped<IComplaintService, ComplaintService>();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    // convert the enum from num to string
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
+            services.AddTransient(typeof(PictureResolver<,>));
             return services;
         }
     }
