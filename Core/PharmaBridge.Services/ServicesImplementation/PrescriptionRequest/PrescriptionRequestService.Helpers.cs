@@ -50,10 +50,10 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             return request;
         }
 
-        private async Task<PatientAddress> GetValidAddressAsync(int addressId, string patientId)
+        private async Task<Domain.Models.User.PatientAddress> GetValidAddressAsync(int addressId, string patientId)
         {
             var addressSpec = new PatientAddressWithPatientprofileSpec(addressId, patientId);
-            var addressRepo = unitOfWork.GetRepository<PatientAddress, int>();
+            var addressRepo = unitOfWork.GetRepository<Domain.Models.User.PatientAddress, int>();
 
             var deliveryAddress = await addressRepo.GetByIdWithSpecAsync(addressSpec);
             if (deliveryAddress == null) throw new BadRequestCustomeException("Invalid delivery address");
