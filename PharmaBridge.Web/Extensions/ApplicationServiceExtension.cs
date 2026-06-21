@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Auth;
+using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Abstraction.IServices.Complaint;
 using PharmaBridge.Abstraction.IServices.CurrentUser;
 using PharmaBridge.Abstraction.IServices.Notification;
@@ -15,6 +16,7 @@ using PharmaBridge.Persistence.Implementations.ReposPattern;
 using PharmaBridge.Persistence.Implementations.SpecificReposPattern;
 using PharmaBridge.Domain.Contracts.SpecificReposPattern;
 using PharmaBridge.Persistence.Implementations.UoWPattern;
+using PharmaBridge.Services.Bidding;
 using PharmaBridge.Services.Resolver;
 using PharmaBridge.Services.ServicesImplementation.Attachement;
 using PharmaBridge.Services.ServicesImplementation.Auth;
@@ -34,6 +36,7 @@ namespace PharmaBridge.Web.Extensions
     {
         public static IServiceCollection AddApplicationService(this IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             // 1. Core & Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDbInitializer, DbInitialized>();
@@ -53,6 +56,7 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IAttachementService, AttachmentService>();
             services.AddScoped<IPrescriptionRequestService, PrescriptionRequestService>();
             services.AddScoped<IPharmacyProfileService, PharmacyProfileService>();
+            services.AddScoped<IBidService, BidService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPharmacyRatingService, PharmacyRatingService>();
             services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();

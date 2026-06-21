@@ -16,7 +16,7 @@ namespace PharmaBridge.Abstraction.IServices.Bidding
         Task<BidDetailsDto> CreateBidAsync(CreateBidDto createBidDto, int pharmacyId);
 
         // Pharmacy can update their bid (e.g., adjust price) BEFORE the patient accepts it.
-        //Task<BidDetailsDto> UpdateBidAsync(UpdateBidDto updateBidDto, Guid pharmacyId);
+        Task<BidDetailsDto> UpdateBidAsync(UpdateBidDto updateBidDto, int pharmacyId);
 
         // Pharmacy can view all their submitted bids with filtering options.
         Task<PaginationResponse<BidDto>> GetPharmacyBidsAsync(int pharmacyId, BidQueryParams queryParams);
@@ -25,20 +25,20 @@ namespace PharmaBridge.Abstraction.IServices.Bidding
         // --- Patient (Client) Operations ---
 
         // Patient views all received bids for a specific prescription request.
-        //Task<Pagination<BidDto>> GetBidsForRequestAsync(Guid requestId, Guid patientId, BidQueryParams queryParams);
+        Task<PaginationResponse<BidDto>> GetBidsForRequestAsync(int requestId, string patientId, BidQueryParams queryParams);
 
         // Patient accepts a specific bid. 
         // CRITICAL: Closes the PrescriptionRequest, rejects other bids, and triggers Order creation!
-        //Task<bool> AcceptBidAsync(Guid bidId, Guid patientId);
+        Task<bool> AcceptBidAsync(int bidId, string patientId);
 
         // Patient manually rejects a specific bid.
-        //Task<bool> RejectBidAsync(Guid bidId, Guid patientId);
+        Task<bool> RejectBidAsync(int bidId, string patientId);
 
 
         // --- Shared Operations (Patient & Pharmacy) ---
 
         // View full details of a specific bid including the List of BidItemDto.
-        //Task<BidDetailsDto> GetBidDetailsAsync(Guid bidId);
+        Task<BidDetailsDto> GetBidDetailsAsync(int bidId);
 
 
         // --- Admin Operations ---
