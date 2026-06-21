@@ -243,7 +243,7 @@ namespace PharmaBridge.Persistence.Seeds
                         EmailConfirmed = true,
                         PatientProfile = new PatientProfile
                         {
-                            Id = Guid.NewGuid().ToString(),
+                            Id = Guid.NewGuid().ToString(), ///// we want jwt not to use the same id for all patients
                             PatientAddresses = new List<PatientAddress>
                     {
                         new PatientAddress
