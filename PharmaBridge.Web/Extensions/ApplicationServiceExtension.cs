@@ -66,7 +66,6 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped(typeof(PictureResolver<,>));
 
 
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
             // 5. MediatR Registration 
             services.AddMediatR(cfg =>
             {
