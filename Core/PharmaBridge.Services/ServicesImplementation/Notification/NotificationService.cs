@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
+using PharmaBridge.Services.Specifications.Notification;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Notification;
 using PharmaBridge.Shared.Dto_s.Notificaiton;
 using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.EnumHelper.NotificationEnums;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace PharmaBridge.Services.ServicesImplementation.Notification
 {
@@ -45,19 +44,60 @@ namespace PharmaBridge.Services.ServicesImplementation.Notification
                 }
             }
         }
-        public Task<PaginationResponse<NotificationDto>> GetUserNotificationsAsync(string userId, NotificationQueryParams queryParams)
+        
+        public async Task<PaginationResponse<NotificationDto>> GetUserNotificationsAsync(string userId, NotificationQueryParams queryParams)
         {
-            throw new NotImplementedException();
+            var repo = unitOfWork.GetRepository<Domain.Models.UserAccess.Notification, int>();
+
+            var dataSpec = new UserNotificationsSpec(userId, queryParams);
+            var countSpec = new UserNotificationsCountSpec(userId);
+
+            var notifications = await repo.GetAllWithSpecAsync(dataSpec);
+            var totalCount = await repo.GetCountAsync(countSpec);
+
+            var mappedNotifications = mapper.Map<IReadOnlyList<NotificationDto>>(notifications);
+
+            return new PaginationResponse<NotificationDto>(
+                index: queryParams.PageIndex,
+                size: queryParams.PageSize,
+                total: totalCount,
+                data: mappedNotifications
+            );
         }
 
-        public Task<bool> MarkAllAsReadAsync(string userId)
+        public async Task<bool> MarkAsReadAsync(int notificationId, string userId)
         {
-            throw new NotImplementedException();
+            var repo = unitOfWork.GetRepository<Domain.Models.UserAccess.Notification, int>();
+
+            var spec = new NotificationByIdAndUserSpec(notificationId, userId);
+            var notification = await repo.GetByIdWithSpecAsync(spec);
+
+            if (notification == null || notification.IsRead)
+                return false;
+
+            notification.IsRead = true;
+            repo.UpdateAsync(notification);
+
+            return await unitOfWork.SaveChangesAsync() > 0;
         }
 
-        public Task<bool> MarkAsReadAsync(int notificationId, string userId)
+        public async Task<bool> MarkAllAsReadAsync(string userId)
         {
-            throw new NotImplementedException();
+            var repo = unitOfWork.GetRepository<Domain.Models.UserAccess.Notification, int>();
+
+            var spec = new UnreadUserNotificationsSpec(userId);
+            var unreadNotifications = await repo.GetAllWithSpecAsync(spec);
+
+            if (unreadNotifications == null || !unreadNotifications.Any())
+                return true; 
+
+            foreach (var notification in unreadNotifications)
+            {
+                notification.IsRead = true;
+                repo.UpdateAsync(notification);
+            }
+
+            return await unitOfWork.SaveChangesAsync() > 0;
         }
 
     }
