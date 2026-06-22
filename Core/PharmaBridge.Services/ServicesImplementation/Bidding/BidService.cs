@@ -132,33 +132,35 @@ namespace PharmaBridge.Services.Bidding
             return BuildPaginatedResult<BidDto>(bids, totalCount, queryParams);
         }
 
-        public async Task<bool> AcceptBidAsync(int bidId, string patientId)
+        public async Task<bool> RespondToBidAsync(int bidId, string patientId, BidStatus status)
         {
+            if (status != BidStatus.Accepted && status != BidStatus.Rejected)
+                throw new BadRequestCustomeException("Status must be either Accepted or Rejected.");
+
             var bid = await GetBidWithDetailsOrThrowAsync(bidId);
 
             await EnsurePatientOwnsRequestOfTheBidAsync(bid);
             EnsureBidIsPending(bid);
 
-            await ExecuteAcceptBidTransactionAsync(bid);
+            if (status == BidStatus.Accepted)
+                await ExecuteAcceptBidTransactionAsync(bid);
+            else
+                await ExecuteRejectBidTransactionAsync(bid);
 
             return true;
         }
 
-        public async Task<bool> RejectBidAsync(int bidId, string patientId)
+        private async Task ExecuteRejectBidTransactionAsync(Bid bid)
         {
-            var bid = await GetBidWithDetailsOrThrowAsync(bidId);
-
-            await EnsurePatientOwnsRequestOfTheBidAsync(bid);
-            EnsureBidIsPending(bid);
-
             var bidRepo = _unitOfWork.GetRepository<Bid, int>();
+
             bid.Status = BidStatus.Rejected;
             bid.RespondedAt = DateTime.UtcNow;
             bidRepo.UpdateAsync(bid);
-            await _unitOfWork.SaveChangesAsync();
 
-            return true;
+            await _unitOfWork.SaveChangesAsync();
         }
+
 
         public async Task<BidDetailsDto> GetBidDetailsAsync(int bidId)
         {

@@ -5,6 +5,7 @@ using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Bid;
 using PharmaBridge.Shared.DTOs.Bid;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System.Security.Claims;
 
 namespace PharmaBridge.API.Controllers
@@ -90,23 +91,19 @@ namespace PharmaBridge.API.Controllers
         }
 
 
-        [HttpPatch("{bidId:int}/accept")]
-        public async Task<IActionResult> AcceptBid([FromRoute] int bidId)
+        [HttpPatch("{bidId:int}/status")]
+        public async Task<IActionResult> RespondToBid(
+            [FromRoute] int bidId,
+            [FromQuery] BidStatus status)
         {
             var patientId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _bidService.RespondToBidAsync(bidId, patientId, status);
 
-            await _bidService.AcceptBidAsync(bidId, patientId);
-            return Ok(new { message = "Bid accepted successfully." });
-        }
+            var message = status == BidStatus.Accepted
+                ? "Bid accepted successfully."
+                : "Bid rejected successfully.";
 
-
-        [HttpPatch("{bidId:int}/reject")]
-        public async Task<IActionResult> RejectBid([FromRoute] int bidId)
-        {
-            var patientId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-            await _bidService.RejectBidAsync(bidId, patientId);
-            return Ok(new { message = "Bid rejected successfully." });
+            return Ok(new { message });
         }
 
 
