@@ -9,10 +9,10 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
     {
         public PatientProfileMapping()
         {
-            //Address Mapping
+            // Address Mapping
             CreateMap<PatientAddress, PatientAddressDto>();
 
-            //PatientProfile → PatientProfileDto
+            // PatientProfile → PatientProfileDto
             CreateMap<PatientProfile, PatientProfileDto>()
                 .ForMember(dest => dest.FullName,
                     opt => opt.MapFrom(src => src.ApplicationUser.FullName))
@@ -21,7 +21,7 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
                 .ForMember(dest => dest.PhoneNumber,
                     opt => opt.MapFrom(src => src.ApplicationUser.PhoneNumber));
 
-            //PatientProfile → PatientProfileDetailsDto
+            // PatientProfile → PatientProfileDetailsDto
             CreateMap<PatientProfile, PatientProfileDetailsDto>()
                 .IncludeBase<PatientProfile, PatientProfileDto>()
                 .ForMember(dest => dest.Addresses,

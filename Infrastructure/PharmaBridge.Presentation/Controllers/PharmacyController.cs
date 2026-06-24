@@ -72,10 +72,16 @@ namespace PharmaBridge.Presentation.Controllers
         [HttpGet("{pharmacyId}/dashboard/snapshot")]
         [Authorize(Roles = "Admin,PharmacyOwner")]
         public async Task<IActionResult> GetPharmacyPerformanceSnapshot(
-            int pharmacyId, 
+            int pharmacyId,
             [FromServices] IPharmacyDashboardService pharmacyDashboardService)
         {
-            var result = await pharmacyDashboardService.GetMyPerformanceSnapshotAsync(pharmacyId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var role = User.FindFirstValue(ClaimTypes.Role);
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(role))
+                return UnauthorizedError();
+
+            var result = await pharmacyDashboardService.GetMyPerformanceSnapshotAsync(pharmacyId, userId, role);
             return Success(result);
         }
     }

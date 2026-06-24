@@ -4,6 +4,7 @@ using PharmaBridge.Abstraction.IServices.PatientProfiles;
 using PharmaBridge.Shared.Common.Params.Patient;
 using PharmaBridge.Shared.DTOs.PatientProfiles;
 using System.Security.Claims;
+using System;
 using System.Threading.Tasks;
 
 namespace PharmaBridge.Presentation.Controllers.PatientProfile

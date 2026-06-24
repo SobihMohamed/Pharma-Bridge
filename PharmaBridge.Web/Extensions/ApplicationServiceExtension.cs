@@ -60,6 +60,7 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IPharmacyRatingService, PharmacyRatingService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IComplaintService, ComplaintService>();
+            services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();
 
             // 4. Helpers & Resolvers
             services.AddHttpContextAccessor();

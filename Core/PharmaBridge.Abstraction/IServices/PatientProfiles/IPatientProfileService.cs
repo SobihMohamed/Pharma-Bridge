@@ -16,10 +16,10 @@ namespace PharmaBridge.Abstraction.IServices.PatientProfiles
         //  --- Patient(Client) Operations ---
         //  =========================================================================
 
-        // Patient views their own profile details(Name, Phone, etc.) by their Application User ID.
+        // Patient views their own profile details(Name, Phone, Medical Notes, etc.) by their Application User ID.
         Task<PatientProfileDetailsDto> GetMyProfileAsync(string applicationUserId);
 
-        // Patient updates their personal info and phone number.
+        // Patient updates their personal info and medical notes.
         Task<PatientProfileDetailsDto> UpdateMyProfileAsync(string applicationUserId, PatientProfileToUpdateDto updateDto);
 
         //  =========================================================================

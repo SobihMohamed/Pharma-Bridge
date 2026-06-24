@@ -10,6 +10,6 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
     public interface IPharmacyDashboardService
     {
         // Gets quick stats: Today's Orders, Total Revenue, Pending Requests nearby, Average Rating.
-        Task<PharmaPerformSnapshotDto> GetMyPerformanceSnapshotAsync(int pharmacyId);
+        Task<PharmaPerformSnapshotDto> GetMyPerformanceSnapshotAsync(int pharmacyId, string userId, string role);
     }
 }
