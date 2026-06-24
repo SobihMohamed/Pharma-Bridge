@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Shared.DTOs.PatientProfiles;
 using PharmaBridge.Shared.DTOs.PatientAddresses;
@@ -9,11 +9,10 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
     {
         public PatientProfileMapping()
         {
-            // 🟢 Address Mapping
+            //Address Mapping
             CreateMap<PatientAddress, PatientAddressDto>();
 
-
-            // 🟢 PatientProfile → PatientProfileDto
+            //PatientProfile → PatientProfileDto
             CreateMap<PatientProfile, PatientProfileDto>()
                 .ForMember(dest => dest.FullName,
                     opt => opt.MapFrom(src => src.ApplicationUser.FullName))
@@ -22,8 +21,7 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
                 .ForMember(dest => dest.PhoneNumber,
                     opt => opt.MapFrom(src => src.ApplicationUser.PhoneNumber));
 
-
-            // 🟢 PatientProfile → PatientProfileDetailsDto
+            //PatientProfile → PatientProfileDetailsDto
             CreateMap<PatientProfile, PatientProfileDetailsDto>()
                 .IncludeBase<PatientProfile, PatientProfileDto>()
                 .ForMember(dest => dest.Addresses,
@@ -33,7 +31,7 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
                 .ForMember(dest => dest.OrdersCount,
                     opt => opt.MapFrom(src => src.Orders.Count))
                 .ForMember(dest => dest.ComplaintsSubmitted,
-                    opt => opt.MapFrom(src => src.PharmacyRatings.Count));
+                    opt => opt.MapFrom(src => src.ApplicationUser.Complaints.Count));
         }
     }
 }

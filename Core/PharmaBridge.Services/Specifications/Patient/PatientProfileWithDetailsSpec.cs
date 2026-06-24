@@ -1,15 +1,12 @@
-﻿using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
+using PharmaBridge.Domain.Contracts.SpecificationPattern.BaseSpec;
 using PharmaBridge.Domain.Models.User;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PharmaBridge.Services.Specifications.Patient
 {
     internal class PatientProfileWithDetailsSpec : BaseSpecifications<PatientProfile, string>
     {
-        public PatientProfileWithDetailsSpec(string patientId)
-        : base(p => p.ApplicationUserId == patientId)
+        public PatientProfileWithDetailsSpec(string applicationUserId)
+            : base(p => p.ApplicationUserId == applicationUserId)
         {
             AddInclude(p => p.ApplicationUser);
             AddInclude(p => p.PatientAddresses);
