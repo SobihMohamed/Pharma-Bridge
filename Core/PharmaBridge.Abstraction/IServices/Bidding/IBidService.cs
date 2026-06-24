@@ -1,6 +1,7 @@
-﻿using PharmaBridge.Shared.Common.Params.Bid;
-using PharmaBridge.Shared.Common.Pagination;
+﻿using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params.Bid;
 using PharmaBridge.Shared.DTOs.Bid;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 namespace PharmaBridge.Abstraction.IServices.Bidding
 {
@@ -29,10 +30,8 @@ namespace PharmaBridge.Abstraction.IServices.Bidding
 
         // Patient accepts a specific bid. 
         // CRITICAL: Closes the PrescriptionRequest, rejects other bids, and triggers Order creation!
-        Task<bool> AcceptBidAsync(int bidId, string patientId);
-
         // Patient manually rejects a specific bid.
-        Task<bool> RejectBidAsync(int bidId, string patientId);
+        Task<bool> RespondToBidAsync(int bidId, string patientId, BidStatus status);
 
 
         // --- Shared Operations (Patient & Pharmacy) ---
