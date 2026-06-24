@@ -43,6 +43,7 @@ namespace PharmaBridge.Web.Extensions
 
             // 2. (Strategy Pattern)
             services.AddScoped<INotificationStrategy, PushedNotificationStrategy>();
+            services.AddScoped<INotificationStrategy, EmailNotificationStrategy>();
 
             // Notification Hubs
             services.AddScoped<IWebNotificationPusher, WebNotificationPusher>();
