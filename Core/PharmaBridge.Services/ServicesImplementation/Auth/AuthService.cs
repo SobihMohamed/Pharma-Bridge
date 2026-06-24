@@ -7,15 +7,16 @@ using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
-using PharmaBridge.Shared.Dto_s.Notificaiton;
 using PharmaBridge.Shared.Dto_s.Token;
+using PharmaBridge.Shared.DTOs.Notificaiton;
+using PharmaBridge.Shared.EnumHelper.NotificationEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
 
 namespace PharmaBridge.Services.ServicesImplementation.Auth
 {
     public class AuthService(UserManager<ApplicationUser> _userManager
         //INotificationService _notificationService
-        , IMapper _mapper, ITokenService _tokenService)
+        , IMapper _mapper, ITokenService _tokenService , INotificationService _notificationService)
         : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -119,25 +120,30 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
             // 1 - Get the user from the database
             var user = await _userManager.FindByEmailAsync(forgetPasswordDto.Email);
             if (user == null)
-                return;
+                return; // Security best practice: don't reveal if email exists or not
 
-            // 2 - Generate OTP by => UserId + CurrentTime
-            // // it changed in table users in col callled :
-            // SecurityStamp his content changed every time we generate new OTP and we use it to verify the OTP later
+            // 2 - Generate OTP
             var otp = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            // 3 - Send OTP to user's email (this is a placeholder, you should implement actual email sending logic)
-            #region Email service 
-            //// 3 - Send OTP 
-            //var message = new MessageDto
-            //{
-            //    To = user.Email!,
-            //    Subject = "Password Reset OTP",
-            //    Body = $"Your OTP code is: {otp}. It is valid for 2 min."
-            //};
+            // 3 - Send OTP via Notification Service
+            var message = new NotificationContentDto
+            {
+                Email = user.Email!,
+                Subject = "PharmaBridge - Password Reset OTP",
+                Body = $@"
+            <div style='font-family: Arial, sans-serif; padding: 20px;'>
+                <h2>Password Reset Request</h2>
+                <p>Hello {user.FullName},</p>
+                <p>Your OTP code to reset your password is: <b style='font-size: 24px; color: #2563eb;'>{otp}</b></p>
+                <p>This code is valid for a short period of time.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+            </div>",
+                UserId = user.Id,
+                ReferenceId = null,
+                Payload = null
+            };
 
-            //await _notificationService.SendNotificationAsync(message, NotificationType.Email);
-            #endregion
+            await _notificationService.SendNotificationAsync(message, NotificationType.Email);
         }
         public async Task<bool> VerifyOtpAsync(VerifyOtpDto verifyOtpDto)
         {
