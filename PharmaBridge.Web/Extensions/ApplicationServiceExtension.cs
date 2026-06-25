@@ -5,15 +5,16 @@ using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Abstraction.IServices.Complaint;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Order;
+using PharmaBridge.Abstraction.IServices.PatientAddresses;
 using PharmaBridge.Abstraction.IServices.PatientProfiles;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Abstraction.IServices.Token;
+using PharmaBridge.Domain.Contracts.SpecificReposPattern;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.DbInitializer;
 using PharmaBridge.Persistence.Implementations.InitializerImplement;
 using PharmaBridge.Persistence.Implementations.SpecificReposPattern;
-using PharmaBridge.Domain.Contracts.SpecificReposPattern;
 using PharmaBridge.Persistence.Implementations.UoWPattern;
 using PharmaBridge.Services.Bidding;
 using PharmaBridge.Services.Resolver;
@@ -24,6 +25,7 @@ using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.ServicesImplementation.Notification.StrategyPattern;
 using PharmaBridge.Services.ServicesImplementation.OrderService;
 using PharmaBridge.Services.ServicesImplementation.Patient;
+using PharmaBridge.Services.ServicesImplementation.PatientAddress;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
 using PharmaBridge.Web.Hubs;
@@ -62,6 +64,11 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();
+
+
+
+
+            services.AddScoped<IPatientAddressService, PatientAddressService>();
 
             // 4. Helpers & Resolvers
             services.AddHttpContextAccessor();

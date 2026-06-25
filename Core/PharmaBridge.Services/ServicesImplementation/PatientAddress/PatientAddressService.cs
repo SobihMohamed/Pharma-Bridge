@@ -15,15 +15,20 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
     {
         public async Task<IReadOnlyList<PatientAddressDto>> GetPatientAddressesAsync(string patientId)
         {
-            var addresses = await FetchAddressesForPatientAsync(patientId);
+            string actualProfileId = await GetActualProfileIdAsync(patientId);
+            var addresses = await FetchAddressesForPatientAsync(actualProfileId);
             return mapper.Map<IReadOnlyList<PatientAddressDto>>(addresses);
+
         }
 
         public async Task<PatientAddressDto> AddAddressAsync(string patientId, CreatePatientAddressDto createDto)
         {
+            string actualProfileId = await GetActualProfileIdAsync(patientId);
+
             var address = mapper.Map<PharmaBridge.Domain.Models.User.PatientAddress>(createDto);
-            address.PatientProfileId = patientId;
-            await HandleFirstAddressDefaultRuleAsync(patientId, address);
+            address.PatientProfileId = actualProfileId;
+
+            await HandleAddressDefaultStateAsync(actualProfileId, address);
 
             await unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>().AddAsync(address);
             await CommitChangesAsync("Failed to add new patient address.");
@@ -33,7 +38,9 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
 
         public async Task<PatientAddressDto> UpdateAddressAsync(int addressId, string patientId, UpdatePatientAddressDto updateDto)
         {
-            var existingAddress = await FetchAddressOrThrowAsync(addressId, patientId);
+
+            string actualProfileId = await GetActualProfileIdAsync(patientId);
+            var existingAddress = await FetchAddressOrThrowAsync(addressId, actualProfileId); 
 
             mapper.Map(updateDto, existingAddress);
 
@@ -45,7 +52,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
 
         public async Task<bool> DeleteAddressAsync(int addressId, string patientId)
         {
-            var address = await FetchAddressOrThrowAsync(addressId, patientId);
+            string actualProfileId = await GetActualProfileIdAsync(patientId);
+            var address = await FetchAddressOrThrowAsync(addressId, actualProfileId);
 
             unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>().DeleteAsync(address);
             await CommitChangesAsync("Failed to delete patient address.");
@@ -55,8 +63,10 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
 
         public async Task<bool> SetDefaultAddressAsync(int addressId, string patientId)
         {
-            var newDefaultAddress = await FetchAddressOrThrowAsync(addressId, patientId);
-            await ApplySetDefaultBusinessRuleAsync(patientId, newDefaultAddress);
+            string actualProfileId = await GetActualProfileIdAsync(patientId);
+            var newDefaultAddress = await FetchAddressOrThrowAsync(addressId, actualProfileId);
+            await ApplySetDefaultBusinessRuleAsync(actualProfileId, newDefaultAddress);
+
             await CommitChangesAsync("Failed to set default patient address.");
             return true;
         }
@@ -64,36 +74,48 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
 
         #region Helper Methods
 
-        private async Task<IReadOnlyList<PharmaBridge.Domain.Models.User.PatientAddress>> FetchAddressesForPatientAsync(string patientId)
+        private async Task<IReadOnlyList<PharmaBridge.Domain.Models.User.PatientAddress>> FetchAddressesForPatientAsync(string profileId)
         {
-            var spec = new PatientAddressesByPatientIdSpec(patientId);
+            var spec = new PatientAddressesByPatientIdSpec(profileId);
             
             return await unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>().GetAllWithSpecAsync(spec);
         }
 
-        private async Task<PharmaBridge.Domain.Models.User.PatientAddress> FetchAddressOrThrowAsync(int addressId, string patientId)
+        private async Task<PharmaBridge.Domain.Models.User.PatientAddress> FetchAddressOrThrowAsync(int addressId, string profileId)
         {
-            var spec = new PatientAddressByIdAndPatientIdSpec(addressId, patientId);
+            var spec = new PatientAddressByIdAndPatientIdSpec(addressId, profileId);
             var address = await unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>().GetByIdWithSpecAsync(spec);
             if (address == null)
                 throw new NotFoundCutomeException($"Address with Id '{addressId}' was not found or access is denied.");
             return address;
         }
 
-        private async Task HandleFirstAddressDefaultRuleAsync(string patientId, PharmaBridge.Domain.Models.User.PatientAddress newAddress)
+        private async Task HandleAddressDefaultStateAsync(string profileId, PharmaBridge.Domain.Models.User.PatientAddress addressToSave)
         {
-            var currentAddresses = await FetchAddressesForPatientAsync(patientId);
+            var addressRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>();
+            var existingAddresses = await FetchAddressesForPatientAsync(profileId);
 
-            if (currentAddresses.Count == 0)
+            if (existingAddresses.Count == 0)
             {
-                newAddress.IsDefault = true;
+                addressToSave.IsDefault = true;
+            }
+            else if (addressToSave.IsDefault)
+            {
+                foreach (var oldAddress in existingAddresses)
+                {
+                    if (oldAddress.IsDefault && oldAddress.Id != addressToSave.Id)
+                    {
+                        oldAddress.IsDefault = false;
+                        addressRepo.UpdateAsync(oldAddress);
+                    }
+                }
             }
         }
 
-        private async Task ApplySetDefaultBusinessRuleAsync(string patientId, PharmaBridge.Domain.Models.User.PatientAddress newDefaultAddress)
+        private async Task ApplySetDefaultBusinessRuleAsync(string profileId, PharmaBridge.Domain.Models.User.PatientAddress newDefaultAddress)
         {
             var addressRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.User.PatientAddress, int>();
-            var allAddresses = await FetchAddressesForPatientAsync(patientId);
+            var allAddresses = await FetchAddressesForPatientAsync(profileId);
             foreach (var address in allAddresses)
             {
                 if (address.IsDefault)
@@ -111,6 +133,18 @@ namespace PharmaBridge.Services.ServicesImplementation.PatientAddress
             var result = await unitOfWork.SaveChangesAsync();
             if (result <= 0)
                 throw new BadRequestCustomeException(errorMessage);
+        }
+
+        private async Task<string> GetActualProfileIdAsync(string applicationUserId)
+        {
+            var spec = new PatientProfileByAppUserIdSpec(applicationUserId);
+            var profile = await unitOfWork.GetRepository<PatientProfile, string>().GetAllWithSpecAsync(spec);
+
+            var actualProfile = profile.FirstOrDefault();
+            if (actualProfile == null)
+                throw new NotFoundCutomeException("Patient Profile not found for this user.");
+
+            return actualProfile.Id;
         }
 
         #endregion
