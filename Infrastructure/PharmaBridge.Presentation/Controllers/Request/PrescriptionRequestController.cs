@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PharmaBridge.Abstraction.IServices; // غير ده للـ namespace بتاعك
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
-using PharmaBridge.Shared.DTOs; // غير ده للـ namespace بتاعك
 using PharmaBridge.Shared.DTOs.PharmaRequests;
+using PharmaBridge.Shared.Common.Response;
+using PharmaBridge.Shared.Common.Pagination;
 using System.Security.Claims;
 
 namespace PharmaBridge.Presentation.Controllers
 {
     [Route("api/prescription-requests")]
     [Authorize(Roles = "Patient")]
-    public class PrescriptionRequestController : AppBaseController 
+    public class PrescriptionRequestController : AppBaseController
     {
         private readonly IPrescriptionRequestService _prescriptionRequestService;
 
@@ -20,7 +21,6 @@ namespace PharmaBridge.Presentation.Controllers
             _prescriptionRequestService = prescriptionRequestService;
         }
 
-        // Helper Method: to extract the patient ID from the JWT token
         private Guid GetUserIdFromToken()
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -31,6 +31,10 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 1. Create a new prescription request
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> CreateRequest([FromForm] CreatePrescriptionRequestDto createDto)
         {
             var userId = GetUserIdFromToken();
@@ -38,8 +42,11 @@ namespace PharmaBridge.Presentation.Controllers
             return Created(result, "Prescription request created successfully");
         }
 
-        // 2. Get all requests for the logged-in patient (with pagination)
+        // 2. Get all requests for the logged-in patient
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<object>>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetPatientRequests([FromQuery] PrescriptionRequestQueryParams queryParams)
         {
             var userId = GetUserIdFromToken();
@@ -49,6 +56,10 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 3. Get specific request details
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetPatientRequestDetails(int id)
         {
             var userId = GetUserIdFromToken();
@@ -56,7 +67,12 @@ namespace PharmaBridge.Presentation.Controllers
             return Success(result, "Request details retrieved successfully");
         }
 
+        // 4. Cancel Request
         [HttpPatch("{id}/cancel")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> CancelRequest(int id)
         {
             var userId = GetUserIdFromToken();
