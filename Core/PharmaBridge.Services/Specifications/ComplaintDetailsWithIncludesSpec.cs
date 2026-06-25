@@ -12,7 +12,6 @@ namespace PharmaBridge.Services.Specifications
         {
             AddInclude(c => c.SubmittedBy);
             AddInclude(c => c.ResolvedBy);
-            AddInclude(c => c.Order);
         }
     }
 }

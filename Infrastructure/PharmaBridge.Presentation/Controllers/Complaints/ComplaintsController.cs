@@ -12,7 +12,6 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ComplaintsController : ControllerBase
     {
         private readonly IComplaintService _complaintService;
@@ -24,7 +23,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
 
         //Patient Endpoints
         [HttpPost("submit")]
-        //[Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient")]
         public async Task<IActionResult> SubmitComplaint([FromBody] CreateComplaintDto createDto)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -35,7 +34,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
         }
 
         [HttpGet("my-complaints")]
-        //[Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient")]
         public async Task<IActionResult> GetPatientComplaints([FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 1)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -47,7 +46,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
 
         // --- Admin Operations ---
         [HttpGet("platform-complaints")]
-         //[Authorize(Roles = "Admin")]
+         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllPlatformComplaints([FromQuery] ComplaintQueryParams queryParams)
         {
             var result = await _complaintService.GetAllPlatformComplaintsAsync(queryParams);
@@ -55,7 +54,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
         }
 
         [HttpGet("{id:int}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetComplaintDetails(int id)
         {
             var result = await _complaintService.GetComplaintDetailsAsync(id);
@@ -63,7 +62,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
         }
 
         [HttpPut("{id:int}/status")]
-         //[Authorize(Roles = "Admin")]
+         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateComplaintStatus(int id, [FromBody] UpdateComplaintStatusDto updateDto)
         {
             var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);

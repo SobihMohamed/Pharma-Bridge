@@ -10,7 +10,7 @@ namespace PharmaBridge.Controllers.PatientAddresses
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     public class PatientAddressesController : ControllerBase
     {
         private readonly IPatientAddressService _addressService;
@@ -82,7 +82,7 @@ namespace PharmaBridge.Controllers.PatientAddresses
         }
 
 
-        #region Helper Method (استخراج الـ PatientId بأمان)
+        #region Helper Method
         private string GetCurrentPatientId()
         {
             return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
