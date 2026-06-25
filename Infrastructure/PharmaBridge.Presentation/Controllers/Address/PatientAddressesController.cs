@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http; // عشان StatusCodes
 using Microsoft.AspNetCore.Mvc;
 using PharmaBridge.Abstraction.IServices.PatientAddresses;
 using PharmaBridge.Shared.DTOs.PatientAddresses;
+using PharmaBridge.Shared.Common.Response; 
+using PharmaBridge.Presentation.Controllers; 
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -9,9 +12,9 @@ using System.Collections.Generic;
 namespace PharmaBridge.Controllers.PatientAddresses
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]
-    public class PatientAddressesController : ControllerBase
+    [Route("api/patient-addresses")]
+    [Authorize(Roles = "Patient")] 
+    public class PatientAddressesController : AppBaseController 
     {
         private readonly IPatientAddressService _addressService;
 
@@ -21,66 +24,74 @@ namespace PharmaBridge.Controllers.PatientAddresses
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<PatientAddressDto>>> GetAddresses()
+        [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<PatientAddressDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> GetAddresses()
         {
             var patientId = GetCurrentPatientId();
             if (string.IsNullOrEmpty(patientId))
-                return Unauthorized("User ID not found in token.");
+                return UnauthorizedError("User ID not found in token.");
 
             var addresses = await _addressService.GetPatientAddressesAsync(patientId);
-            return Ok(addresses);
+            return Success(addresses, "Addresses retrieved successfully");
         }
 
         [HttpPost]
-        public async Task<ActionResult<PatientAddressDto>> AddAddress([FromBody] CreatePatientAddressDto createDto)
+        [ProducesResponseType(typeof(ApiResponse<PatientAddressDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> AddAddress([FromBody] CreatePatientAddressDto createDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var patientId = GetCurrentPatientId();
             if (string.IsNullOrEmpty(patientId))
-                return Unauthorized();
+                return UnauthorizedError("User ID not found in token.");
 
             var result = await _addressService.AddAddressAsync(patientId, createDto);
-            return Ok(result);
+            return Created(result, "Address added successfully");
         }
 
         [HttpPut("{addressId}")]
-        public async Task<ActionResult<PatientAddressDto>> UpdateAddress(int addressId, [FromBody] UpdatePatientAddressDto updateDto)
+        [ProducesResponseType(typeof(ApiResponse<PatientAddressDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> UpdateAddress(int addressId, [FromBody] UpdatePatientAddressDto updateDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var patientId = GetCurrentPatientId();
             if (string.IsNullOrEmpty(patientId))
-                return Unauthorized();
+                return UnauthorizedError("User ID not found in token.");
 
             var result = await _addressService.UpdateAddressAsync(addressId, patientId, updateDto);
-            return Ok(result);
+            return Success(result, "Address updated successfully");
         }
 
         [HttpDelete("{addressId}")]
-        public async Task<ActionResult<bool>> DeleteAddress(int addressId)
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> DeleteAddress(int addressId)
         {
             var patientId = GetCurrentPatientId();
             if (string.IsNullOrEmpty(patientId))
-                return Unauthorized();
+                return UnauthorizedError("User ID not found in token.");
 
             var result = await _addressService.DeleteAddressAsync(addressId, patientId);
-            return Ok(result);
+            return Success(result, "Address deleted successfully");
         }
 
         [HttpPut("{addressId}/set-default")]
-        public async Task<ActionResult<bool>> SetDefaultAddress(int addressId)
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> SetDefaultAddress(int addressId)
         {
             var patientId = GetCurrentPatientId();
             if (string.IsNullOrEmpty(patientId))
-                return Unauthorized();
+                return UnauthorizedError("User ID not found in token.");
 
             var result = await _addressService.SetDefaultAddressAsync(addressId, patientId);
-            return Ok(result);
+            return Success(result, "Default address set successfully");
         }
-
 
         #region Helper Method
         private string GetCurrentPatientId()
