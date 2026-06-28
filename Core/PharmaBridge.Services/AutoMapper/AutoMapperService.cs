@@ -7,6 +7,7 @@ using PharmaBridge.Services.AutoMapper.PharmacyMapping;
 using PharmaBridge.Services.AutoMapper.PatientMapping;
 using PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping;
 using PharmaBridge.Services.AutoMapper.NotificationMapping;
+using PharmaBridge.Services.AutoMapper.PharmaOwnerMapping;
 
 namespace PharmaBridge.Services.AutoMapper
 {
@@ -25,6 +26,7 @@ namespace PharmaBridge.Services.AutoMapper
                 cfg.AddProfile(new OrderMappingProfile());
                 cfg.AddProfile(new PatientProfileMapping());
                 cfg.AddProfile(new NotificationProfile());
+                cfg.AddProfile(new PharmaOwnerProfileMapping());
 
 
 

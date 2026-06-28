@@ -7,6 +7,7 @@ using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Abstraction.IServices.PatientAddresses;
 using PharmaBridge.Abstraction.IServices.PatientProfiles;
+using PharmaBridge.Abstraction.IServices.PharmaOwnerProfiles;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Abstraction.IServices.Token;
@@ -25,6 +26,7 @@ using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.ServicesImplementation.Notification.StrategyPattern;
 using PharmaBridge.Services.ServicesImplementation.OrderService;
 using PharmaBridge.Services.ServicesImplementation.Patient;
+using PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile;
 using PharmaBridge.Services.ServicesImplementation.PatientAddress;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
@@ -84,6 +86,7 @@ namespace PharmaBridge.Web.Extensions
 
 
             services.AddScoped<IPatientProfileService, PatientProfileService>();
+            services.AddScoped<IPharmaOwnerProfileService, PharmaOwnerProfileService>();
 
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddControllers()
