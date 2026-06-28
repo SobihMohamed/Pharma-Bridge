@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -11,6 +11,7 @@ namespace PharmaBridge.Shared.DTOs.PharmaOwners
 
         [Required(ErrorMessage = "National ID is required")]
         [StringLength(14, MinimumLength = 14, ErrorMessage = "National ID must be exactly 14 digits")]
+        [RegularExpression(@"^\d{14}$", ErrorMessage = "National ID must be exactly 14 numeric digits")]
         public string NationalId { get; set; }
 
         [Required(ErrorMessage = "Front image of National ID is required")]
