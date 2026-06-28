@@ -1,102 +1,131 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PharmaBridge.Abstraction.IServices.Order;
-using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Shared.Common.Params.Order;
 using PharmaBridge.Shared.DTOs.Order;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Response;
+using System;
 using System.Security.Claims;
 
 namespace PharmaBridge.Presentation.Controllers.Order
 {
     [Route("api/orders")]
+    [ApiController] 
     [Authorize]
-    public class OrderController(IOrderService orderService) : AppBaseController
+    public class OrderController : AppBaseController
     {
+        private readonly IOrderService _orderService;
 
-        private Guid GetPatientIdFromToken()
+        public OrderController(IOrderService orderService)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdStr, out var patientId))
-                throw new UnauthorizedAccessException("Invalid Patient ID in token.");
-            return patientId;
+            _orderService = orderService;
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin,PharmacyOwner")]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<OrderDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetOrders(
             [FromQuery] int pharmacyId,
             [FromQuery] OrderQueryParams queryParams)
         {
-            var result = await orderService.GetPharmacyOrdersAsync(pharmacyId, queryParams);
+            var result = await _orderService.GetPharmacyOrdersAsync(pharmacyId, queryParams);
             return Success(result, "Orders retrieved successfully");
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("{orderId:int}")]
         [Authorize(Roles = "Admin,PharmacyOwner")]
+        [ProducesResponseType(typeof(ApiResponse<OrderDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrderDetails(
-            int orderId,
+            [FromRoute] int orderId, 
             [FromQuery] int pharmacyId)
         {
-            var result = await orderService.GetPharmacyOrderDetailsAsync(orderId, pharmacyId);
+            var result = await _orderService.GetPharmacyOrderDetailsAsync(orderId, pharmacyId);
             return Success(result, "Order details retrieved successfully");
         }
 
-        [HttpPatch("{orderId}/status")]
+        [HttpPatch("{orderId:int}/status")]
         [Authorize(Roles = "PharmacyOwner")]
+        [ProducesResponseType(typeof(ApiResponse<OrderDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateOrderStatus(
-            int orderId,
+            [FromRoute] int orderId,
             [FromBody] UpdateOrderStatusDto dto,
             [FromQuery] int pharmacyId)
         {
-            var result = await orderService.UpdateOrderStatusAsync(orderId, dto, pharmacyId);
+            var result = await _orderService.UpdateOrderStatusAsync(orderId, dto, pharmacyId);
             return Success(result, "Order status updated successfully");
         }
+
         // =====================================================================
         // PATIENT OPERATIONS — Phase 2
         // =====================================================================
 
         [HttpGet("my")]
         [Authorize(Roles = "Patient")]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<OrderDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetMyOrders([FromQuery] OrderQueryParams queryParams)
         {
-            var patientId = GetPatientIdFromToken();
-            var result = await orderService.GetPatientOrdersAsync(patientId, queryParams);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var patientId))
+                return UnauthorizedError("Invalid Patient ID in token."); 
+
+            var result = await _orderService.GetPatientOrdersAsync(patientId, queryParams);
             return Success(result, "Your orders retrieved successfully");
         }
 
-        [HttpGet("my/{orderId}")]
+        [HttpGet("my/{orderId:int}")]
         [Authorize(Roles = "Patient")]
-        public async Task<IActionResult> GetMyOrderDetails(int orderId)
+        [ProducesResponseType(typeof(ApiResponse<OrderDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyOrderDetails([FromRoute] int orderId)
         {
-            var patientId = GetPatientIdFromToken();
-            var result = await orderService.GetPatientOrderDetailsAsync(orderId, patientId);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var patientId))
+                return UnauthorizedError("Invalid Patient ID in token.");
+
+            var result = await _orderService.GetPatientOrderDetailsAsync(orderId, patientId);
             return Success(result, "Order details retrieved successfully");
         }
 
         [HttpGet("admin")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<OrderDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllPlatformOrders(
             [FromQuery] OrderQueryParams queryParams)
         {
-            var result = await orderService.GetAllPlatformOrdersAsync(queryParams);
+            var result = await _orderService.GetAllPlatformOrdersAsync(queryParams);
             return Success(result, "Platform orders retrieved successfully");
         }
 
-        [HttpGet("admin/{orderId}")]
+        [HttpGet("admin/{orderId:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAdminOrderDetails(int orderId)
+        [ProducesResponseType(typeof(ApiResponse<OrderDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAdminOrderDetails([FromRoute] int orderId)
         {
-            var result = await orderService.GetAdminOrderDetailsAsync(orderId);
+            var result = await _orderService.GetAdminOrderDetailsAsync(orderId);
             return Success(result, "Order details retrieved successfully");
         }
 
         // Temp
 
         [AllowAnonymous]
-        [HttpPost("create-from-bid/{bidId}")]
-        public async Task<IActionResult> CreateFromBid(int bidId)
+        [HttpPost("create-from-bid/{bidId:int}")]
+        [ProducesResponseType(typeof(ApiResponse<OrderDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateFromBid([FromRoute] int bidId)
         {
-            var result = await orderService.CreateOrderFromBidAsync(bidId);
+            var result = await _orderService.CreateOrderFromBidAsync(bidId);
             return Created(result, "Order created successfully");
         }
     }
