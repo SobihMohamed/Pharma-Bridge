@@ -10,9 +10,7 @@ using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.Dto_s.Attachment;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
