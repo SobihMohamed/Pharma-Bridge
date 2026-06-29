@@ -74,6 +74,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                 ExpireOn = tokenResponse.ExpireOn,
                 Email = userForDB.Email!,
                 Name = userForDB.FullName,
+                phoneNumber = userForDB.PhoneNumber!,
                 Roles = userRoles
             };
         }

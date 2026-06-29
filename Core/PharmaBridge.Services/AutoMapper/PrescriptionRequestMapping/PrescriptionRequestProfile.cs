@@ -63,13 +63,13 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
 
                 // City/Area. We do NOT include AddressLine.
                 .ForMember(dest => dest.DeliveryArea, opt => opt.MapFrom(src =>
-                    src.DeliveryAddress != null ? src.DeliveryAddress.City : "Unknown"));
+                    src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"));
 
             // 5 - Mapping for Admin List
             CreateMap<PrescriptionRequestEntity, AdminPrescriptionRequestDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.BidsCount, opt => opt.MapFrom(src => src.Bids != null ? src.Bids.Count : 0))
-                .ForMember(dest => dest.DeliveryArea, opt => opt.MapFrom(src => src.DeliveryAddress != null ? src.DeliveryAddress.City : "Unknown"))
+                .ForMember(dest => dest.DeliveryArea, opt => opt.MapFrom(src => src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"))
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.PatientProfile != null && src.PatientProfile.ApplicationUser != null ? src.PatientProfile.ApplicationUser.FullName : "Unknown"))
                 .ForMember(dest => dest.PatientPhone, opt => opt.MapFrom(src => src.PatientProfile != null && src.PatientProfile.ApplicationUser != null ? src.PatientProfile.ApplicationUser.PhoneNumber : "Unknown"));
 

@@ -420,3 +420,7 @@ FodyWeavers.xsd
 # Custom Security Exclusions (My App Settings)
 appsettings.json
 appsettings.*.json
+# Ignore everything inside wwwroot
+PharmaBridge.Web/wwwroot/*
+# But keep the folder itself tracked (optional, or just ignore the whole folder)
+!PharmaBridge.Web/wwwroot/.gitkeep
