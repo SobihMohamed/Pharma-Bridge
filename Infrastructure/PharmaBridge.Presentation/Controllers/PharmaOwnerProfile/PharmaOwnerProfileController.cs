@@ -33,11 +33,12 @@ namespace PharmaBridge.Presentation.Controllers.PharmaOwnerProfile
         // 1. Create My Profile
         [Authorize(Roles = "PharmacyOwner")]
         [HttpPost]
+        [Consumes("multipart/form-data")] 
         [ProducesResponseType(typeof(ApiResponse<PharmaOwnerDetailsDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> CreateMyProfile([FromBody] PharmaOwnerToCreateDto dto)
+        public async Task<ActionResult> CreateMyProfile([FromForm] PharmaOwnerToCreateDto dto) 
         {
             var userId = GetUserIdFromToken();
             var result = await _pharmaOwnerService.CreateMyProfileAsync(userId, dto);
@@ -60,12 +61,13 @@ namespace PharmaBridge.Presentation.Controllers.PharmaOwnerProfile
 
         // 3. Update My Profile
         [Authorize(Roles = "PharmacyOwner")]
-        [HttpPut]
+        [HttpPut] 
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<PharmaOwnerDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> UpdateMyProfile([FromBody] PharmaOwnerToUpdateDto dto)
+        public async Task<ActionResult> UpdateMyProfile([FromForm] PharmaOwnerToUpdateDto dto) 
         {
             var userId = GetUserIdFromToken();
             var result = await _pharmaOwnerService.UpdateMyProfileAsync(userId, dto);

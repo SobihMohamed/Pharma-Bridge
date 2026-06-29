@@ -38,42 +38,41 @@ namespace PharmaBridge.Presentation.Controllers
             return Created(result, "The pharmacy has been successfully registered and is now under review.");
         }
 
-        // GET /api/pharmacy/my-profile/{pharmacyId}
-        [HttpGet("my-profile/{pharmacyId}")]
+        // GET /api/pharmacy/my-profile
+        [HttpGet("my-profile")] 
         [Authorize(Roles = "PharmacyOwner")]
         [ProducesResponseType(typeof(ApiResponse<PharmacyOwnerProfileDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetMyProfile(int pharmacyId)
+        public async Task<IActionResult> GetMyProfile() 
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return UnauthorizedError();
 
-            var result = await _pharmacyProfileService.GetMyProfileAsync(pharmacyId, userId);
+            var result = await _pharmacyProfileService.GetMyProfileAsync(userId);
 
             return Success(result);
         }
 
-        // PATCH /api/pharmacy/my-profile/{pharmacyId}
-        [HttpPatch("my-profile/{pharmacyId}")]
+        // PATCH /api/pharmacy/my-profile
+        [HttpPatch("my-profile")] 
         [Authorize(Roles = "PharmacyOwner")]
-        [Consumes("multipart/form-data")] 
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<PharmacyOwnerProfileDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateMyProfile(int pharmacyId, [FromForm] PharmacyToUpdateDto updateDto)
+        public async Task<IActionResult> UpdateMyProfile([FromForm] PharmacyToUpdateDto updateDto) 
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return UnauthorizedError();
 
-            var result = await _pharmacyProfileService.UpdateMyProfileAsync(pharmacyId, updateDto, userId);
+            var result = await _pharmacyProfileService.UpdateMyProfileAsync(updateDto, userId);
 
             return Success(result, "The pharmacy data has been successfully updated.");
         }
-
         // GET /api/pharmacy/{pharmacyId}
         [HttpGet("{pharmacyId}")]
         [Authorize(Roles = "Admin,Patient,PharmacyOwner")]
