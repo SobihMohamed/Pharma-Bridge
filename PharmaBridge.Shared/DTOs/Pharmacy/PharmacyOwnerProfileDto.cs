@@ -4,6 +4,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyOwnerProfileDto
     {
+        public int Id { get; set; }
         public string PharmacyName { get; set; } = null!;
         public string? Area { get; set; }
         public decimal AverageRating { get; set; }

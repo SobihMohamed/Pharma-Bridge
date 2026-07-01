@@ -47,7 +47,7 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
                 .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.PharmacyName : "Unknown"))
                 .ForMember(dest => dest.PharmacyRating, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.AverageRating : 0))
                 .ForMember(dest => dest.BidItems, opt => opt.MapFrom(src => src.BidItems));
-           
+
             // 3 - Mapping From Entity to Details Dto (Output)
             CreateMap<PrescriptionRequestEntity, PrescriptionRequestDetailsDto>()
                .IncludeBase<PrescriptionRequestEntity, PrescriptionRequestDto>() // Include base mapping

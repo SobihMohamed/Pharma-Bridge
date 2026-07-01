@@ -147,7 +147,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         private async Task<Bid> FetchValidatedBidAsync(int bidId)
         {
-            var spec = new BidWithDetailsSpecification(bidId);
+            var spec = new BidWithOrderSpec(bidId);
             var bid = await unitOfWork.GetRepository<Bid, int>().GetByIdWithSpecAsync(spec)
                        ?? throw new NotFoundCutomeException($"Bid {bidId} not found.");
 
