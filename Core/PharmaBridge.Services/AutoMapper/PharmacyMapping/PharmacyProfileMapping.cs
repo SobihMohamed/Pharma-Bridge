@@ -20,6 +20,7 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
 
             // B. Pharmacy -> PharmacyOwnerProfileDto
             CreateMap<Pharmacy, PharmacyOwnerProfileDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OwnerName, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.FullName))
                 .ForMember(dest => dest.OwnerEmail, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.Email))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))

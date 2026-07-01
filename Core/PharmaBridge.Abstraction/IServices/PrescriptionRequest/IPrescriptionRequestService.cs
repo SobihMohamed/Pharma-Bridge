@@ -28,7 +28,7 @@ namespace PharmaBridge.Abstraction.IServices.PrescriptionRequest
         // --- Pharmacy (Provider) Operations ---
         // Pharmacy views available requests within their range (e.g., 5km) based on their location. (Masked patient data).
         Task<PaginationResponse<PharmacyNearbyRequestDto>> GetNearbyRequestsAsync(int pharmacyId, PrescriptionRequestQueryParams queryParams);
-
+        Task<PrescriptionRequestDto> GetRequestDetailsForPharmacyAsync(int requestId);
 
         // --- Admin Operations ---
         // Admin can monitor all platform requests for auditing and support.
