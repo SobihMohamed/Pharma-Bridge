@@ -20,9 +20,9 @@ namespace PharmaBridge.Abstraction.IServices.Order
         // =========================================================================
         // --- Pharmacy (Provider) Operations ---
         // =========================================================================
-        Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync(int pharmacyId, OrderQueryParams queryParams);
-        Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int pharmacyId);
-        Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto, int pharmacyId);
+        Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync(int? pharmacyId, OrderQueryParams queryParams);
+        Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int? requestedPharmacyId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto, int? requestedPharmacyId);
 
 
         // =========================================================================

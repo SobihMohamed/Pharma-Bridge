@@ -26,11 +26,9 @@ namespace PharmaBridge.Presentation.Controllers.Order
         [HttpGet]
         [Authorize(Roles = "Admin,PharmacyOwner")]
         [ProducesResponseType(typeof(ApiResponse<PaginationResponse<OrderDto>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetOrders(
-            [FromQuery] int pharmacyId,
-            [FromQuery] OrderQueryParams queryParams)
+         [FromQuery] OrderQueryParams queryParams,
+         [FromQuery] int? pharmacyId = null) 
         {
             var result = await _orderService.GetPharmacyOrdersAsync(pharmacyId, queryParams);
             return Success(result, "Orders retrieved successfully");
@@ -41,8 +39,8 @@ namespace PharmaBridge.Presentation.Controllers.Order
         [ProducesResponseType(typeof(ApiResponse<OrderDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrderDetails(
-            [FromRoute] int orderId, 
-            [FromQuery] int pharmacyId)
+        [FromRoute] int orderId,
+        [FromQuery] int? pharmacyId = null) 
         {
             var result = await _orderService.GetPharmacyOrderDetailsAsync(orderId, pharmacyId);
             return Success(result, "Order details retrieved successfully");
@@ -50,13 +48,13 @@ namespace PharmaBridge.Presentation.Controllers.Order
 
         [HttpPatch("{orderId:int}/status")]
         [Authorize(Roles = "PharmacyOwner")]
-        [ProducesResponseType(typeof(ApiResponse<OrderDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateOrderStatus(
-            [FromRoute] int orderId,
-            [FromBody] UpdateOrderStatusDto dto,
-            [FromQuery] int pharmacyId)
+        [FromRoute] int orderId,
+        [FromBody] UpdateOrderStatusDto dto,
+        [FromQuery] int? pharmacyId = null) 
         {
             var result = await _orderService.UpdateOrderStatusAsync(orderId, dto, pharmacyId);
             return Success(result, "Order status updated successfully");

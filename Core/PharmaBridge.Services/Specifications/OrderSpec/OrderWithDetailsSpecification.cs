@@ -18,6 +18,7 @@ namespace PharmaBridge.Services.Specifications.OrderSpec
             AddInclude(o => o.Pharmacy);
             AddInclude(o => o.PatientAddress);
             AddInclude(o => o.PrescriptionRequest);
+            AddInclude(o => o.PatientProfile);
 
             // (needed for FullName and PhoneNumber)
             AddInclude(nameof(Order.PatientProfile) + "." + nameof(PatientProfile.ApplicationUser));
