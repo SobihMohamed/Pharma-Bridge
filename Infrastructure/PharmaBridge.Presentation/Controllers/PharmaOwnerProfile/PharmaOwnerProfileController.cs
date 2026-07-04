@@ -97,5 +97,18 @@ namespace PharmaBridge.Presentation.Controllers.PharmaOwnerProfile
             var result = await _pharmaOwnerService.UpdatePharmaOwnerStatusAsync(id, status);
             return Success(result, $"PharmaOwner Profile Status Successfully Updated to {status}");
         }
+
+        // 6. Get PharmaOwner Profile By ID (Admin)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<PharmaOwnerDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetPharmaOwnerProfileById(string id)
+        {
+            var result = await _pharmaOwnerService.GetPharmaOwnerProfileByIdAsync(id);
+            return Success(result, "PharmaOwner Profile Retrieved Successfully");
+        }
     }
 }

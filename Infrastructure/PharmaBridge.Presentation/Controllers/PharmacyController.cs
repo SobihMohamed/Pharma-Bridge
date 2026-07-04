@@ -5,6 +5,10 @@ using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Shared.Common.Response; 
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.DTOs.PharmaPerformSnapshot;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params;
+using PharmaBridge.Shared.Common.Params.Pharmacy;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System.Security.Claims;
 
 namespace PharmaBridge.Presentation.Controllers
@@ -85,6 +89,19 @@ namespace PharmaBridge.Presentation.Controllers
             return Success(result);
         }
 
+        // GET /api/pharmacy/admin/{pharmacyId}
+        [HttpGet("admin/{pharmacyId}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<AdminPharmacyDetailsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPharmacyDetailsForAdmin(int pharmacyId)
+        {
+            var result = await _pharmacyProfileService.GetPharmacyDetailsForAdminAsync(pharmacyId);
+            return Success(result);
+        }
+
         // GET /api/pharmacy/{pharmacyId}/dashboard/snapshot
         [HttpGet("{pharmacyId}/dashboard/snapshot")]
         [Authorize(Roles = "Admin,PharmacyOwner")]
@@ -104,6 +121,32 @@ namespace PharmaBridge.Presentation.Controllers
 
             var result = await pharmacyDashboardService.GetMyPerformanceSnapshotAsync(pharmacyId, userId, role);
             return Success(result);
+        }
+
+        // GET /api/pharmacy/all (Admin)
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<AdminPharmacyDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetAllPharmacies([FromQuery] PharmacyQueryParams queryParams)
+        {
+            var result = await _pharmacyProfileService.GetAllPharmaciesAsync(queryParams);
+            return Success(result, "Pharmacies Retrieved Successfully");
+        }
+
+        // PUT /api/pharmacy/{id}/status (Admin)
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdatePharmacyStatus(int id, [FromQuery] PharmacyStatus status)
+        {
+            var result = await _pharmacyProfileService.UpdatePharmacyStatusAsync(id, status);
+            return Success(result, $"Pharmacy Status Successfully Updated to {status}");
         }
     }
 }

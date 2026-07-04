@@ -119,8 +119,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
                 queryParams.PageSize = 10;
 
             var ownerRepo = unitOfWork.GetRepository<Domain.Models.User.PharmaOwner, string>();
-            var dataSpec = new PharmaOwnerWithFiltersSpec(queryParams);
-            var countSpec = new PharmaOwnerWithFiltersSpec(queryParams.Search);
+            var dataSpec = new PharmaOwnerWithFiltersSpec(queryParams, isCountSpec: false);
+            var countSpec = new PharmaOwnerWithFiltersSpec(queryParams, isCountSpec: true);
 
             var owners = await ownerRepo.GetAllWithSpecAsync(dataSpec);
             var totalItems = await ownerRepo.GetCountAsync(countSpec);
@@ -133,6 +133,18 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
                 totalItems,
                 data
             );
+        }
+
+        public async Task<PharmaOwnerDetailsDto> GetPharmaOwnerProfileByIdAsync(string pharmaOwnerId)
+        {
+            var spec = new PharmaOwnerByIdWithDetailsSpec(pharmaOwnerId);
+            var ownerRepo = unitOfWork.GetRepository<Domain.Models.User.PharmaOwner, string>();
+            var owner = await ownerRepo.GetByIdWithSpecAsync(spec);
+
+            if (owner == null)
+                throw new NotFoundCutomeException($"PharmaOwner profile with ID {pharmaOwnerId} not found.");
+
+            return mapper.Map<PharmaOwnerDetailsDto>(owner);
         }
 
         public async Task<bool> UpdatePharmaOwnerStatusAsync(string pharmaOwnerId, PharmaBridge.Shared.EnumHelper.PharmaEnums.PharmaOwnerStatus status)
