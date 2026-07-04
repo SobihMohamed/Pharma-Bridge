@@ -26,6 +26,12 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         /// </summary>
         public async Task<bool> SubmitRatingAsync(CreatePharmacyRatingDto createRatingDto, string patientId)
         {
+            // Use Serializable TransactionScope to prevent Read-Modify-Write race conditions
+            using var transaction = new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Required,
+                new System.Transactions.TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.Serializable },
+                System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+
             var orderRepo = unitOfWork.GetRepository<Order, int>();
             var ratingRepo = unitOfWork.GetRepository<PharmacyRating, int>();
             var pharmacyRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy, int>();
@@ -82,6 +88,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             // 6. Single SaveChanges — both the new rating and updated average are saved atomically
             var saveResult = await unitOfWork.SaveChangesAsync();
+
+            transaction.Complete();
 
             // [Team Note] After persisting the rating, we must call the Performance Snapshot Service 
             // to recalculate the AverageRating and update the pharmacy's real-time dashboard data.

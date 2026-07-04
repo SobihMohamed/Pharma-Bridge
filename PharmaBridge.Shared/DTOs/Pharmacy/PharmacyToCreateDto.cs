@@ -8,10 +8,12 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
     public class PharmacyToCreateDto
     {
         [Required(ErrorMessage = "Pharmacy Name is required")]
+        [MinLength(3, ErrorMessage = "Pharmacy Name must be at least 3 characters.")]
         [MaxLength(100)]
         public string PharmacyName { get; set; } = null!;
 
         [Required(ErrorMessage = "License Number is required")]
+        [RegularExpression(@"^\d{3,6}$", ErrorMessage = "License Number must be a sequential number between 3 and 6 digits.")]
         [MaxLength(100)]
         public string LicenseNumber { get; set; } = null!;
 
@@ -30,11 +32,12 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
         public TimeOnly? CloseTime { get; set; }
         public bool Is24Hours { get; set; }
         [Required]
+        [MinLength(3, ErrorMessage = "Text Address must be at least 3 characters.")]
         [MaxLength(500)]
         public string? TextAddress { get; set; } // not shown to user
         [MaxLength(15)]
-        [RegularExpression(@"^[a-zA-Z\u0600-\u06FF\s]+$",
-    ErrorMessage = "Area must contain letters only, no numbers or special characters.")]
+        [RegularExpression(@"^[a-zA-Z0-9\u0600-\u06FF\s]+$",
+    ErrorMessage = "Area must contain letters and numbers only, no special characters.")]
         [Required]
         public string? Area {get; set;} // which shown in the pharamcyDto for user only
         

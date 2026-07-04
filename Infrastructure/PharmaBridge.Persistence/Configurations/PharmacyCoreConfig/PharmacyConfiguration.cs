@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using System;
@@ -23,6 +23,9 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
             builder.Property(x => x.LicenseNumber)
                    .IsRequired()
                    .HasMaxLength(100);
+
+            builder.HasIndex(x => x.LicenseNumber)
+                   .IsUnique();
 
             builder.Property(x => x.LicenseImageUrl)
                    .HasMaxLength(500);
@@ -51,7 +54,11 @@ namespace PharmaBridge.Persistence.Configurations.PharmacyCoreConfig
                    .HasMaxLength(500);
 
             builder.Property(x => x.ContactPhone)
+                   .IsRequired()
                    .HasMaxLength(11);
+
+            builder.HasIndex(x => x.ContactPhone)
+                   .IsUnique();
 
             builder.Property(x => x.AverageRating)
                    .IsRequired()

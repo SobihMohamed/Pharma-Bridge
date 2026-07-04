@@ -7,12 +7,13 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 {
     public class PharmacyToUpdateDto
     {
+        [MinLength(3, ErrorMessage = "Pharmacy Name must be at least 3 characters.")]
         [MaxLength(100)]
         public string? PharmacyName { get; set; }
 
         [MaxLength(50)]
-        [RegularExpression(@"^[a-zA-Z\u0600-\u06FF\s]+$",
-    ErrorMessage = "Area must contain letters only, no numbers or special characters.")]
+        [RegularExpression(@"^[a-zA-Z0-9\u0600-\u06FF\s]+$",
+    ErrorMessage = "Area must contain letters and numbers only, no special characters.")]
         public string? GeneralArea { get; set; }
 
         [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90.")]
@@ -26,6 +27,7 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 
         public bool? Is24Hours { get; set; }
 
+        [MinLength(3, ErrorMessage = "Text Address must be at least 3 characters.")]
         [MaxLength(500)]
         public string? TextAddress { get; set; }
 
