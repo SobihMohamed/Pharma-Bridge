@@ -15,6 +15,7 @@ namespace PharmaBridge.Services.Specifications.PharmacySpecs
                 p.Longitude <= patientLng + radiusInDegrees // not more than radius east of the patient
             )
         {
+            AddInclude(p => p.PharmaOwner);
         }
     }
 }

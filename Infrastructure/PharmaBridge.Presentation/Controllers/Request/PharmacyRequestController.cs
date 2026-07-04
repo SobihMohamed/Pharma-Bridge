@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
+using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.Common.Response;
-using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.DTOs.PharmaRequests;
 using System.Security.Claims;
 
 namespace PharmaBridge.Presentation.Controllers
@@ -44,6 +45,16 @@ namespace PharmaBridge.Presentation.Controllers
             var result = await _prescriptionRequestService.GetNearbyRequestsAsync(pharmacyId, queryParams);
 
             return Success(result, "Nearby requests retrieved successfully");
+        }
+        // 5. Get specific request details for Pharmacy (No Patient Profile validation needed)
+        [HttpGet("for-pharmacy/{id}")]
+        [Authorize(Roles = "PharmacyOwner")]
+        [ProducesResponseType(typeof(ApiResponse<PrescriptionRequestDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetRequestDetailsForPharmacy(int id)
+        {
+            var result = await _prescriptionRequestService.GetRequestDetailsForPharmacyAsync(id);
+            return Success(result, "Request details retrieved successfully");
         }
     }
 }

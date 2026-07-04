@@ -62,30 +62,28 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             return mapper.Map<PharmacyOwnerProfileDto>(savedPharmacy);
         }
 
-        public async Task<PharmacyOwnerProfileDto> GetMyProfileAsync(int pharmacyId, string userId)
+        public async Task<PharmacyOwnerProfileDto> GetMyProfileAsync(string userId)
         {
+            var pharmacyId = await GetPharmacyIdByUserIdAsync(userId);
+
             var spec = new PharmacyWithProfileOwnerSpec(pharmacyId);
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
 
             if (pharmacy == null)
                 throw new NotFoundCutomeException("Pharmacy not found");
 
-            if (pharmacy.PharmaOwner.ApplicationUserId != userId)
-                throw new UnAuthorizedCustomeException("You are not authorized to view this profile.");
-
             return mapper.Map<PharmacyOwnerProfileDto>(pharmacy);
         }
 
-        public async Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, string userId)
+        public async Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(PharmacyToUpdateDto updateDto, string userId)
         {
+            var pharmacyId = await GetPharmacyIdByUserIdAsync(userId);
+
             var spec = new PharmacyWithProfileOwnerSpec(pharmacyId);
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
 
             if (pharmacy == null)
                 throw new NotFoundCutomeException("Pharmacy not found.");
-
-            if (pharmacy.PharmaOwner.ApplicationUserId != userId)
-                throw new UnAuthorizedCustomeException("You are not authorized to update this profile.");
 
             if (pharmacy.Status == PharmacyStatus.Pending)
                 throw new BadRequestCustomeException("You cannot update the pharmacy profile while it is under review by the administration. Please wait for a response.");
@@ -120,7 +118,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
 
-            // Update the entity in the database
             unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().UpdateAsync(pharmacy);
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to update pharmacy profile.");

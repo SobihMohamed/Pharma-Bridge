@@ -4,9 +4,9 @@ using PharmaBridge.Domain.Models.Pharma_Requests;
 namespace PharmaBridge.Services.Specifications.BidSpec
 {
 
-    public class BidWithDetailsSpecification : BaseSpecifications<Bid, int>
+    public class BidWithOrderSpec : BaseSpecifications<Bid, int>
     {
-        public BidWithDetailsSpecification(int bidId)
+        public BidWithOrderSpec(int bidId)
             : base(b => b.Id == bidId)
         {
             ApplyIncludes();

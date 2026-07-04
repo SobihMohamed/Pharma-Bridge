@@ -8,6 +8,7 @@ namespace PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up
     {
         public string Message { get; set; } = string.Empty;
         public bool IsAuthenticated { get; set; }
+        public string phoneNumber { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;

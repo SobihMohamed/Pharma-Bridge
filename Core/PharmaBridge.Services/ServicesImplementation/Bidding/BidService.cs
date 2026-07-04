@@ -1,18 +1,22 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using PharmaBridge.Abstraction.IServices.Bidding;
+using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Domain.Contracts.GenericReposPattern;
-using PharmaBridge.Domain.Models.Pharma_Requests;
-using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Services.Specifications.Bidding;
-using PharmaBridge.Services.Specifications.PharmaOwners;
-using PharmaBridge.Services.Specifications.Request;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Services.Specifications.Bidding;
+using PharmaBridge.Services.Specifications.BidSpec;
+using PharmaBridge.Services.Specifications.PharmaOwners;
+using PharmaBridge.Services.Specifications.Request;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Bid;
 using PharmaBridge.Shared.DTOs.Bid;
+using PharmaBridge.Shared.DTOs.Notificaiton;
+using PharmaBridge.Shared.EnumHelper.NotificationEnums;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System.Security.Claims;
 
@@ -23,12 +27,14 @@ namespace PharmaBridge.Services.Bidding
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationService _notificationService;
 
-        public BidService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public BidService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor , INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _notificationService = notificationService;
         }
 
         // Public Methods
@@ -45,9 +51,26 @@ namespace PharmaBridge.Services.Bidding
             var bid = BuildBid(createBidDto, pharmacyId);
 
             await PersistBidAndUpdateRequestStatusAsync(bid, prescriptionRequest);
-
             var savedBid = await GetBidWithDetailsOrThrowAsync(bid.Id);
-            return _mapper.Map<BidDetailsDto>(savedBid);
+            var bidDto = _mapper.Map<BidDetailsDto>(savedBid);
+
+            var patientUserId = prescriptionRequest.PatientProfile?.ApplicationUserId;
+
+            if (!string.IsNullOrEmpty(patientUserId))
+            {
+                var message = new NotificationContentDto
+                {
+                    UserId = patientUserId,
+                    Subject = "عرض سعر جديد لروشتتك!",
+                    Body = $"صيدلية {savedBid.Pharmacy?.PharmacyName ?? "جديدة"} قدمت عرض سعر لطلبك.",
+                    ReferenceId = prescriptionRequest.Id,
+                    Payload = bidDto 
+                };
+
+                await _notificationService.SendNotificationAsync(message, NotificationType.Push);
+            }
+
+            return bidDto;
         }
 
         public async Task<PaginationResponse<BidDto>> GetPharmacyBidsAsync(int pharmacyId, BidQueryParams queryParams)
@@ -99,22 +122,30 @@ namespace PharmaBridge.Services.Bidding
 
             ApplyBidUpdates(updateBidDto, bid);
 
-            bid.Pharmacy = null;
-            bid.PrescriptionRequest = null;
-            
             var bidRepo = _unitOfWork.GetRepository<Bid, int>();
             bidRepo.UpdateAsync(bid);
-
-            var bidItemRepo = _unitOfWork.GetRepository<BidItem, int>();
-            foreach (var item in bid.BidItems)
-            {
-                bidItemRepo.UpdateAsync(item);
-            }
 
             await _unitOfWork.SaveChangesAsync();
 
             var updatedBid = await GetBidWithDetailsOrThrowAsync(bid.Id);
-            return _mapper.Map<BidDetailsDto>(updatedBid);
+            var bidDto = _mapper.Map<BidDetailsDto>(updatedBid);
+
+            var patientUserId = updatedBid.PrescriptionRequest?.PatientProfile?.ApplicationUserId;
+            if (!string.IsNullOrEmpty(patientUserId))
+            {
+                var message = new NotificationContentDto
+                {
+                    UserId = patientUserId,
+                    Subject = "تحديث في عرض السعر! 🔄",
+                    Body = $"صيدلية {updatedBid.Pharmacy?.PharmacyName ?? "المختارة"} قامت بتعديل أسعار أو تفاصيل العرض الخاص بروشتتك.",
+                    ReferenceId = updatedBid.PrescriptionRequestId,
+                    Payload = bidDto
+                };
+
+                await _notificationService.SendNotificationAsync(message, NotificationType.Push);
+            }
+
+            return bidDto;
         }
 
         public async Task<PaginationResponse<BidDto>> GetBidsForRequestAsync(int requestId, string patientId, BidQueryParams queryParams)
@@ -140,6 +171,8 @@ namespace PharmaBridge.Services.Bidding
             var bid = await GetBidWithDetailsOrThrowAsync(bidId);
 
             await EnsurePatientOwnsRequestOfTheBidAsync(bid);
+            if (bid.Status == status)
+                return true;
             EnsureBidIsPending(bid);
 
             if (status == BidStatus.Accepted)
@@ -159,6 +192,22 @@ namespace PharmaBridge.Services.Bidding
             bidRepo.UpdateAsync(bid);
 
             await _unitOfWork.SaveChangesAsync();
+
+            var pharmacyOwnerId = bid.Pharmacy?.PharmaOwner.ApplicationUserId;
+
+            if (!string.IsNullOrEmpty(pharmacyOwnerId))
+            {
+                var message = new NotificationContentDto
+                {
+                    UserId = pharmacyOwnerId,
+                    Subject = "تم رفض العرض ❌",
+                    Body = $"نعتذر، المريض قام برفض عرضك للروشتة رقم #{bid.PrescriptionRequestId}.",
+                    ReferenceId = bid.Id,
+                    Payload = null
+                };
+                await _notificationService.SendNotificationAsync(message, NotificationType.Push);
+
+            }
         }
 
 
@@ -203,7 +252,8 @@ namespace PharmaBridge.Services.Bidding
         private async Task<PrescriptionRequestEntity> GetOpenPrescriptionRequestOrThrowAsync(int prescriptionRequestId)
         {
             var repo = _unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
-            var request = await repo.GetByIdAsync(prescriptionRequestId);
+            var spec = new RequestWithPatientDetailsSpec(prescriptionRequestId);
+            var request = await repo.GetByIdWithSpecAsync(spec);
 
 
             if (request is null || request.IsDeleted)
@@ -258,7 +308,7 @@ namespace PharmaBridge.Services.Bidding
         private async Task<Bid> GetBidWithDetailsOrThrowAsync(int bidId)
         {
             var bidRepo = _unitOfWork.GetRepository<Bid, int>();
-            var spec = new BidWithDetailsSpecification(bidId);
+            var spec = new BidWithPharmacyAndItemsSpec(bidId);
             var bid = await bidRepo.GetByIdWithSpecAsync(spec);
 
             if (bid is null)
@@ -378,6 +428,21 @@ namespace PharmaBridge.Services.Bidding
             prescriptionRepo.UpdateAsync(bid.PrescriptionRequest);
 
             await _unitOfWork.SaveChangesAsync();
+
+            var pharmacyOwnerId = bid.Pharmacy?.PharmaOwner.ApplicationUserId;
+
+            if (!string.IsNullOrEmpty(pharmacyOwnerId))
+            {
+                var message = new NotificationContentDto
+                {
+                    UserId = pharmacyOwnerId,
+                    Subject = "مبروك! تم قبول عرضك 🎉",
+                    Body = $"المريض وافق على عرض السعر لروشتة رقم #{bid.PrescriptionRequestId}. يرجى تجهيز الطلب للتوصيل.",
+                    ReferenceId = bid.Id, 
+                    Payload = null
+                };
+                await _notificationService.SendNotificationAsync(message, NotificationType.Push);
+            }
         }
 
         private async Task RejectOtherBidsAsync(int prescriptionRequestId, int acceptedBidId,
@@ -401,20 +466,36 @@ namespace PharmaBridge.Services.Bidding
 
             if (dto.BidItems is null) return;
 
+            var dtoItemIds = dto.BidItems.Select(i => i.Id).ToList();
+            var itemsToRemove = bid.BidItems.Where(i => !dtoItemIds.Contains(i.Id)).ToList();
+
+            foreach (var item in itemsToRemove)
+            {
+                bid.BidItems.Remove(item);
+            }
+
             foreach (var itemDto in dto.BidItems)
             {
-                var existingItem = bid.BidItems.FirstOrDefault(i => i.Id == itemDto.Id);
+                if (itemDto.Id == 0)
+                {
+                    var newItem = _mapper.Map<BidItem>(itemDto);
+                    newItem.LineTotal = itemDto.UnitPrice * itemDto.Quantity;
+                    bid.BidItems.Add(newItem);
+                }
+                else
+                {
+                    var existingItem = bid.BidItems.FirstOrDefault(i => i.Id == itemDto.Id);
 
-                if (existingItem is null)
-                    throw new NotFoundCutomeException(
-                        $"BidItem with ID {itemDto.Id} was not found in this bid.");
+                    if (existingItem is null)
+                        throw new NotFoundCutomeException($"BidItem with ID {itemDto.Id} was not found in this bid.");
 
-                _mapper.Map(itemDto, existingItem);
-                existingItem.LineTotal = itemDto.UnitPrice * itemDto.Quantity;
+                    _mapper.Map(itemDto, existingItem);
+                    existingItem.LineTotal = itemDto.UnitPrice * itemDto.Quantity;
+                }
             }
         }
 
-        
+
 
     }
 }

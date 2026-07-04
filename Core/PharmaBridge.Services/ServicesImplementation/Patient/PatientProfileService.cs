@@ -20,10 +20,25 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
             var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
             var patient = await patientRepo.GetByIdWithSpecAsync(spec);
 
+            // Lazy Initialization
             if (patient == null)
-                throw new NotFoundCutomeException("Patient not found");
+            {
+                var newProfile = new PatientProfile
+                {
+                    ApplicationUserId = applicationUserId,
+                    Id = Guid.NewGuid().ToString()
+                };
 
-            return mapper.Map<PatientProfileDetailsDto>(patient);
+                await patientRepo.AddAsync(newProfile);
+
+                if (await unitOfWork.SaveChangesAsync() <= 0)
+                    throw new BadRequestCustomeException("Failed to initialize patient profile.");
+
+
+                patient = await patientRepo.GetByIdWithSpecAsync(spec);
+            }
+
+            return mapper.Map<PatientProfileDetailsDto>(patient!);
         }
 
         public async Task<PatientProfileDetailsDto> UpdateMyProfileAsync(string applicationUserId, PatientProfileToUpdateDto updateDto)

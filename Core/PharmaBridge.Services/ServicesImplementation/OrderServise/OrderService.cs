@@ -1,28 +1,42 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Order;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
+using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Services.Specifications.BidSpec;
 using PharmaBridge.Services.Specifications.OrderSpec;
+using PharmaBridge.Services.Specifications.PatientAddressSpec;
 using PharmaBridge.Services.Specifications.PharmacySpec;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Order;
+using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.DTOs.Order;
 using PharmaBridge.Shared.EnumHelper.PaymentEnums;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
-using PharmacyEntity = PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy;
-
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 using System.Security.Claims;
+using PharmacyEntity = PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy;
 
 namespace PharmaBridge.Services.ServicesImplementation.OrderService
 {
-    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IOrderService
+    public class OrderService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, IHttpContextAccessor httpContextAccessor) : IOrderService
     {
 
+        private async Task<string> GetValidPatientProfileIdAsync(string applicationUserId)
+        {
+            var profileSpec = new PatientProfileByAppUserIdSpec(applicationUserId);
+            var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
+            var patientProfile = await patientRepo.GetByIdWithSpecAsync(profileSpec);
+
+            if (patientProfile == null)
+                throw new BadRequestCustomeException("Patient profile not found for this user.");
+
+            return patientProfile.Id;
+        }
         //System / Internal Operations
 
         public async Task<OrderDetailsDto> CreateOrderFromBidAsync(int winningBidId)
@@ -48,13 +62,14 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         //Pharmacy (Provider) Operations
 
-        public async Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync( int pharmacyId, OrderQueryParams queryParams)
+        public async Task<PaginationResponse<OrderDto>> GetPharmacyOrdersAsync(int? requestedPharmacyId, OrderQueryParams queryParams)
         {
-            await ValidatePharmacyAccess(pharmacyId);
+            var actualPharmacyId = await ResolvePharmacyIdAsync(requestedPharmacyId);
+
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
-            var dataSpec = new PharmacyOrdersSpecification(pharmacyId, queryParams);
-            var countSpec = new PharmacyOrdersCountSpecification(pharmacyId, queryParams);
+            var dataSpec = new PharmacyOrdersSpecification(actualPharmacyId, queryParams);
+            var countSpec = new PharmacyOrdersCountSpecification(actualPharmacyId, queryParams);
 
             var orders = await orderRepo.GetAllWithSpecAsync(dataSpec);
             var totalCount = await orderRepo.GetCountAsync(countSpec);
@@ -64,57 +79,88 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
             return new PaginationResponse<OrderDto>(queryParams.PageIndex, queryParams.PageSize, totalCount, dtos);
         }
 
-        public async Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int pharmacyId)
+        public async Task<OrderDetailsDto> GetPharmacyOrderDetailsAsync(int orderId, int? requestedPharmacyId)
         {
-            await ValidatePharmacyAccess(pharmacyId);
+            var actualPharmacyId = await ResolvePharmacyIdAsync(requestedPharmacyId);
+
             var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
 
-            EnsureOrderBelongsToPharmacy(order, pharmacyId);
+            EnsureOrderBelongsToPharmacy(order, actualPharmacyId);
 
             return mapper.Map<OrderDetailsDto>(order);
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto,int pharmacyId)
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusDto updateStatusDto, int? requestedPharmacyId)
         {
-            await ValidatePharmacyAccess(pharmacyId);
+            var actualPharmacyId = await ResolvePharmacyIdAsync(requestedPharmacyId);
+
             var orderRepo = unitOfWork.GetRepository<Order, int>();
 
-            var order = await orderRepo.GetByIdAsync(orderId)
-                        ?? throw new NotFoundCutomeException($"Order with Id '{orderId}' was not found.");
+            var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
 
-            EnsureOrderBelongsToPharmacy(order, pharmacyId);
-            ValidateStatusTransition(order.OrderStatus, updateStatusDto.OrderStatus); 
+            EnsureOrderBelongsToPharmacy(order, actualPharmacyId);
+            ValidateStatusTransition(order.OrderStatus, updateStatusDto.OrderStatus);
+
             ApplyStatusChange(order, updateStatusDto);
 
             orderRepo.UpdateAsync(order);
+
             await unitOfWork.SaveChangesAsync();
+
+            var patientUserId = order.PatientProfile?.ApplicationUserId;
+
+            if (!string.IsNullOrEmpty(patientUserId))
+            {
+                string statusMessageAr = updateStatusDto.OrderStatus.ToLower() switch
+                {
+                    "preparing" => "جارٍ تجهيز طلبك في الصيدلية ⏳",
+                    "intransit" => "طلبك في الطريق إليك 🛵",
+                    "completed" => "تم توصيل طلبك بنجاح! بالشفاء العاجل 🎉",
+                    "cancelled" => $"تم إلغاء طلبك. السبب: {updateStatusDto.CancelReason} ❌",
+                    _ => $"تم تحديث حالة طلبك إلى: {updateStatusDto.OrderStatus}"
+                };
+
+                var message = new NotificationContentDto
+                {
+                    UserId = patientUserId,
+                    Subject = "تحديث حالة الطلب 📦",
+                    Body = statusMessageAr,
+                    ReferenceId = order.Id,
+                    Payload = null
+                };
+
+                await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+            }
 
             return true;
         }
 
         // phase 2
 
-        public async Task<PaginationResponse<OrderDto>> GetPatientOrdersAsync(Guid patientID, OrderQueryParams queryParams)
+        public async Task<PaginationResponse<OrderDto>> GetPatientOrdersAsync(Guid applicationUserId, OrderQueryParams queryParams)
         {
-            var patientId = patientID.ToString();
+            var actualPatientProfileId = await GetValidPatientProfileIdAsync(applicationUserId.ToString());
+
             var orderRepo = unitOfWork.GetRepository<Order, int>();
-            var dataSpec = new PatientOrdersSpecification(patientId, queryParams);
-            var countSpec = new PatientOrdersCountSpecification(patientId, queryParams);
+
+            var dataSpec = new PatientOrdersSpecification(actualPatientProfileId, queryParams);
+            var countSpec = new PatientOrdersCountSpecification(actualPatientProfileId, queryParams);
+
             var orders = await orderRepo.GetAllWithSpecAsync(dataSpec);
             var totalCount = await orderRepo.GetCountAsync(countSpec);
             var dtos = mapper.Map<IReadOnlyList<OrderDto>>(orders);
 
             return new PaginationResponse<OrderDto>(
                 queryParams.PageIndex, queryParams.PageSize, totalCount, dtos);
-
         }
 
-        public async Task<OrderDetailsDto> GetPatientOrderDetailsAsync(int orderId, Guid patientId)
+        public async Task<OrderDetailsDto> GetPatientOrderDetailsAsync(int orderId, Guid applicationUserId)
         {
+            var actualPatientProfileId = await GetValidPatientProfileIdAsync(applicationUserId.ToString());
             var order = await FetchOrderWithDetailsOrThrowAsync(orderId);
 
             // Security: verify this order belongs to the requesting patient
-            EnsureOrderBelongsToPatient(order, patientId.ToString());
+            EnsureOrderBelongsToPatient(order, actualPatientProfileId);
 
             return mapper.Map<OrderDetailsDto>(order);
         }
@@ -147,7 +193,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         private async Task<Bid> FetchValidatedBidAsync(int bidId)
         {
-            var spec = new BidWithDetailsSpecification(bidId);
+            var spec = new BidWithOrderSpec(bidId);
             var bid = await unitOfWork.GetRepository<Bid, int>().GetByIdWithSpecAsync(spec)
                        ?? throw new NotFoundCutomeException($"Bid {bidId} not found.");
 
@@ -186,35 +232,34 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
         #endregion
 
         #region Helper Methods — Shared Across Operations
-        private async Task ValidatePharmacyAccess(int pharmacyId)
+        private async Task<int> ResolvePharmacyIdAsync(int? requestedPharmacyId)
         {
             var user = httpContextAccessor.HttpContext?.User;
             if (user == null) throw new UnAuthorizedCustomeException();
 
-            // Admin → skip ownership check
-            if (user.IsInRole("Admin")) return;
+            if (user.IsInRole("Admin"))
+            {
+                if (!requestedPharmacyId.HasValue || requestedPharmacyId.Value == 0)
+                    throw new BadRequestCustomeException("Pharmacy ID is required for Admins.");
 
-            // PharmaOwner → resolve their pharmacyId and compare
+                return requestedPharmacyId.Value;
+            }
+
             if (user.IsInRole("PharmacyOwner"))
             {
                 var ownerId = user.FindFirstValue(ClaimTypes.NameIdentifier)
                                ?? throw new UnAuthorizedCustomeException();
 
                 var spec = new PharmacyByOwnerAppUserIdSpec(ownerId);
-                var pharmacy = await unitOfWork
-                                   .GetRepository<PharmacyEntity, int>()
-                                   .GetByIdWithSpecAsync(spec)
-                               ?? throw new NotFoundCutomeException(
-                                      "No active pharmacy found for this account.");
+                var pharmacy = await unitOfWork.GetRepository<PharmacyEntity, int>().GetByIdWithSpecAsync(spec)
+                               ?? throw new NotFoundCutomeException("No active pharmacy found for this account.");
 
-                if (pharmacy.Id != pharmacyId)
-                    throw new UnAuthorizedCustomeException();
-
-                return;
+                return pharmacy.Id; 
             }
 
             throw new UnAuthorizedCustomeException();
         }
+     
         private async Task<Order> FetchOrderWithDetailsOrThrowAsync(int orderId)
         {
             var spec = new OrderWithDetailsSpecification(orderId);
@@ -230,19 +275,38 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
             // Surface as 404, not 403 — do not leak that the order exists under a different pharmacy.
         }
 
-        private static void ValidateStatusTransition(OrderStatus current, string requestedString)
+        private void ValidateStatusTransition(OrderStatus currentStatus, string requestedStatusStr)
         {
-            // Parse the string into enum safely
-            if (!Enum.TryParse<OrderStatus>(requestedString, ignoreCase: true, out var requested))
-                throw new BadRequestCustomeException(
-                    $"'{requestedString}' is not a valid order status.");
+            if (!Enum.TryParse<OrderStatus>(requestedStatusStr, true, out var requestedStatus))
+            {
+                var validValues = string.Join(", ", Enum.GetNames(typeof(OrderStatus)));
+                throw new BadRequestCustomeException($"'{requestedStatusStr}' is not a valid order status. Available values: {validValues}");
+            }
 
-            if (!AllowedTransitions.TryGetValue(current, out var allowed))
-                throw new BadRequestCustomeException(
-                    $"Unrecognized current order status '{current}'.");
+            bool isValidTransition = (currentStatus, requestedStatus) switch
+            {
+                (OrderStatus.Pending, OrderStatus.Accepted) => true,
+                (OrderStatus.Pending, OrderStatus.Preparing) => true,
+                (OrderStatus.Accepted, OrderStatus.Preparing) => true,
 
-            if (!allowed.Contains(requested))
-                throw new InvalidOrderStatusTransitionException(current, requested);
+                (OrderStatus.Preparing, OrderStatus.InTransit) => true,
+                (OrderStatus.InTransit, OrderStatus.Completed) => true,
+
+                (OrderStatus.Pending, OrderStatus.Cancelled) => true,
+                (OrderStatus.Accepted, OrderStatus.Cancelled) => true,
+                (OrderStatus.Preparing, OrderStatus.Cancelled) => true,
+
+                (OrderStatus.InTransit, OrderStatus.Returned) => true,
+                (OrderStatus.Completed, OrderStatus.Returned) => true,
+
+                _ => false
+            };
+
+            if (!isValidTransition)
+            {
+                throw new BadRequestCustomeException(
+                    $"Invalid status transition: cannot move from '{currentStatus}' to '{requestedStatus}'.");
+            }
         }
         private static void EnsureOrderBelongsToPatient(Order order, string patientId)
         {
@@ -270,31 +334,6 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
         #endregion
 
-        #region Status Transition Logic
-        // Status transition table
-        // Every legal forward move is listed here
-        // Anything not listed is rejected with InvalidOrderStatusTransitionException
-
-        private static readonly IReadOnlyDictionary<OrderStatus, IReadOnlyList<OrderStatus>> AllowedTransitions =
-            new Dictionary<OrderStatus, IReadOnlyList<OrderStatus>>
-            {
-                // Pharmacy accepts the incoming order
-                [OrderStatus.Pending] = new[] { OrderStatus.Accepted, OrderStatus.Cancelled },
-
-                // Pharmacy starts preparing
-                [OrderStatus.Accepted] = new[] { OrderStatus.Preparing, OrderStatus.Cancelled },
-
-                // Order is handed to delivery
-                [OrderStatus.Preparing] = new[] { OrderStatus.InTransit, OrderStatus.Cancelled },
-
-                // Rider is on the way => can be delivered or returned ( patient not home)
-                [OrderStatus.InTransit] = new[] { OrderStatus.Completed, OrderStatus.Returned },
-
-                // Terminal states => no further transitions allowed
-                [OrderStatus.Completed] = Array.Empty<OrderStatus>(),
-                [OrderStatus.Cancelled] = Array.Empty<OrderStatus>(),
-                [OrderStatus.Returned] = Array.Empty<OrderStatus>(),
-            };
-        #endregion
+      
     }
 }

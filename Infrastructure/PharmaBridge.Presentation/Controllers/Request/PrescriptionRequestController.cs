@@ -11,7 +11,6 @@ using System.Security.Claims;
 namespace PharmaBridge.Presentation.Controllers
 {
     [Route("api/prescription-requests")]
-    [Authorize(Roles = "Patient")]
     public class PrescriptionRequestController : AppBaseController
     {
         private readonly IPrescriptionRequestService _prescriptionRequestService;
@@ -31,7 +30,8 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 1. Create a new prescription request
         [HttpPost]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
+        [Authorize(Roles = "Patient")]
+        [ProducesResponseType(typeof(ApiResponse<PrescriptionRequestDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
@@ -44,7 +44,8 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 2. Get all requests for the logged-in patient
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<object>>), StatusCodes.Status200OK)] 
+        [Authorize(Roles = "Patient")]
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<PrescriptionRequestDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetPatientRequests([FromQuery] PrescriptionRequestQueryParams queryParams)
@@ -55,8 +56,10 @@ namespace PharmaBridge.Presentation.Controllers
         }
 
         // 3. Get specific request details
+
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)] 
+        [Authorize(Roles = "Patient")]
+        [ProducesResponseType(typeof(ApiResponse<PrescriptionRequestDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
@@ -69,7 +72,8 @@ namespace PharmaBridge.Presentation.Controllers
 
         // 4. Cancel Request
         [HttpPatch("{id}/cancel")]
-        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)] 
+        [Authorize(Roles = "Patient")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]

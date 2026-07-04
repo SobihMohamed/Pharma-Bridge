@@ -9,7 +9,6 @@ namespace PharmaBridge.Services.AutoMapper.PharmaOwnerMapping
     {
         public PharmaOwnerProfileMapping()
         {
-            // PharmaOwner → PharmaOwnerDto
             CreateMap<PharmaOwner, PharmaOwnerDto>()
                 .ForMember(dest => dest.FullName,
                     opt => opt.MapFrom(src => src.ApplicationUser.FullName))
@@ -20,12 +19,25 @@ namespace PharmaBridge.Services.AutoMapper.PharmaOwnerMapping
                 .ForMember(dest => dest.Status,
                     opt => opt.MapFrom(src => src.Status.ToString()));
 
-            // PharmaOwner → PharmaOwnerDetailsDto
             CreateMap<PharmaOwner, PharmaOwnerDetailsDto>()
                 .IncludeBase<PharmaOwner, PharmaOwnerDto>()
-                .ForMember(dest => dest.NationalIdFront, opt => opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.NationalIdFront))
-                .ForMember(dest => dest.NationalIdBack, opt => opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.NationalIdBack))
-                .ForMember(dest => dest.SyndicateCardImage, opt => opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.SyndicateCardImage));
+                .ForMember(dest => dest.NationalIdFront, opt =>
+                    opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.NationalIdFront))
+                .ForMember(dest => dest.NationalIdBack, opt =>
+                    opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.NationalIdBack))
+                .ForMember(dest => dest.SyndicateCardImage, opt =>
+                    opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.SyndicateCardImage));
+
+            CreateMap<PharmaOwnerToCreateDto, PharmaOwner>()
+                .ForMember(dest => dest.NationalIdFront, opt => opt.Ignore())
+                .ForMember(dest => dest.NationalIdBack, opt => opt.Ignore())
+                .ForMember(dest => dest.SyndicateCardImage, opt => opt.Ignore());
+
+            CreateMap<PharmaOwnerToUpdateDto, PharmaOwner>()
+                .ForMember(dest => dest.NationalIdFront, opt => opt.Ignore())
+                .ForMember(dest => dest.NationalIdBack, opt => opt.Ignore())
+                .ForMember(dest => dest.SyndicateCardImage, opt => opt.Ignore())
+                .ForMember(dest => dest.ApplicationUser, opt => opt.Ignore());
         }
     }
 }

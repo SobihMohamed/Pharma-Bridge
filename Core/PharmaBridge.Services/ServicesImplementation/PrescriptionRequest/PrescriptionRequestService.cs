@@ -137,6 +137,19 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
             );
         }
 
+        public async Task<PrescriptionRequestDto> GetRequestDetailsForPharmacyAsync(int requestId)
+        {
+            var repo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+
+            var spec = new PrescriptionRequestWithDetailsForPharmacySpec(requestId);
+
+            var request = await repo.GetByIdWithSpecAsync(spec);
+
+            if (request == null)
+                throw new RequestNotFoundException("Prescription Request Not Found");
+
+            return mapper.Map<PrescriptionRequestDto>(request);
+        }
         #endregion
 
         #region Admin Services
@@ -172,6 +185,8 @@ namespace PharmaBridge.Services.ServicesImplementation.PrescriptionRequest
 
             return mapper.Map<AdminPrescriptionRequestDetailsDto>(requestDetails);
         }
+
+
         #endregion
     }
 }
