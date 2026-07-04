@@ -85,8 +85,10 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
             NormalizePaginationParams(queryParams);
 
             var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
-            var dataSpec = new PharmaOwnerWithFiltersSpec(queryParams);
-            var countSpec = new PharmaOwnerWithFiltersSpec(queryParams.Search);
+            
+            // Using the Admin branch logic for accurate pagination count
+            var dataSpec = new PharmaOwnerWithFiltersSpec(queryParams, isCountSpec: false);
+            var countSpec = new PharmaOwnerWithFiltersSpec(queryParams, isCountSpec: true);
 
             var owners = await ownerRepo.GetAllWithSpecAsync(dataSpec);
             var totalItems = await ownerRepo.GetCountAsync(countSpec);
@@ -101,6 +103,20 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
             );
         }
 
+        // New method added from the Admin branch
+        public async Task<PharmaOwnerDetailsDto> GetPharmaOwnerProfileByIdAsync(string pharmaOwnerId)
+        {
+            var spec = new PharmaOwnerByIdWithDetailsSpec(pharmaOwnerId);
+            var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
+            var owner = await ownerRepo.GetByIdWithSpecAsync(spec);
+
+            if (owner == null)
+                throw new NotFoundCutomeException($"PharmaOwner profile with ID {pharmaOwnerId} not found.");
+
+            return mapper.Map<PharmaOwnerDetailsDto>(owner);
+        }
+
+        // Cleaned up syntax from the develop branch
         public async Task<bool> UpdatePharmaOwnerStatusAsync(string pharmaOwnerId, PharmaOwnerStatus status)
         {
             var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
@@ -116,6 +132,7 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
 
             return await unitOfWork.SaveChangesAsync() > 0;
         }
+
         private async Task<string> UploadProfileImageAsync(IFormFile file, string userId)
         {
             if (file == null || file.Length == 0) return string.Empty;

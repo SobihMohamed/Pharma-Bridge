@@ -1,7 +1,7 @@
 using AutoMapper;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Shared.DTOs.PharmaOwners;
-using PharmaBridge.Services.Resolver; 
+using PharmaBridge.Services.Resolver;
 
 namespace PharmaBridge.Services.AutoMapper.PharmaOwnerMapping
 {
@@ -21,7 +21,6 @@ namespace PharmaBridge.Services.AutoMapper.PharmaOwnerMapping
 
             CreateMap<PharmaOwner, PharmaOwnerDetailsDto>()
                 .IncludeBase<PharmaOwner, PharmaOwnerDto>()
-
                 .ForMember(dest => dest.NationalIdFront, opt =>
                     opt.MapFrom<PictureResolver<PharmaOwner, PharmaOwnerDetailsDto>, string>(src => src.NationalIdFront))
                 .ForMember(dest => dest.NationalIdBack, opt =>

@@ -32,6 +32,9 @@ namespace PharmaBridge.Abstraction.IServices.PharmaOwnerProfiles
         // Admin views all registered pharma owners with their status and details.
         Task<PaginationResponse<PharmaOwnerDto>> GetAllPharmaOwnersAsync(PharmaOwnerQueryParams queryParams);
 
+        // Admin views a specific pharma owner profile by their Pharma Owner ID.
+        Task<PharmaOwnerDetailsDto> GetPharmaOwnerProfileByIdAsync(string pharmaOwnerId);
+
         // Admin approves or rejects a pharma owner profile.
         Task<bool> UpdatePharmaOwnerStatusAsync(string pharmaOwnerId, PharmaBridge.Shared.EnumHelper.PharmaEnums.PharmaOwnerStatus status);
     }
