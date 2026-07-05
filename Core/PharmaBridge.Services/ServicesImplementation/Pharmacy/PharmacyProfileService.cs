@@ -1,23 +1,27 @@
 using AutoMapper;
-using PharmaBridge.Abstraction.IServices.Pharmacy;
+using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Abstraction.IServices.Attachement;
+using PharmaBridge.Abstraction.IServices.Notification;
+using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.Specifications.Pharmacy;
-using PharmaBridge.Shared.DTOs.Pharmacy;
-using PharmaBridge.Shared.Dto_s.Attachment;
-using PharmaBridge.Shared.EnumHelper.PharmaEnums;
-using PharmaBridge.Shared.EnumHelper.UserEnums;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params;
 using PharmaBridge.Shared.Common.Params.Pharmacy;
+using PharmaBridge.Shared.Dto_s.Attachment;
+using PharmaBridge.Shared.DTOs.Notificaiton;
+using PharmaBridge.Shared.DTOs.Pharmacy;
+using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using PharmaBridge.Shared.EnumHelper.UserEnums;
 
 
 namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
-    public class PharmacyProfileService(IUnitOfWork unitOfWork, IMapper mapper, IAttachementService attachementService) : IPharmacyProfileService
+    public class PharmacyProfileService(IUnitOfWork unitOfWork,UserManager<ApplicationUser> userManager, INotificationService notificationService, IMapper mapper, IAttachementService attachementService) : IPharmacyProfileService
     {
         public async Task<PharmacyOwnerProfileDto> RegisterPharmacyProfileAsync(PharmacyToCreateDto createDto, string userId)
         {
@@ -54,11 +58,34 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             }
 
             await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().AddAsync(pharmacy);
+
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to register pharmacy profile.");
 
+            var adminIds = await GetAdminUserIdsAsync();
+
+            if (adminIds != null && adminIds.Any())
+            {
+                string bodyMessage = $"A new Pharmacy profile (License: {createDto.LicenseNumber}) has been submitted and is pending your approval.";
+
+                foreach (var adminId in adminIds)
+                {
+                    var message = new NotificationContentDto
+                    {
+                        UserId = adminId,
+                        Subject = "New Pharmacy Registration 🏪",
+                        Body = bodyMessage,
+                        ReferenceId = null, 
+                        Payload = null
+                    };
+
+                    await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+            }
+
             var spec = new PharmacyWithProfileOwnerSpec(pharmacy.Id);
             var savedPharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
+
             return mapper.Map<PharmacyOwnerProfileDto>(savedPharmacy);
         }
 
@@ -234,8 +261,43 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             pharmacy.Status = status;
             pharmacyRepo.UpdateAsync(pharmacy);
 
-            var result = await unitOfWork.SaveChangesAsync();
-            return result > 0;
+            var isSaved = await unitOfWork.SaveChangesAsync() > 0;
+
+            if (isSaved)
+            {
+                var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
+                var owner = await ownerRepo.GetByIdAsync(pharmacy.PharmaOwnerId);
+
+                if (owner != null && !string.IsNullOrEmpty(owner.ApplicationUserId))
+                {
+                    string subject = status == PharmacyStatus.Active
+                        ? "Pharmacy Approved! 🏪🎉"
+                        : "Pharmacy Status Update ⚠️";
+
+                    string bodyMessage = status == PharmacyStatus.Active
+                        ? "Congratulations! Your pharmacy location and license have been approved. You can now receive orders."
+                        : $"Your pharmacy profile status has been changed to: {status}. Please check your account.";
+
+                    var message = new NotificationContentDto
+                    {
+                        UserId = owner.ApplicationUserId, 
+                        Subject = subject,
+                        Body = bodyMessage,
+                        ReferenceId = null,
+                        Payload = null
+                    };
+
+                    await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+            }
+
+            return isSaved;
+        }
+        private async Task<List<string>> GetAdminUserIdsAsync()
+        {
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+            return admins.Select(admin => admin.Id).ToList();
         }
     }
 }

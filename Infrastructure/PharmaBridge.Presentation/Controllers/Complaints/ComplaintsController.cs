@@ -66,7 +66,7 @@ namespace PharmaBridge.Presentation.Controllers.Complaints
         }
 
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Patient")]
         [ProducesResponseType(typeof(ApiResponse<ComplaintDetailsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetComplaintDetails(int id)

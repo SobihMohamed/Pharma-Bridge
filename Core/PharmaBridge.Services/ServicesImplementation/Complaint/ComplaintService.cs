@@ -1,13 +1,18 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Abstraction.IServices.Complaint;
+using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Domain.Contracts.GenericReposPattern;
 using PharmaBridge.Domain.Contracts.SpecificationPattern;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
+using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.Specifications;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Complaint;
 using PharmaBridge.Shared.DTOs.Complaint;
+using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 using System;
 using System.Collections.Generic;
@@ -15,7 +20,7 @@ using System.Reflection.Metadata;
 using System.Text;
 namespace PharmaBridge.Services.ServicesImplementation.Complaint
 {
-    public class ComplaintService(IUnitOfWork unitOfWork, IMapper mapper) : IComplaintService
+    public class ComplaintService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService) : IComplaintService
     {
         //Patient Operations
         public async Task<ComplaintDetailsDto> SubmitComplaintAsync(CreateComplaintDto createDto, Guid patientId)
@@ -28,6 +33,29 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
             await unitOfWork.GetRepository<PharmaBridge.Domain.Models.UserAccess.Complaint, int>().AddAsync(complaint);
             var result = await unitOfWork.SaveChangesAsync();
             if (result <= 0) throw new BadRequestCustomeException("Failed to submit complaint");
+            var adminIds = await GetAdminUserIdsAsync(); 
+
+            if (adminIds != null && adminIds.Any())
+            {
+                // 2. Prepare the notification message
+                string bodyMessage = createDto.OrderId.HasValue && createDto.OrderId > 0
+                    ? $"A new complaint has been submitted regarding Order #{createDto.OrderId}. Title: {createDto.Title}"
+                    : $"A new general complaint has been submitted. Title: {createDto.Title}";
+
+                foreach (var adminId in adminIds)
+                {
+                    var message = new NotificationContentDto
+                    {
+                        UserId = adminId,
+                        Subject = "New Complaint Submitted ⚠️",
+                        Body = bodyMessage,
+                        ReferenceId = complaint.Id, 
+                        Payload = null
+                    };
+
+                    await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+            }
             var complaintDetailsDto = mapper.Map<ComplaintDetailsDto>(complaint);
             return complaintDetailsDto;            
         }
@@ -83,6 +111,12 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
             return true;
         }
 
+        private async Task<List<string>> GetAdminUserIdsAsync()
+        {
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+            return admins.Select(admin => admin.Id).ToList();
+        }
         #region Helper Methods In Complaint Service
         private void ValidateRequestInput(CreateComplaintDto requestDto)
         {
