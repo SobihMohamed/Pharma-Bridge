@@ -2,6 +2,7 @@
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
+using System;
 
 namespace PharmaBridge.Services.Specifications.Request
 {
@@ -9,19 +10,33 @@ namespace PharmaBridge.Services.Specifications.Request
     {
         public NearbyRequestsCountSpec(Domain.Models.Pharma_Requests.Pharmacy pharmacy, PrescriptionRequestQueryParams queryParams, decimal radiusInDegrees)
             : base(r =>
-                // filter by status (Pending or HasBids) only 
-                (r.Status == PrescriptionStatus.Pending || r.Status == PrescriptionStatus.HasBids) &&
+                // 1. Status Filter & Expiration Check:
+                // أ) لو مش باعت حالة (حالة الرادار الافتراضية): هات الـ Pending أو HasBids بشرط ميكونش منتهي الصلاحية
+                (!queryParams.Status.HasValue ?
+                    (r.ExpiresAt > DateTime.UtcNow && (r.Status == PrescriptionStatus.Pending || r.Status == PrescriptionStatus.HasBids)) :
 
-                // if the search term is provided, filter by medicine name (case-insensitive)
+                // ب) لو باعت حالة Pending أو HasBids صراحة: اتأكد برضه إن الطلب لسه صلاحيته سارية
+                (queryParams.Status == PrescriptionStatus.Pending || queryParams.Status == PrescriptionStatus.HasBids) ?
+                    (r.ExpiresAt > DateTime.UtcNow && r.Status == queryParams.Status) :
+
+                    // ج) لو باعت حالة تانية مقفولة (زي Closed أو Cancelled): رجعها زي ما هي عادي للأرشيف
+                    r.Status == queryParams.Status) &&
+
+                // 2. Search Filter:
                 (string.IsNullOrEmpty(queryParams.Search) ||
-                 (!string.IsNullOrEmpty(r.MedicineName) && r.MedicineName.ToLower().Contains(queryParams.Search))) &&
+                 (!string.IsNullOrEmpty(r.MedicineName) && r.MedicineName.ToLower().Contains(queryParams.Search.ToLower()))) &&
 
-                // filter by delivery address proximity to the pharmacy location using boxing method for performance (only if the request has a delivery address)
+                // 3. Date Filters:
+                (!queryParams.FromDate.HasValue || r.CreatedAt >= queryParams.FromDate) &&
+                (!queryParams.ToDate.HasValue || r.CreatedAt <= queryParams.ToDate) &&
+
+                // 4. Patient Filter:
+                (string.IsNullOrEmpty(queryParams.PatientId) || r.PatientProfile.ApplicationUserId == queryParams.PatientId) &&
+
+                // 5. Radius Filter:
                 (r.DeliveryAddress != null &&
-                 // get the requests that the north-south distance is within the radius
-                 r.DeliveryAddress.Latitude >= pharmacy.Latitude - radiusInDegrees && 
+                 r.DeliveryAddress.Latitude >= pharmacy.Latitude - radiusInDegrees &&
                  r.DeliveryAddress.Latitude <= pharmacy.Latitude + radiusInDegrees &&
-                 // get the requests that the east-west distance is within the radius
                  r.DeliveryAddress.Longitude >= pharmacy.Longitude - radiusInDegrees &&
                  r.DeliveryAddress.Longitude <= pharmacy.Longitude + radiusInDegrees)
             )

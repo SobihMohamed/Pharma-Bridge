@@ -12,6 +12,7 @@ using System.Security.Claims;
 namespace PharmaBridge.Presentation.Controllers
 {
     [Route("api/pharmacy-requests")]
+    [ApiController]
     [Authorize(Roles = "PharmacyOwner")]
     public class PharmacyRequestController : AppBaseController
     {
@@ -35,7 +36,7 @@ namespace PharmaBridge.Presentation.Controllers
         }
 
         [HttpGet("nearby")]
-        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<object>>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<PaginationResponse<PharmacyNearbyRequestDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetNearbyRequests([FromQuery] PrescriptionRequestQueryParams queryParams)
@@ -46,9 +47,9 @@ namespace PharmaBridge.Presentation.Controllers
 
             return Success(result, "Nearby requests retrieved successfully");
         }
+
         // 5. Get specific request details for Pharmacy (No Patient Profile validation needed)
         [HttpGet("for-pharmacy/{id}")]
-        [Authorize(Roles = "PharmacyOwner")]
         [ProducesResponseType(typeof(ApiResponse<PrescriptionRequestDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetRequestDetailsForPharmacy(int id)

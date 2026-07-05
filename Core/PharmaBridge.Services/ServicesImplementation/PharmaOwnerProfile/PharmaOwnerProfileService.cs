@@ -1,21 +1,27 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Abstraction.IServices.Attachement;
+using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.PharmaOwnerProfiles;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.Specifications.PharmaOwners;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PharmaOwner;
 using PharmaBridge.Shared.Dto_s.Attachment;
+using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.DTOs.PharmaOwners;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 
 namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
 {
     public class PharmaOwnerProfileService(
+        UserManager<ApplicationUser> userManager,
         IUnitOfWork unitOfWork,
+        INotificationService notificationService,
         IMapper mapper,
         IAttachementService attachmentService) : IPharmaOwnerProfileService
     {
@@ -49,6 +55,25 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
 
             var spec = new PharmaOwnerProfileWithDetailsSpec(applicationUserId);
             var created = await ownerRepo.GetByIdWithSpecAsync(spec);
+            var adminIds = await GetAdminUserIdsAsync();
+            if (adminIds != null && adminIds.Any())
+            {
+                string bodyMessage = $"A new Pharmacy Owner profile (National ID: {createDto.NationalId}) has been submitted and is pending your approval.";
+
+                foreach (var adminId in adminIds)
+                {
+                    var message = new NotificationContentDto
+                    {
+                        UserId = adminId,
+                        Subject = "New Pharmacy Owner Request 👨‍⚕️",
+                        Body = bodyMessage,
+                        ReferenceId = null,
+                        Payload = null
+                    };
+
+                    await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+            }
 
             return mapper.Map<PharmaOwnerDetailsDto>(created);
         }
@@ -130,7 +155,31 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
             owner.Status = status;
             ownerRepo.UpdateAsync(owner);
 
-            return await unitOfWork.SaveChangesAsync() > 0;
+            var isSaved = await unitOfWork.SaveChangesAsync() > 0;
+
+            if (isSaved)
+            {
+                string subject = status == PharmaOwnerStatus.Approved
+                    ? "Account Approved! 🎉"
+                    : "Account Status Update ⚠️";
+
+                string bodyMessage = status == PharmaOwnerStatus.Approved
+                    ? "Congratulations! Your pharmacy profile has been approved. All dashboard features are now unlocked."
+                    : $"Your pharmacy profile status has been changed to: {status}. Please check your account settings.";
+
+                var message = new NotificationContentDto
+                {
+                    UserId = owner.ApplicationUserId, 
+                    Subject = subject,
+                    Body = bodyMessage,
+                    ReferenceId = null,
+                    Payload = null
+                };
+
+                await notificationService.SendNotificationAsync(message, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+            }
+
+            return isSaved;
         }
 
         private async Task<string> UploadProfileImageAsync(IFormFile file, string userId)
@@ -200,6 +249,12 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
         {
             if (queryParams.PageIndex <= 0) queryParams.PageIndex = 1;
             if (queryParams.PageSize <= 0 || queryParams.PageSize > 50) queryParams.PageSize = 10;
+        }
+        private async Task<List<string>> GetAdminUserIdsAsync()
+        {
+            var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+            return admins.Select(admin => admin.Id).ToList();
         }
     }
 }
