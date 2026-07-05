@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\PharmaBridge.Domain\PharmaBridge.Domain.csproj" />
     <ProjectReference Include="..\..\Core\PharmaBridge.Services\PharmaBridge.Services.csproj" />
   </ItemGroup>
 

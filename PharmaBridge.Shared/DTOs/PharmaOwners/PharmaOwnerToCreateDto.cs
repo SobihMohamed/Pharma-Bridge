@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using Microsoft.AspNetCore.Http; 
 
 namespace PharmaBridge.Shared.DTOs.PharmaOwners
 {
     public class PharmaOwnerToCreateDto
     {
-       // REMOVED: ApplicationUserId (Security: Get it from JWT Token)
-
         [Required(ErrorMessage = "National ID is required")]
         [StringLength(14, MinimumLength = 14, ErrorMessage = "National ID must be exactly 14 digits")]
-        public string NationalId { get; set; }
+        [RegularExpression(@"^\d{14}$", ErrorMessage = "National ID must be exactly 14 numeric digits")]
+        public string NationalId { get; set; } = null!;
 
         [Required(ErrorMessage = "Front image of National ID is required")]
-        public string NationalIdFront { get; set; }
+        public IFormFile NationalIdFront { get; set; } = null!;
 
         [Required(ErrorMessage = "Back image of National ID is required")]
-        public string NationalIdBack { get; set; }
+        public IFormFile NationalIdBack { get; set; } = null!;
 
         [Required(ErrorMessage = "Syndicate Card image is required")]
-        public string SyndicateCardImage { get; set; }
+        public IFormFile SyndicateCardImage { get; set; } = null!;
     }
 }

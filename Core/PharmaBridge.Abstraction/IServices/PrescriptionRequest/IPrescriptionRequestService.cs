@@ -1,6 +1,7 @@
 ﻿using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.PrescriptionRequest;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
+using PharmaBridge.Shared.DTOs.PharmaRequests.AdminReq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,22 +22,18 @@ namespace PharmaBridge.Abstraction.IServices.PrescriptionRequest
         Task<PrescriptionRequestDetailsDto> GetPatientRequestDetailsAsync(int requestId, Guid patientId);
 
         // Patient can cancel the request BEFORE accepting any bids.
-        //Task<bool> CancelRequestAsync(Guid requestId, Guid patientId);
+        Task<bool> CancelRequestAsync(int requestId, Guid patientId);
 
 
         // --- Pharmacy (Provider) Operations ---
-
         // Pharmacy views available requests within their range (e.g., 5km) based on their location. (Masked patient data).
-        //Task<Pagination<PrescriptionRequestDto>> GetNearbyRequestsAsync(Guid pharmacyId, PrescriptionRequestQueryParams queryParams);
-
-        // Pharmacy views details of a specific request to prepare a Bid/Offer. (Masked patient data).
-        //Task<PrescriptionRequestDetailsDto> GetPharmacyRequestDetailsAsync(Guid requestId, Guid pharmacyId);
-
+        Task<PaginationResponse<PharmacyNearbyRequestDto>> GetNearbyRequestsAsync(int pharmacyId, PrescriptionRequestQueryParams queryParams);
+        Task<PrescriptionRequestDto> GetRequestDetailsForPharmacyAsync(int requestId);
 
         // --- Admin Operations ---
-
         // Admin can monitor all platform requests for auditing and support.
-        //Task<Pagination<AdminPrescriptionRequestDetailsDto>> GetAllPlatformRequestsAsync(PrescriptionRequestQueryParams queryParams);
+        Task<PaginationResponse<AdminPrescriptionRequestDto>> GetAllPlatformRequestsAsync(PrescriptionRequestQueryParams queryParams);
+        Task<AdminPrescriptionRequestDetailsDto> GetAdminRequestDetailsAsync(int requestId);
 
     }
 }

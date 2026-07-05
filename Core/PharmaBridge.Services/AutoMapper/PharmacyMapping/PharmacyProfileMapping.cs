@@ -1,10 +1,12 @@
-﻿using System;
+using System;
 using AutoMapper;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using PharmaBridge.Services.Resolver;
 
+using PharmaBridge.Domain.Models.UserAccess;
+using PharmaBridge.Shared.DTOs.PharmacyRating;
 namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
 {
     public class PharmacyProfileMapping : Profile
@@ -18,6 +20,7 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
 
             // B. Pharmacy -> PharmacyOwnerProfileDto
             CreateMap<Pharmacy, PharmacyOwnerProfileDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OwnerName, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.FullName))
                 .ForMember(dest => dest.OwnerEmail, opt => opt.MapFrom(src => src.PharmaOwner.ApplicationUser.Email))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
@@ -58,6 +61,29 @@ namespace PharmaBridge.Services.AutoMapper.PharmacyMapping
                 .ForMember(dest => dest.OpenTime, opt => opt.MapFrom(src => src.OpenTime))
                 .ForMember(dest => dest.CloseTime, opt => opt.MapFrom(src => src.CloseTime))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<CreatePharmacyRatingDto, PharmacyRating>();
+
+            CreateMap<PharmacyRating, PharmacyRatingDto>()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src =>
+                    src.PatientProfile != null && src.PatientProfile.ApplicationUser != null
+                        ? src.PatientProfile.ApplicationUser.FullName
+                        : "Anonymous"));
+
+            // E. Pharmacy -> AdminPharmacyDto
+            CreateMap<Pharmacy, AdminPharmacyDto>()
+                .ForMember(dest => dest.PharmaOwnerName, opt => opt.MapFrom(src => src.PharmaOwner != null && src.PharmaOwner.ApplicationUser != null ? src.PharmaOwner.ApplicationUser.FullName : null))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.PharmaOwner != null && src.PharmaOwner.ApplicationUser != null ? src.PharmaOwner.ApplicationUser.Email : null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PharmaOwner != null && src.PharmaOwner.ApplicationUser != null ? src.PharmaOwner.ApplicationUser.PhoneNumber : null))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            // F. Pharmacy -> AdminPharmacyDetailsDto
+            CreateMap<Pharmacy, AdminPharmacyDetailsDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.OpenTime, opt => opt.MapFrom(src => src.OpenTime.HasValue ? src.OpenTime.Value.ToString("HH:mm") : null))
+                .ForMember(dest => dest.CloseTime, opt => opt.MapFrom(src => src.CloseTime.HasValue ? src.CloseTime.Value.ToString("HH:mm") : null))
+                .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.LicenseImageUrl, opt => opt.MapFrom<PictureResolver<Pharmacy, AdminPharmacyDetailsDto>, string>(src => src.LicenseImageUrl))
+                .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.PharmaOwner));
         }
     }
 }

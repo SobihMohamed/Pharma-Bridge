@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
@@ -10,9 +10,10 @@ using PharmaBridge.Shared.DTOs.Pharmacy;
 using PharmaBridge.Shared.Dto_s.Attachment;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using PharmaBridge.Shared.Common.Pagination;
+using PharmaBridge.Shared.Common.Params;
+using PharmaBridge.Shared.Common.Params.Pharmacy;
+
 
 namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {
@@ -61,30 +62,28 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             return mapper.Map<PharmacyOwnerProfileDto>(savedPharmacy);
         }
 
-        public async Task<PharmacyOwnerProfileDto> GetMyProfileAsync(int pharmacyId, string userId)
+        public async Task<PharmacyOwnerProfileDto> GetMyProfileAsync(string userId)
         {
+            var pharmacyId = await GetPharmacyIdByUserIdAsync(userId);
+
             var spec = new PharmacyWithProfileOwnerSpec(pharmacyId);
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
 
             if (pharmacy == null)
                 throw new NotFoundCutomeException("Pharmacy not found");
 
-            if (pharmacy.PharmaOwner.ApplicationUserId != userId)
-                throw new UnAuthorizedCustomeException("You are not authorized to view this profile.");
-
             return mapper.Map<PharmacyOwnerProfileDto>(pharmacy);
         }
 
-        public async Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(int pharmacyId, PharmacyToUpdateDto updateDto, string userId)
+        public async Task<PharmacyOwnerProfileDto> UpdateMyProfileAsync(PharmacyToUpdateDto updateDto, string userId)
         {
+            var pharmacyId = await GetPharmacyIdByUserIdAsync(userId);
+
             var spec = new PharmacyWithProfileOwnerSpec(pharmacyId);
             var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
 
             if (pharmacy == null)
                 throw new NotFoundCutomeException("Pharmacy not found.");
-
-            if (pharmacy.PharmaOwner.ApplicationUserId != userId)
-                throw new UnAuthorizedCustomeException("You are not authorized to update this profile.");
 
             if (pharmacy.Status == PharmacyStatus.Pending)
                 throw new BadRequestCustomeException("You cannot update the pharmacy profile while it is under review by the administration. Please wait for a response.");
@@ -119,7 +118,6 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
             }
 
-            // Update the entity in the database
             unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().UpdateAsync(pharmacy);
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to update pharmacy profile.");
@@ -136,6 +134,31 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 throw new NotFoundCutomeException("Pharmacy not found or not active yet.");
 
             return mapper.Map<PharmacyDto>(pharmacy);
+        }
+
+        public async Task<AdminPharmacyDetailsDto> GetPharmacyDetailsForAdminAsync(int pharmacyId)
+        {
+            var spec = new PharmacyWithProfileOwnerSpec(pharmacyId);
+            var pharmacy = await unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().GetByIdWithSpecAsync(spec);
+
+            if (pharmacy == null)
+                throw new NotFoundCutomeException($"Pharmacy with ID {pharmacyId} not found.");
+
+            return mapper.Map<AdminPharmacyDetailsDto>(pharmacy);
+        }
+
+        public async Task<int> GetPharmacyIdByUserIdAsync(string userId)
+        {
+            var pharmacyRepo = unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>();
+
+            var spec = new PharmacyByAppUserIdSpec(userId);
+
+            var pharmacy = await pharmacyRepo.GetByIdWithSpecAsync(spec);
+
+            if (pharmacy == null)
+                throw new NotFoundCutomeException("No pharmacy found assigned to this user account.");
+
+            return pharmacy.Id;
         }
 
         // ✅ New private method — called in both Register and Update
@@ -169,10 +192,50 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (owner.Status != PharmaOwnerStatus.Approved)
                 throw new BadRequestCustomeException("Your owner account is not yet approved by the admin.");
 
-            if (owner.Pharmacies != null && owner.Pharmacies.Any())
+            if (owner.Pharmacy != null)
                 throw new BadRequestCustomeException("A pharmacy profile already exists for this owner.");
 
             return owner;
+        }
+
+        public async Task<PaginationResponse<AdminPharmacyDto>> GetAllPharmaciesAsync(PharmacyQueryParams queryParams)
+        {
+            if (queryParams.PageIndex <= 0)
+                queryParams.PageIndex = 1;
+
+            if (queryParams.PageSize <= 0 || queryParams.PageSize > 50)
+                queryParams.PageSize = 10;
+
+            var pharmacyRepo = unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>();
+            var dataSpec = new PharmacyWithFiltersSpec(queryParams, isCountSpec: false);
+            var countSpec = new PharmacyWithFiltersSpec(queryParams, isCountSpec: true);
+
+            var pharmacies = await pharmacyRepo.GetAllWithSpecAsync(dataSpec);
+            var totalItems = await pharmacyRepo.GetCountAsync(countSpec);
+
+            var data = mapper.Map<IReadOnlyList<AdminPharmacyDto>>(pharmacies);
+
+            return new PaginationResponse<AdminPharmacyDto>(
+                queryParams.PageIndex,
+                queryParams.PageSize,
+                totalItems,
+                data
+            );
+        }
+
+        public async Task<bool> UpdatePharmacyStatusAsync(int pharmacyId, PharmacyStatus status)
+        {
+            var pharmacyRepo = unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>();
+            var pharmacy = await pharmacyRepo.GetByIdAsync(pharmacyId);
+
+            if (pharmacy == null)
+                throw new NotFoundCutomeException($"Pharmacy with ID {pharmacyId} not found.");
+
+            pharmacy.Status = status;
+            pharmacyRepo.UpdateAsync(pharmacy);
+
+            var result = await unitOfWork.SaveChangesAsync();
+            return result > 0;
         }
     }
 }

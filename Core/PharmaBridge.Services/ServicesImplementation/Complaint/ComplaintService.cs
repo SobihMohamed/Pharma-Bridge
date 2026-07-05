@@ -23,6 +23,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
             var userId = patientId.ToString();
 
             ValidateRequestInput(createDto);
+            await ValidateOptionalOrderAsync(createDto.OrderId);
             var complaint = BuildComplaintEntity(createDto, userId);
             await unitOfWork.GetRepository<PharmaBridge.Domain.Models.UserAccess.Complaint, int>().AddAsync(complaint);
             var result = await unitOfWork.SaveChangesAsync();
@@ -49,6 +50,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
 
         public async Task<PaginationResponse<ComplaintDto>> GetAllPlatformComplaintsAsync(ComplaintQueryParams queryParams)
         {
+            await ValidatePharmacyExistsAsync(queryParams.PharmacyId);
             var countSpec = new AllComplaintsCountSpec(queryParams);
             var dataSpec = new AllComplaintsWithPaginationSpec(queryParams);
 
@@ -89,6 +91,23 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
                 throw new BadRequestCustomeException("Please Write the Title and Description");
             }
         }
+        private async Task ValidateOptionalOrderAsync(int? orderId)
+        {
+            if (orderId.HasValue)
+            {
+                if (orderId.Value <= 0)
+                    throw new BadRequestCustomeException("Invalid Order ID. It must be greater than zero.");
+
+                var orderRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.UserAccess.Order, int>();
+                var orderExists = await orderRepo.GetByIdAsync(orderId.Value);
+
+                if (orderExists == null)
+                {
+                    throw new NotFoundCutomeException($"Order with ID '{orderId.Value}' does not exist. Cannot link complaint to a non-existent order.");
+                }
+            }
+        }
+
         private PharmaBridge.Domain.Models.UserAccess.Complaint BuildComplaintEntity(CreateComplaintDto createDto, string patientId)
         {
             var complaint = mapper.Map<PharmaBridge.Domain.Models.UserAccess.Complaint>(createDto);
@@ -140,6 +159,20 @@ namespace PharmaBridge.Services.ServicesImplementation.Complaint
                 throw new NotFoundCutomeException($"Complaint with ID {id} was not found on the platform.");
 
             return complaint;
+        }
+
+        private async Task ValidatePharmacyExistsAsync(int? pharmacyId)
+        {
+            if (pharmacyId.HasValue)
+            {
+                var pharmacyRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy, int>();
+                var pharmacyExists = await pharmacyRepo.GetByIdAsync(pharmacyId.Value);
+
+                if (pharmacyExists == null)
+                {
+                    throw new NotFoundCutomeException($"Pharmacy with ID '{pharmacyId.Value}' does not exist on the platform.");
+                }
+            }
         }
         #endregion
     }

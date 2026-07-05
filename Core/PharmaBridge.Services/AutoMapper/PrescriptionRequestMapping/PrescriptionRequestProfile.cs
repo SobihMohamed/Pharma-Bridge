@@ -4,6 +4,7 @@ using PharmaBridge.Services.Resolver;
 using PharmaBridge.Shared.DTOs.Bid;
 using PharmaBridge.Shared.DTOs.BidItem;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
+using PharmaBridge.Shared.DTOs.PharmaRequests.AdminReq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -46,13 +47,48 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
                 .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.PharmacyName : "Unknown"))
                 .ForMember(dest => dest.PharmacyRating, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.AverageRating : 0))
                 .ForMember(dest => dest.BidItems, opt => opt.MapFrom(src => src.BidItems));
-           
+
             // 3 - Mapping From Entity to Details Dto (Output)
             CreateMap<PrescriptionRequestEntity, PrescriptionRequestDetailsDto>()
                .IncludeBase<PrescriptionRequestEntity, PrescriptionRequestDto>() // Include base mapping
                .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids));
 
+            // 4 - Mapping For Pharmacy Nearby Requests (Data Masking Applied)
+            CreateMap<PrescriptionRequestEntity, PharmacyNearbyRequestDto>()
 
+                .ForMember(dest => dest.ImageUrl, opt =>
+                    opt.MapFrom<PictureResolver<PrescriptionRequestEntity, PharmacyNearbyRequestDto>, string>(src => src.ImageUrl!))
+
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+
+                // City/Area. We do NOT include AddressLine.
+                .ForMember(dest => dest.DeliveryArea, opt => opt.MapFrom(src =>
+                    src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"));
+
+            // 5 - Mapping for Admin List
+            CreateMap<PrescriptionRequestEntity, AdminPrescriptionRequestDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.BidsCount, opt => opt.MapFrom(src => src.Bids != null ? src.Bids.Count : 0))
+                .ForMember(dest => dest.DeliveryArea, opt => opt.MapFrom(src => src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"))
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.PatientProfile != null && src.PatientProfile.ApplicationUser != null ? src.PatientProfile.ApplicationUser.FullName : "Unknown"))
+                .ForMember(dest => dest.PatientPhone, opt => opt.MapFrom(src => src.PatientProfile != null && src.PatientProfile.ApplicationUser != null ? src.PatientProfile.ApplicationUser.PhoneNumber : "Unknown"));
+
+            // 6 - Mapping for Admin Details
+            CreateMap<PrescriptionRequestEntity, AdminPrescriptionRequestDetailsDto>()
+                .IncludeBase<PrescriptionRequestEntity, AdminPrescriptionRequestDto>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<PictureResolver<PrescriptionRequestEntity, AdminPrescriptionRequestDetailsDto>, string>(src => src.ImageUrl!))
+                .ForMember(dest => dest.FullAddress, opt => opt.MapFrom(src => src.DeliveryAddress != null ? $"{src.DeliveryAddress.City} - {src.DeliveryAddress.AddressLine}" : "Unknown"))
+                .ForMember(dest => dest.History, opt => opt.MapFrom(src => src.PrescriptionRequestHistorys))
+                .ForMember(dest => dest.Bids, opt => opt.MapFrom(src => src.Bids));
+
+            // 7 - Mapping for Nested Bid DTOs in Admin View
+            CreateMap<Bid, AdminBidDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.PharmacyName : "Unknown"))
+                .ForMember(dest => dest.PharmacyPhone, opt => opt.MapFrom(src => src.Pharmacy != null ? src.Pharmacy.ContactPhone : "Unknown"))
+                .ForMember(dest => dest.BidItems, opt => opt.MapFrom(src => src.BidItems));
+
+            CreateMap<BidItem, AdminBidItemDto>();
         }
     }
 }

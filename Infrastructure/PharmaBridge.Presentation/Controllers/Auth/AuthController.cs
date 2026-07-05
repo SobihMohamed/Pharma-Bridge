@@ -1,10 +1,11 @@
-﻿using PharmaBridge.Abstraction.IServices.Auth;
+﻿using Microsoft.AspNetCore.Http; // عشان الـ StatusCodes
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using PharmaBridge.Abstraction.IServices.Auth;
+using PharmaBridge.Shared.Common.Response; // تأكد إن دي موجودة
 using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace PharmaBridge.Presentation.Controllers.Auth
 {
@@ -19,6 +20,8 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 1. (Register)
         [HttpPost("register")]
+        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Register([FromBody] RegisterDto dto)
         {
             var result = await _authService.RegisterAsync(dto);
@@ -27,6 +30,8 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 2. (Login)
         [HttpPost("login")]
+        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult> Login([FromBody] LoginDto dto)
         {
             var result = await _authService.LoginAsync(dto);
@@ -35,6 +40,7 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 3. (Forget Password)
         [HttpPost("forget-password")]
+        [EnableRateLimiting("OtpPolicy")] 
         public async Task<ActionResult> ForgetPassword([FromBody] ForgetPasswordDto dto)
         {
             await _authService.ForgetPasswordAsync(dto);
@@ -43,6 +49,8 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 4. Check OTP
         [HttpPost("verify-otp")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> VerifyOtp([FromBody] VerifyOtpDto dto)
         {
             var isValid = await _authService.VerifyOtpAsync(dto);
@@ -55,6 +63,7 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 5. (Reset Password)
         [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)] 
         public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
             var result = await _authService.ResetPasswordAsync(dto);

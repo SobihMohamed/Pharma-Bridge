@@ -34,7 +34,14 @@ namespace PharmaBridge.Services.Specifications.Pharmacy
             : base(p => p.ApplicationUserId == appUserId)
         {
             AddInclude(p => p.ApplicationUser);
-            AddInclude(p => p.Pharmacies);
+            AddInclude(p => p.Pharmacy);
+        }
+    }
+    public class PharmacyByAppUserIdSpec : BaseSpecifications<Domain.Models.Pharma_Requests.Pharmacy, int>
+    {
+        public PharmacyByAppUserIdSpec(string appUserId)
+            : base(p => p.PharmaOwner.ApplicationUserId == appUserId)
+        {
         }
     }
 }
