@@ -7,6 +7,6 @@ namespace PharmaBridge.Shared.DTOs.Patient
     {
         public IReadOnlyList<PrescriptionRequestDto> LatestRequests { get; set; } = [];
 
-        public IReadOnlyList<OrderDto> ActiveOrders { get; set; } = [];
+        public IReadOnlyList<OrderDto> recentOrders { get; set; } = [];
     }
 }

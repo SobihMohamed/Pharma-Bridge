@@ -12,6 +12,7 @@ namespace PharmaBridge.Shared.EnumHelper.UserAccessEnums
         Preparing = 4,
         Completed = 5,
         Cancelled = 6,
-        Returned = 7,
+        Delivered=7,
+        Returned = 8,
     }
 }

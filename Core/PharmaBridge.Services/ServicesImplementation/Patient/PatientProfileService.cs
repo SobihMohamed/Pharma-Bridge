@@ -16,7 +16,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
     {
         public async Task<PatientProfileDetailsDto> GetMyProfileAsync(string applicationUserId)
         {
-            var spec = new PatientProfileWithDetailsSpec(applicationUserId);
+            var spec = new PatientCheckAndGetInfoSpec(applicationUserId);
             var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
             var patient = await patientRepo.GetByIdWithSpecAsync(spec);
 
@@ -93,15 +93,15 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
                 data
             );
         }
-        public async Task<PatientProfileDetailsDto> GetPatientByApplicationUserIdAsync(string applicationUserId)
+        public async Task<PatientProfileDetailsDto> GetPatientByApplicationUserIdAsync(string patientProfileId)
         {
             var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
 
-            var spec = new PatientProfileWithDetailsSpec(applicationUserId);
+            var spec = new PatientProfileWithDetailsSpec(patientProfileId);
             var patient = await patientRepo.GetByIdWithSpecAsync(spec);
 
             if (patient is null)
-                throw new NotFoundCutomeException($"Patient with application user id '{applicationUserId}' was not found.");
+                throw new NotFoundCutomeException($"Patient with profile id '{patientProfileId}' was not found.");
 
             return mapper.Map<PatientProfileDetailsDto>(patient);
         }

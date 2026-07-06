@@ -3,10 +3,10 @@ using PharmaBridge.Domain.Models.User;
 
 namespace PharmaBridge.Services.Specifications.Patient
 {
-    internal class PatientProfileWithDetailsSpec : BaseSpecifications<PatientProfile, string>
+    public class PatientProfileWithDetailsSpec : BaseSpecifications<PatientProfile, string>
     {
-        public PatientProfileWithDetailsSpec(string applicationUserId)
-             : base(p => p.ApplicationUserId == applicationUserId)
+        public PatientProfileWithDetailsSpec(string patientProfileId)
+             : base(p => p.Id == patientProfileId)
         {
             AddInclude(p => p.ApplicationUser);
 
