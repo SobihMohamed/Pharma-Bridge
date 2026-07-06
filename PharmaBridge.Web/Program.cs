@@ -25,6 +25,7 @@ namespace PharmaBridge.Web
             // 1. Database & Identity
             // ==========================================
             builder.Services.InjectDatabaseService(builder.Configuration);
+            builder.Services.InjectIdentityCore();
 
             // ==========================================
             // 2. Application Services & Third-Party
@@ -113,7 +114,6 @@ namespace PharmaBridge.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStaticFiles();
             app.MapControllers();
             app.MapHub<NotificationHub>("/notify");
             app.Run();
