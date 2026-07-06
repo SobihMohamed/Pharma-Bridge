@@ -1,14 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
+using PharmaBridge.Abstraction.IServices.Admin;
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Abstraction.IServices.Auth;
 using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Abstraction.IServices.Complaint;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Order;
+using PharmaBridge.Abstraction.IServices.Patient;
 using PharmaBridge.Abstraction.IServices.PatientAddresses;
 using PharmaBridge.Abstraction.IServices.PatientProfiles;
-using PharmaBridge.Abstraction.IServices.PharmaOwnerProfiles;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
+using PharmaBridge.Abstraction.IServices.PharmaOwnerProfiles;
 using PharmaBridge.Abstraction.IServices.PrescriptionRequest;
 using PharmaBridge.Abstraction.IServices.Token;
 using PharmaBridge.Domain.Contracts.SpecificReposPattern;
@@ -19,6 +21,7 @@ using PharmaBridge.Persistence.Implementations.SpecificReposPattern;
 using PharmaBridge.Persistence.Implementations.UoWPattern;
 using PharmaBridge.Services.Bidding;
 using PharmaBridge.Services.Resolver;
+using PharmaBridge.Services.ServicesImplementation.Admin;
 using PharmaBridge.Services.ServicesImplementation.Attachement;
 using PharmaBridge.Services.ServicesImplementation.Auth;
 using PharmaBridge.Services.ServicesImplementation.Complaint;
@@ -26,9 +29,9 @@ using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.ServicesImplementation.Notification.StrategyPattern;
 using PharmaBridge.Services.ServicesImplementation.OrderService;
 using PharmaBridge.Services.ServicesImplementation.Patient;
-using PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile;
 using PharmaBridge.Services.ServicesImplementation.PatientAddress;
 using PharmaBridge.Services.ServicesImplementation.Pharmacy;
+using PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile;
 using PharmaBridge.Services.ServicesImplementation.PrescriptionRequest;
 using PharmaBridge.Web.Hubs;
 using SoftBridge.Services.Services.Token;
@@ -66,7 +69,8 @@ namespace PharmaBridge.Web.Extensions
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<IPharmacyDashboardService, PharmacyDashboardService>();
-
+            services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+            services.AddScoped<IPatientHomeService, PatientHomeService>();
 
 
 
