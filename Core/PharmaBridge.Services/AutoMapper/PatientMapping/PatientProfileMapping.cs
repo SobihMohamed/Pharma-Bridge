@@ -1,7 +1,8 @@
 using AutoMapper;
 using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Shared.DTOs.PatientProfiles;
 using PharmaBridge.Shared.DTOs.PatientAddresses;
+using PharmaBridge.Shared.DTOs.PatientProfiles;
+using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 
 namespace PharmaBridge.Services.AutoMapper.PatientMapping
 {
@@ -31,7 +32,18 @@ namespace PharmaBridge.Services.AutoMapper.PatientMapping
                 .ForMember(dest => dest.OrdersCount,
                     opt => opt.MapFrom(src => src.Orders.Count))
                 .ForMember(dest => dest.ComplaintsSubmitted,
-                    opt => opt.MapFrom(src => src.ApplicationUser.Complaints.Count));
-        }
+                    opt => opt.MapFrom(src => src.ApplicationUser.Complaints.Count))
+                .ForMember(dest => dest.TotalPharmacyRatings,
+                    opt => opt.MapFrom(src => src.PharmacyRatings.Count))
+                .ForMember(dest => dest.PendingOrders,
+                    opt => opt.MapFrom(src =>
+                        src.Orders.Count(o => o.OrderStatus == OrderStatus.Pending)))
+                .ForMember(dest => dest.CompletedOrders,
+                    opt => opt.MapFrom(src =>
+                        src.Orders.Count(o => o.OrderStatus == OrderStatus.Completed)))
+                .ForMember(dest => dest.CancelledOrders,
+                    opt => opt.MapFrom(src =>
+                        src.Orders.Count(o => o.OrderStatus == OrderStatus.Cancelled)));
+                    }
     }
 }

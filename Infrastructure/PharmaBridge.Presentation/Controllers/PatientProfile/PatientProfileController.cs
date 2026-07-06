@@ -69,5 +69,18 @@ namespace PharmaBridge.Presentation.Controllers.PatientProfile
             var result = await _patientService.GetAllPatientsAsync(queryParams);
             return Success(result, "Patients Retrieved Successfully");
         }
+
+        // 4. Get Patient By Id (Admin)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("user/{applicationUserId}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetPatientByApplicationUserId(string applicationUserId)
+        {
+            var result = await _patientService.GetPatientByApplicationUserIdAsync(applicationUserId);
+            return Success(result, "Patient Retrieved Successfully");
+        }
     }
 }

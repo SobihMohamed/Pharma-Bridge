@@ -93,5 +93,18 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
                 data
             );
         }
+        public async Task<PatientProfileDetailsDto> GetPatientByApplicationUserIdAsync(string applicationUserId)
+        {
+            var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
+
+            var spec = new PatientProfileWithDetailsSpec(applicationUserId);
+            var patient = await patientRepo.GetByIdWithSpecAsync(spec);
+
+            if (patient is null)
+                throw new NotFoundCutomeException($"Patient with application user id '{applicationUserId}' was not found.");
+
+            return mapper.Map<PatientProfileDetailsDto>(patient);
+        }
     }
 }
+    

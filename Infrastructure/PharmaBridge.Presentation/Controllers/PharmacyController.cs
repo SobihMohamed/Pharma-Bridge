@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http; 
 using Microsoft.AspNetCore.Mvc;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
-using PharmaBridge.Shared.Common.Response; 
-using PharmaBridge.Shared.DTOs.Pharmacy;
-using PharmaBridge.Shared.DTOs.PharmaPerformSnapshot;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params;
 using PharmaBridge.Shared.Common.Params.Pharmacy;
+using PharmaBridge.Shared.Common.Response; 
+using PharmaBridge.Shared.DTOs.Dashboard;
+using PharmaBridge.Shared.DTOs.Pharmacy;
+using PharmaBridge.Shared.DTOs.PharmaPerformSnapshot;
 using PharmaBridge.Shared.EnumHelper.PharmaEnums;
 using System.Security.Claims;
 
@@ -120,6 +121,21 @@ namespace PharmaBridge.Presentation.Controllers
 
             var result = await pharmacyDashboardService.GetMyPerformanceSnapshotAsync(pharmacyId, userId, role);
             return Success(result);
+        }
+
+        /// Full dashboard: metrics, growth %, 7-day revenue chart, recent activity.
+        /// 
+        [HttpGet("{pharmacyId}/dashboard")]
+        [Authorize(Roles = "PharmacyOwner")]
+        [ProducesResponseType(typeof(ApiResponse<PharmacyDashboardDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPharmacyDashboard(
+            int pharmacyId,
+            [FromServices] IPharmacyDashboardService pharmacyDashboardService)
+        {
+            var result = await pharmacyDashboardService.GetDashboardAsync(pharmacyId);
+            return Success(result, "Dashboard data retrieved successfully.");
         }
 
         // GET /api/pharmacy/all (Admin)

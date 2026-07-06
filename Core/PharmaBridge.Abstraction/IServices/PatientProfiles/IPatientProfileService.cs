@@ -28,5 +28,8 @@ namespace PharmaBridge.Abstraction.IServices.PatientProfiles
 
         // Admin views all registered patients with their status and details.
         Task<PaginationResponse<PatientProfileDto>> GetAllPatientsAsync(PatientQueryParams queryParams);
+
+        Task<PatientProfileDetailsDto> GetPatientByApplicationUserIdAsync(string applicationUserId);
+
     }
 }

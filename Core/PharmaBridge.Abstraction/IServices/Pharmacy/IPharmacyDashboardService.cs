@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PharmaBridge.Shared.DTOs.Dashboard;
 using PharmaBridge.Shared.DTOs.PharmaPerformSnapshot;
 
 namespace PharmaBridge.Abstraction.IServices.Pharmacy
@@ -11,5 +12,8 @@ namespace PharmaBridge.Abstraction.IServices.Pharmacy
     {
         // Gets quick stats: Today's Orders, Total Revenue, Pending Requests nearby, Average Rating.
         Task<PharmaPerformSnapshotDto> GetMyPerformanceSnapshotAsync(int pharmacyId, string userId, string role);
+
+        // ──  Phase 2 full dashboard ──────────────────────────────────
+        Task<PharmacyDashboardDto> GetDashboardAsync(int pharmacyId);
     }
 }

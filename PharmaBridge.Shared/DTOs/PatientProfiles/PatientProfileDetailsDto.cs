@@ -16,6 +16,14 @@ namespace PharmaBridge.Shared.DTOs.PatientProfiles
         
         public int OrdersCount { get; set; } 
         
-        public int ComplaintsSubmitted { get; set; } 
+        public int ComplaintsSubmitted { get; set; }
+
+        public int TotalPharmacyRatings { get; set; }
+
+        // Order breakdown
+        public int PendingOrders { get; set; }
+        public int CompletedOrders { get; set; }
+        public int CancelledOrders { get; set; }
+
     }
 }
