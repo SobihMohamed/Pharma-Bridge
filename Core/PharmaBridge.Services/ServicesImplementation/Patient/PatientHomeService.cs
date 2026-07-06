@@ -21,12 +21,13 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
             var patientProfileId = await ResolvePatientProfileIdAsync(applicationUserId.ToString());
 
             var latestRequests = await FetchLatestRequestsAsync(patientProfileId, queryParams.RequestsCount);
-            var activeOrders = await FetchActiveOrdersAsync(patientProfileId, queryParams.OrdersCount);
+
+            var recentOrders = await FetchRecentOrdersAsync(patientProfileId, queryParams.OrdersCount);
 
             return new PatientHomeDto
             {
                 LatestRequests = mapper.Map<IReadOnlyList<PrescriptionRequestDto>>(latestRequests),
-                ActiveOrders = mapper.Map<IReadOnlyList<OrderDto>>(activeOrders)
+                recentOrders = mapper.Map<IReadOnlyList<OrderDto>>(recentOrders)
             };
         }
 
@@ -52,11 +53,10 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
             return await repo.GetAllWithSpecAsync(spec);
         }
 
-        private async Task<IReadOnlyList<Order>> FetchActiveOrdersAsync(
-            string patientProfileId, int take)
+        private async Task<IReadOnlyList<Order>> FetchRecentOrdersAsync(string patientProfileId, int take)
         {
             var repo = unitOfWork.GetRepository<Order, int>();
-            var spec = new ActivePatientOrdersSpecification(patientProfileId, take);
+            var spec = new RecentPatientOrdersSpecification(patientProfileId, take);
             return await repo.GetAllWithSpecAsync(spec);
         }
     }

@@ -11,15 +11,12 @@ namespace PharmaBridge.Services.Specifications.Request
         public NearbyRequestsCountSpec(Domain.Models.Pharma_Requests.Pharmacy pharmacy, PrescriptionRequestQueryParams queryParams, decimal radiusInDegrees)
             : base(r =>
                 // 1. Status Filter & Expiration Check:
-                // أ) لو مش باعت حالة (حالة الرادار الافتراضية): هات الـ Pending أو HasBids بشرط ميكونش منتهي الصلاحية
                 (!queryParams.Status.HasValue ?
                     (r.ExpiresAt > DateTime.UtcNow && (r.Status == PrescriptionStatus.Pending || r.Status == PrescriptionStatus.HasBids)) :
 
-                // ب) لو باعت حالة Pending أو HasBids صراحة: اتأكد برضه إن الطلب لسه صلاحيته سارية
                 (queryParams.Status == PrescriptionStatus.Pending || queryParams.Status == PrescriptionStatus.HasBids) ?
                     (r.ExpiresAt > DateTime.UtcNow && r.Status == queryParams.Status) :
 
-                    // ج) لو باعت حالة تانية مقفولة (زي Closed أو Cancelled): رجعها زي ما هي عادي للأرشيف
                     r.Status == queryParams.Status) &&
 
                 // 2. Search Filter:
