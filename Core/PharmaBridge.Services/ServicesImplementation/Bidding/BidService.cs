@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
 using PharmaBridge.Abstraction.IServices.Bidding;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Domain.Contracts.GenericReposPattern;
@@ -61,8 +60,8 @@ namespace PharmaBridge.Services.Bidding
                 var message = new NotificationContentDto
                 {
                     UserId = patientUserId,
-                    Subject = "عرض سعر جديد لروشتتك!",
-                    Body = $"صيدلية {savedBid.Pharmacy?.PharmacyName ?? "جديدة"} قدمت عرض سعر لطلبك.",
+                    Subject = "New Offer Received! 🎉",
+                    Body = $"{savedBid.Pharmacy?.PharmacyName ?? "A nearby pharmacy"} has sent a price offer for your prescription.",
                     ReferenceId = prescriptionRequest.Id,
                     Payload = bidDto 
                 };
@@ -136,8 +135,8 @@ namespace PharmaBridge.Services.Bidding
                 var message = new NotificationContentDto
                 {
                     UserId = patientUserId,
-                    Subject = "تحديث في عرض السعر! 🔄",
-                    Body = $"صيدلية {updatedBid.Pharmacy?.PharmacyName ?? "المختارة"} قامت بتعديل أسعار أو تفاصيل العرض الخاص بروشتتك.",
+                    Subject = "Offer Updated! 🔄",
+                    Body = $"{updatedBid.Pharmacy?.PharmacyName ?? "The pharmacy"} has updated the prices or details of their offer for your prescription.",
                     ReferenceId = updatedBid.PrescriptionRequestId,
                     Payload = bidDto
                 };
@@ -200,8 +199,8 @@ namespace PharmaBridge.Services.Bidding
                 var message = new NotificationContentDto
                 {
                     UserId = pharmacyOwnerId,
-                    Subject = "تم رفض العرض ❌",
-                    Body = $"نعتذر، المريض قام برفض عرضك للروشتة رقم #{bid.PrescriptionRequestId}.",
+                    Subject = "Offer Declined ❌",
+                    Body = $"The patient has declined your offer for prescription request #{bid.PrescriptionRequestId}.",
                     ReferenceId = bid.Id,
                     Payload = null
                 };
@@ -436,8 +435,8 @@ namespace PharmaBridge.Services.Bidding
                 var message = new NotificationContentDto
                 {
                     UserId = pharmacyOwnerId,
-                    Subject = "مبروك! تم قبول عرضك 🎉",
-                    Body = $"المريض وافق على عرض السعر لروشتة رقم #{bid.PrescriptionRequestId}. يرجى تجهيز الطلب للتوصيل.",
+                    Subject = "Congratulations! Your offer has been accepted 🎉",
+                    Body = $"The patient has accepted your price offer for prescription request #{bid.PrescriptionRequestId}. Please prepare the order for delivery.",
                     ReferenceId = bid.Id, 
                     Payload = null
                 };

@@ -57,35 +57,5 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 ComputedAt = DateTime.UtcNow
             };
         }
-        private async Task EnsurePharmacyOwnershipAsync(int pharmacyId)
-        {
-            var currentUserId = _httpContextAccessorField.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(currentUserId))
-                throw new UnAuthorizedCustomeException();
-
-            var ownerRepo = _unitOfWork.GetRepository<PharmaOwner, string>();
-            var ownerSpec = new PharmaOwnerByAppUserIdSpecification(currentUserId);
-
-            var currentOwner = await ownerRepo.GetByIdWithSpecAsync(ownerSpec);
-
-            if (currentOwner == null)
-                throw new UnAuthorizedCustomeException();
-
-            var pharmacyRepo = _unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>();
-            var pharmacy = await pharmacyRepo.GetByIdAsync(pharmacyId);
-
-            if (pharmacy is null || pharmacy.IsDeleted)
-                throw new NotFoundCutomeException($"Pharmacy with ID {pharmacyId} was not found.");
-
-            if (pharmacy.PharmaOwnerId != currentOwner.Id)
-                throw new UnAuthorizedCustomeException();
-
-            if (pharmacy.Status == PharmacyStatus.Pending)
-                throw new BadRequestCustomeException("Your pharmacy account is not approved yet. You cannot submit bids.");
-
-            if (pharmacy.Status == PharmacyStatus.Blocked)
-                throw new BadRequestCustomeException("Your pharmacy account is Blocked. You cannot submit bids.");
-        }
     }
 }

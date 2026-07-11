@@ -111,20 +111,20 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
 
             if (!string.IsNullOrEmpty(patientUserId))
             {
-                string statusMessageAr = updateStatusDto.OrderStatus.ToLower() switch
+                string statusMessage = updateStatusDto.OrderStatus.ToLower() switch
                 {
-                    "preparing" => "جارٍ تجهيز طلبك في الصيدلية ⏳",
-                    "intransit" => "طلبك في الطريق إليك 🛵",
-                    "completed" => "تم توصيل طلبك بنجاح! بالشفاء العاجل 🎉",
-                    "cancelled" => $"تم إلغاء طلبك. السبب: {updateStatusDto.CancelReason} ❌",
-                    _ => $"تم تحديث حالة طلبك إلى: {updateStatusDto.OrderStatus}"
+                    "preparing" => "Your order is being prepared by the pharmacy ⏳",
+                    "intransit" => "Your order is on the way! 🛵",
+                    "completed" => "Your order has been delivered successfully! Get well soon 🎉",
+                    "cancelled" => $"Your order has been cancelled. Reason: {updateStatusDto.CancelReason} ❌",
+                    _ => $"Your order status has been updated to: {updateStatusDto.OrderStatus}"
                 };
 
                 var message = new NotificationContentDto
                 {
                     UserId = patientUserId,
-                    Subject = "تحديث حالة الطلب 📦",
-                    Body = statusMessageAr,
+                    Subject = "Order Update 📦", 
+                    Body = statusMessage,
                     ReferenceId = order.Id,
                     Payload = null
                 };
