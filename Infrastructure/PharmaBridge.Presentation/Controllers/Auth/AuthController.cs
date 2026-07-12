@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http; // عشان الـ StatusCodes
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PharmaBridge.Abstraction.IServices.Auth;
-using PharmaBridge.Shared.Common.Response; // تأكد إن دي موجودة
+using PharmaBridge.Shared.Common.Response;
 using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
-using System.Threading.Tasks;
+using PharmaBridge.Shared.DTOs.Auth.Sign_In_Up;
 
 namespace PharmaBridge.Presentation.Controllers.Auth
 {
@@ -20,7 +20,7 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 1. (Register)
         [HttpPost("register")]
-        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Register([FromBody] RegisterDto dto)
         {
@@ -30,7 +30,7 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 2. (Login)
         [HttpPost("login")]
-        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult> Login([FromBody] LoginDto dto)
         {
@@ -40,7 +40,7 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 3. (Forget Password)
         [HttpPost("forget-password")]
-        [EnableRateLimiting("OtpPolicy")] 
+        [EnableRateLimiting("OtpPolicy")]
         public async Task<ActionResult> ForgetPassword([FromBody] ForgetPasswordDto dto)
         {
             await _authService.ForgetPasswordAsync(dto);
@@ -63,11 +63,22 @@ namespace PharmaBridge.Presentation.Controllers.Auth
 
         // 5. (Reset Password)
         [HttpPost("reset-password")]
-        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
             var result = await _authService.ResetPasswordAsync(dto);
             return Success(result, "your password has changed successfully");
+        }
+
+        // 6. (Google Smart Login / Register)
+        [HttpPost("google-auth")]
+        [ProducesResponseType(typeof(ApiResponse<AuthModelDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> GoogleAuth([FromBody] GoogleAuthDto dto)
+        {
+            var result = await _authService.GoogleAuthAsync(dto);
+            return Success(result, "Authenticated with Google Successfully");
         }
     }
 }

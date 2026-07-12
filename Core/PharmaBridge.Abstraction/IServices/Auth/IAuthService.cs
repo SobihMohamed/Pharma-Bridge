@@ -1,8 +1,6 @@
 ﻿using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using PharmaBridge.Shared.DTOs.Auth.Sign_In_Up;
 
 namespace PharmaBridge.Abstraction.IServices.Auth
 {
@@ -15,5 +13,6 @@ namespace PharmaBridge.Abstraction.IServices.Auth
             Task ForgetPasswordAsync(ForgetPasswordDto forgetPasswordDto); // return otp to reset password
             Task<bool> VerifyOtpAsync(VerifyOtpDto verifyOtpDto);
             Task<AuthModelDto> ResetPasswordAsync(ResetPasswordDto resetPasswordDto); // to still login after reset password
-        }
+            Task<AuthModelDto> GoogleAuthAsync(GoogleAuthDto googleAuthDto);
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Abstraction.IServices.Auth;
 using PharmaBridge.Abstraction.IServices.Notification;
@@ -8,15 +9,18 @@ using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
 using PharmaBridge.Shared.Dto_s.Token;
+using PharmaBridge.Shared.DTOs.Auth.Sign_In_Up;
 using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.EnumHelper.NotificationEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace PharmaBridge.Services.ServicesImplementation.Auth
 {
     public class AuthService(UserManager<ApplicationUser> _userManager
         //INotificationService _notificationService
-        , IMapper _mapper, ITokenService _tokenService , INotificationService _notificationService)
+        , IMapper _mapper, ITokenService _tokenService, INotificationService _notificationService)
         : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -31,7 +35,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
             // 2 - Check if the user already exists
             var user = await _userManager.FindByEmailAsync(registerDto.Email);
             if (user != null)
-                throw new BadRequestCustomeException("User with this email already exists."); 
+                throw new BadRequestCustomeException("User with this email already exists.");
 
             // 3 - mapping the data from the DTO to the ApplicationUser model
             var userForDB = _mapper.Map<ApplicationUser>(registerDto);
@@ -59,7 +63,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                 UserId = userForDB.Id,
                 Email = userForDB!.Email!,
                 UserName = userForDB.FullName,
-                Roles = userRoles 
+                Roles = userRoles
             };
 
             var tokenResponse = await _tokenService.CreateTokenAsync(tokenRequest);
@@ -193,6 +197,86 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                 Token = tokenRespo.Token,
                 IsAuthenticated = true,
                 ExpireOn = tokenRespo.ExpireOn,
+                Email = user.Email!,
+                Name = user.FullName,
+                Roles = userRoles
+            };
+        }
+        public async Task<AuthModelDto> GoogleAuthAsync(GoogleAuthDto googleAuthDto)
+        {
+            GoogleUserPayload payload = null;
+
+            // 1 - Validate Token & Get User Info from Google
+            try
+            {
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", googleAuthDto.IdToken);
+
+                var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new UnAuthorizedCustomeException("Invalid Google Token");
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                payload = JsonSerializer.Deserialize<GoogleUserPayload>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (payload == null || string.IsNullOrEmpty(payload.Email))
+                    throw new UnAuthorizedCustomeException("Failed to retrieve email from Google.");
+            }
+            catch (Exception)
+            {
+                throw new UnAuthorizedCustomeException("Invalid Google Token");
+            }
+
+            // 2 - Check if User Exists in our DB
+            var user = await _userManager.FindByEmailAsync(payload.Email);
+
+            // 3 - Smart Registration
+            if (user == null)
+            {
+                if (googleAuthDto.Role == null || !Enum.IsDefined(typeof(UserRole), googleAuthDto.Role))
+                    throw new BadRequestCustomeException("User role is required for new Google registration.");
+
+                if (googleAuthDto.Role == UserRole.Admin)
+                    throw new BadRequestCustomeException("Cannot register as Admin.");
+
+                user = new ApplicationUser
+                {
+                    UserName = payload.Email.Split('@')[0],
+                    Email = payload.Email,
+                    FullName = payload.Name,
+                    EmailConfirmed = true,
+                    Role = googleAuthDto.Role.Value
+                };
+
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                    throw new BadRequestCustomeException("Failed to create user from Google.");
+
+                await _userManager.AddToRoleAsync(user, googleAuthDto.Role.ToString());
+            }
+
+            // 4 - Generate OUR System Token (Login/Success Part)
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var tokenRequest = new TokenRequestDto
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                UserName = user.FullName,
+                Roles = userRoles
+            };
+
+            var tokenResp = await _tokenService.CreateTokenAsync(tokenRequest);
+            if (string.IsNullOrEmpty(tokenResp.Token))
+                throw new BadRequestCustomeException("Token generation failed.");
+
+            // 5 - Return standard AuthModelDto
+            return new AuthModelDto
+            {
+                Token = tokenResp.Token,
+                IsAuthenticated = true,
+                ExpireOn = tokenResp.ExpireOn,
                 Email = user.Email!,
                 Name = user.FullName,
                 Roles = userRoles
