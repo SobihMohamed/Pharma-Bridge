@@ -2,7 +2,6 @@ using AutoMapper;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
-using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Services.Specifications.Ratings;
@@ -10,9 +9,6 @@ using PharmaBridge.Services.Specifications.Request;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Pharmacy;
 using PharmaBridge.Shared.DTOs.PharmacyRating;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 {

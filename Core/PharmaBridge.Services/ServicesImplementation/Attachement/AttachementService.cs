@@ -2,9 +2,7 @@
 using PharmaBridge.Abstraction.IServices.Attachement;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Shared.Dto_s.Attachment;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace PharmaBridge.Services.ServicesImplementation.Attachement
 {

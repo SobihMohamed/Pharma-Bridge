@@ -7,8 +7,7 @@ using PharmaBridge.Services.Specifications.Patient;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Patient;
 using PharmaBridge.Shared.DTOs.PatientProfiles;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace PharmaBridge.Services.ServicesImplementation.Patient
 {

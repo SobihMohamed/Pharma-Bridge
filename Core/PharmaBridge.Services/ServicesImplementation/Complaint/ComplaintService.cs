@@ -7,17 +7,12 @@ using PharmaBridge.Domain.Contracts.SpecificationPattern;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.Specifications;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Complaint;
 using PharmaBridge.Shared.DTOs.Complaint;
 using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
 namespace PharmaBridge.Services.ServicesImplementation.Complaint
 {
     public class ComplaintService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService) : IComplaintService
