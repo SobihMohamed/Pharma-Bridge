@@ -13,12 +13,14 @@ using PharmaBridge.Shared.DTOs.Auth.Sign_In_Up;
 using PharmaBridge.Shared.DTOs.Notificaiton;
 using PharmaBridge.Shared.EnumHelper.NotificationEnums;
 using PharmaBridge.Shared.EnumHelper.UserEnums;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace PharmaBridge.Services.ServicesImplementation.Auth
 {
     public class AuthService(UserManager<ApplicationUser> _userManager
         //INotificationService _notificationService
-        , IMapper _mapper, ITokenService _tokenService , INotificationService _notificationService)
+        , IMapper _mapper, ITokenService _tokenService, INotificationService _notificationService)
         : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -33,7 +35,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
             // 2 - Check if the user already exists
             var user = await _userManager.FindByEmailAsync(registerDto.Email);
             if (user != null)
-                throw new BadRequestCustomeException("User with this email already exists."); 
+                throw new BadRequestCustomeException("User with this email already exists.");
 
             // 3 - mapping the data from the DTO to the ApplicationUser model
             var userForDB = _mapper.Map<ApplicationUser>(registerDto);
@@ -61,7 +63,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                 UserId = userForDB.Id,
                 Email = userForDB!.Email!,
                 UserName = userForDB.FullName,
-                Roles = userRoles 
+                Roles = userRoles
             };
 
             var tokenResponse = await _tokenService.CreateTokenAsync(tokenRequest);
@@ -202,11 +204,25 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
         }
         public async Task<AuthModelDto> GoogleAuthAsync(GoogleAuthDto googleAuthDto)
         {
-            // 1 - Validate Google Token
-            GoogleJsonWebSignature.Payload payload;
+            GoogleUserPayload payload = null;
+
+            // 1 - Validate Token & Get User Info from Google
             try
             {
-                payload = await GoogleJsonWebSignature.ValidateAsync(googleAuthDto.IdToken);
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", googleAuthDto.IdToken);
+
+                var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new UnAuthorizedCustomeException("Invalid Google Token");
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                payload = JsonSerializer.Deserialize<GoogleUserPayload>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (payload == null || string.IsNullOrEmpty(payload.Email))
+                    throw new UnAuthorizedCustomeException("Failed to retrieve email from Google.");
             }
             catch (Exception)
             {
@@ -216,7 +232,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
             // 2 - Check if User Exists in our DB
             var user = await _userManager.FindByEmailAsync(payload.Email);
 
-            // 3 - If User doesn't exist, Register him! (Smart Registration)
+            // 3 - Smart Registration
             if (user == null)
             {
                 if (googleAuthDto.Role == null || !Enum.IsDefined(typeof(UserRole), googleAuthDto.Role))
@@ -227,10 +243,10 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
 
                 user = new ApplicationUser
                 {
-                    UserName = payload.Email.Split('@')[0], 
+                    UserName = payload.Email.Split('@')[0],
                     Email = payload.Email,
-                    FullName = payload.Name, 
-                    EmailConfirmed = true, 
+                    FullName = payload.Name,
+                    EmailConfirmed = true,
                     Role = googleAuthDto.Role.Value
                 };
 
@@ -241,7 +257,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                 await _userManager.AddToRoleAsync(user, googleAuthDto.Role.ToString());
             }
 
-            // 4 - Generate OUR System Token (Login part)
+            // 4 - Generate OUR System Token (Login/Success Part)
             var userRoles = await _userManager.GetRolesAsync(user);
             var tokenRequest = new TokenRequestDto
             {
