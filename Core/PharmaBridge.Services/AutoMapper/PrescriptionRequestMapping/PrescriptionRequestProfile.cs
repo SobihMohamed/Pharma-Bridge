@@ -5,6 +5,7 @@ using PharmaBridge.Shared.DTOs.Bid;
 using PharmaBridge.Shared.DTOs.BidItem;
 using PharmaBridge.Shared.DTOs.PharmaRequests;
 using PharmaBridge.Shared.DTOs.PharmaRequests.AdminReq;
+using PharmaBridge.Shared.DTOs.PrescriptionRequestHistory;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -89,6 +90,9 @@ namespace PharmaBridge.Services.AutoMapper.PrescriptionRequestMapping
                 .ForMember(dest => dest.BidItems, opt => opt.MapFrom(src => src.BidItems));
 
             CreateMap<BidItem, AdminBidItemDto>();
+
+            // 8 - Mapping for Request History (حل الإيرور هنا) 👇
+            CreateMap<PrescriptionRequestHistory, PrescriptionRequestHistoryDto>();
         }
     }
 }
