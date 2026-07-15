@@ -2,11 +2,14 @@ using AutoMapper;
 using PharmaBridge.Abstraction.IServices.PatientProfiles;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
+using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Domain.Models.UserAccess;
 using PharmaBridge.Services.Specifications.Patient;
 using PharmaBridge.Shared.Common.Pagination;
 using PharmaBridge.Shared.Common.Params.Patient;
 using PharmaBridge.Shared.DTOs.PatientProfiles;
+using PharmaBridge.Shared.EnumHelper.UserAccessEnums;
 
 
 namespace PharmaBridge.Services.ServicesImplementation.Patient
@@ -33,11 +36,27 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
                 if (await unitOfWork.SaveChangesAsync() <= 0)
                     throw new BadRequestCustomeException("Failed to initialize patient profile.");
 
-
                 patient = await patientRepo.GetByIdWithSpecAsync(spec);
             }
 
-            return mapper.Map<PatientProfileDetailsDto>(patient!);
+            var dto = mapper.Map<PatientProfileDetailsDto>(patient!);
+            var patientId = patient!.Id;
+
+            var orderRepo = unitOfWork.GetRepository<Order, int>();
+            var requestRepo = unitOfWork.GetRepository<PrescriptionRequestEntity, int>();
+            var ratingRepo = unitOfWork.GetRepository<PharmacyRating, int>();
+            var complaintRepo = unitOfWork.GetRepository<PharmaBridge.Domain.Models.UserAccess.Complaint, int>();
+
+            dto.TotalPrescriptionRequests = await requestRepo.GetCountAsync(new PatientRequestsCountSpec(patientId));
+            dto.TotalPharmacyRatings = await ratingRepo.GetCountAsync(new PatientRatingsCountSpec(patientId));
+            dto.ComplaintsSubmitted = await complaintRepo.GetCountAsync(new PatientComplaintsCountSpec(patientId));
+
+            dto.OrdersCount = await orderRepo.GetCountAsync(new PatientOrdersCountSpec(patientId));
+            dto.PendingOrders = await orderRepo.GetCountAsync(new PatientOrdersCountSpec(patientId, OrderStatus.Pending));
+            dto.CompletedOrders = await orderRepo.GetCountAsync(new PatientOrdersCountSpec(patientId, OrderStatus.Completed));
+            dto.CancelledOrders = await orderRepo.GetCountAsync(new PatientOrdersCountSpec(patientId, OrderStatus.Cancelled));
+
+            return dto;
         }
 
         public async Task<PatientProfileDetailsDto> UpdateMyProfileAsync(string applicationUserId, PatientProfileToUpdateDto updateDto)

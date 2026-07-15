@@ -14,6 +14,13 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
             MapOrderToOrderDto();
             MapOrderToOrderDetailsDto();
             MapOrderToAdminOrderDetailsDto();
+
+            MapPharmacyRatingToSummaryDto();
+        }
+
+        private void MapPharmacyRatingToSummaryDto()
+        {
+            CreateMap<PharmacyRating, OrderRatingSummaryDto>();
         }
 
         private void MapBidItemToBidItemDto()
@@ -54,6 +61,7 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
 
             // Convention handles: Id, Amount, PaymentMethod, PaymentStatus, CreatedAt, PharmacyId
         }
+
         private void MapOrderToOrderDetailsDto()
         {
             CreateMap<Order, OrderDetailsDto>()
@@ -101,6 +109,7 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
             // CreatedAt, CancelledAt, DeliveredAt, CompletedAt,
             // PharmacyId, BidId, PrescriptionRequestId
         }
+
         private void MapOrderToAdminOrderDetailsDto()
         {
             CreateMap<Order, AdminOrderDetailsDto>()
@@ -142,7 +151,10 @@ namespace PharmaBridge.Services.AutoMapper.OrderMapping
 
                 // Items
                 .ForMember(dest => dest.Items,
-                    opt => opt.MapFrom(src => src.Bid.BidItems));
+                    opt => opt.MapFrom(src => src.Bid.BidItems))
+
+                .ForMember(dest => dest.PharmacyRating,
+                    opt => opt.MapFrom(src => src.PharmacyRating));
         }
     }
 }

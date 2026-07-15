@@ -90,9 +90,64 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
 
             UpdateBasicInfo(owner, updateDto);
 
-            owner.NationalIdFront = await ReplaceImageAsync(owner.NationalIdFront, updateDto.NationalIdFront, applicationUserId);
-            owner.NationalIdBack = await ReplaceImageAsync(owner.NationalIdBack, updateDto.NationalIdBack, applicationUserId);
-            owner.SyndicateCardImage = await ReplaceImageAsync(owner.SyndicateCardImage, updateDto.SyndicateCardImage, applicationUserId);
+            var oldImagesToDelete = new List<string>();
+            bool requiresAdminApproval = false;
+            if (!string.IsNullOrWhiteSpace(updateDto.NationalId) && updateDto.NationalId != owner.NationalId)
+            {
+                owner.NationalId = updateDto.NationalId;
+                requiresAdminApproval = true; 
+            }
+            if (updateDto.NationalIdFront != null && updateDto.NationalIdFront.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(owner.NationalIdFront)) oldImagesToDelete.Add(owner.NationalIdFront);
+                owner.NationalIdFront = await UploadProfileImageAsync(updateDto.NationalIdFront, applicationUserId);
+                requiresAdminApproval = true;
+            }
+
+            if (updateDto.NationalIdBack != null && updateDto.NationalIdBack.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(owner.NationalIdBack)) oldImagesToDelete.Add(owner.NationalIdBack);
+                owner.NationalIdBack = await UploadProfileImageAsync(updateDto.NationalIdBack, applicationUserId);
+                requiresAdminApproval = true;
+            }
+
+            if (updateDto.SyndicateCardImage != null && updateDto.SyndicateCardImage.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(owner.SyndicateCardImage)) oldImagesToDelete.Add(owner.SyndicateCardImage);
+                owner.SyndicateCardImage = await UploadProfileImageAsync(updateDto.SyndicateCardImage, applicationUserId);
+                requiresAdminApproval = true;
+            }
+
+
+            if (requiresAdminApproval)
+            {
+                owner.Status = PharmaOwnerStatus.Pending;
+                var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+                foreach (var admin in admins)
+                {
+                    var adminNotification = new NotificationContentDto
+                    {
+                        UserId = admin.Id,
+                        Subject = "Pharmacy Profile Update ",
+                        Body = $"Pharmacy owner ({owner.ApplicationUser.FullName}) has updated their official identity details and requires review.",
+                        Payload = null
+                    };
+
+                    await notificationService.SendNotificationAsync(adminNotification, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+
+                var userNotification = new NotificationContentDto
+                {
+                    UserId = applicationUserId,
+                    Email = owner.ApplicationUser.Email,
+                    Subject = "PharmaBridge: Account Update Status ",
+                    Body = "We have received your profile updates. Your account is currently under review by our administration team.",
+                    Payload = null
+                };
+
+                await notificationService.SendNotificationAsync(userNotification, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+            }
 
             var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
             ownerRepo.UpdateAsync(owner);
@@ -100,6 +155,11 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
             if (await unitOfWork.SaveChangesAsync() <= 0)
             {
                 throw new BadRequestCustomeException("Failed to update PharmaOwner profile");
+            }
+
+            foreach (var oldImage in oldImagesToDelete)
+            {
+                await attachmentService.DeleteFileAsync(oldImage);
             }
 
             return mapper.Map<PharmaOwnerDetailsDto>(owner);
@@ -196,18 +256,6 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
             return await attachmentService.UploadFileAsync(uploadDto);
         }
 
-        private async Task<string> ReplaceImageAsync(string oldImagePath, IFormFile newImageFile, string userId)
-        {
-            if (newImageFile == null || newImageFile.Length == 0) return oldImagePath;
-
-            if (!string.IsNullOrEmpty(oldImagePath))
-            {
-                await attachmentService.DeleteFileAsync(oldImagePath);
-            }
-
-            return await UploadProfileImageAsync(newImageFile, userId);
-        }
-
         private async Task EnsureProfileDoesNotExistAsync(string applicationUserId)
         {
             var ownerRepo = unitOfWork.GetRepository<PharmaOwner, string>();
@@ -240,9 +288,6 @@ namespace PharmaBridge.Services.ServicesImplementation.PharmaOwnerProfile
 
             if (!string.IsNullOrWhiteSpace(updateDto.PhoneNumber))
                 owner.ApplicationUser.PhoneNumber = updateDto.PhoneNumber;
-
-            if (!string.IsNullOrWhiteSpace(updateDto.NationalId))
-                owner.NationalId = updateDto.NationalId;
         }
 
         private void NormalizePaginationParams(PharmaOwnerQueryParams queryParams)
