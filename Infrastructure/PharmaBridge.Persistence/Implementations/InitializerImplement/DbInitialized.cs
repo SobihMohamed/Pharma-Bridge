@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PharmaBridge.Domain.DbInitializer;
 using PharmaBridge.Domain.Models.User;
 using PharmaBridge.Persistence.Pharma_BridgeDbContext;
@@ -7,7 +8,11 @@ using PharmaBridge.Persistence.Seeds;
 
 namespace PharmaBridge.Persistence.Implementations.InitializerImplement
 {
-    public class DbInitialized(PharmaDbContext projectDbContext, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : IDbInitializer
+    public class DbInitialized(
+    PharmaDbContext projectDbContext,
+    UserManager<ApplicationUser> userManager,
+    RoleManager<IdentityRole> roleManager,
+    IConfiguration configuration) : IDbInitializer
     {
         public async Task DataSeedAsync()
         {
@@ -22,14 +27,21 @@ namespace PharmaBridge.Persistence.Implementations.InitializerImplement
                 // Log the exception or handle it as needed
                 throw;
             }
-            // seed roles
+            // Seed Roles (Always)
             await SeederAsync.SeedRolesAsync(roleManager);
-            // seed admin
+
+            // Seed Admin (Always)
             await SeederAsync.SeedAdminUserAsync(userManager);
-            // seed dummy users
-            await SeederAsync.SeedDummyUsersAsync(userManager);
-            
-            await SeederAsync.SeedOrderTestDataAsync(projectDbContext);
+
+            // Read configuration
+            var enableDemoData = configuration.GetValue<bool>("Seeding:EnableDemoData");
+
+            // Seed demo data only when enabled
+            if (enableDemoData)
+            {
+                await SeederAsync.SeedDummyUsersAsync(userManager);
+                await SeederAsync.SeedOrderTestDataAsync(projectDbContext);
+            }
         }
     }
-}
+}   
