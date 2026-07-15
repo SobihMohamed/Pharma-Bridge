@@ -5,12 +5,9 @@ using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Pharmacy;
 using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
-using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
-using PharmaBridge.Services.ServicesImplementation.Notification;
 using PharmaBridge.Services.Specifications.Pharmacy;
 using PharmaBridge.Shared.Common.Pagination;
-using PharmaBridge.Shared.Common.Params;
 using PharmaBridge.Shared.Common.Params.Pharmacy;
 using PharmaBridge.Shared.Dto_s.Attachment;
 using PharmaBridge.Shared.DTOs.Notificaiton;
@@ -115,6 +112,9 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             if (pharmacy.Status == PharmacyStatus.Pending)
                 throw new BadRequestCustomeException("You cannot update the pharmacy profile while it is under review by the administration. Please wait for a response.");
 
+            bool requiresAdminApproval = false;
+            string? oldLicenseImageToDelete = null;
+
             if (!string.IsNullOrEmpty(updateDto.ContactPhone) && updateDto.ContactPhone != pharmacy.ContactPhone)
             {
                 var phoneSpec = new PharmacyByContactPhoneSpec(updateDto.ContactPhone!);
@@ -122,19 +122,32 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
                 if (existingPhone != null)
                     throw new BadRequestCustomeException("The new phone number is already registered to another pharmacy.");
+
+                requiresAdminApproval = true;
             }
+
+            if (!string.IsNullOrWhiteSpace(updateDto.PharmacyName) && updateDto.PharmacyName != pharmacy.PharmacyName)
+                requiresAdminApproval = true;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.GeneralArea) && updateDto.GeneralArea != pharmacy.Area)
+                requiresAdminApproval = true;
+
+            if (!string.IsNullOrWhiteSpace(updateDto.TextAddress) && updateDto.TextAddress != pharmacy.TextAddress)
+                requiresAdminApproval = true;
+
+            if ((updateDto.Latitude.HasValue && updateDto.Latitude != pharmacy.Latitude) ||
+                (updateDto.Longitude.HasValue && updateDto.Longitude != pharmacy.Longitude))
+                requiresAdminApproval = true;
+
 
             mapper.Map(updateDto, pharmacy);
 
             ValidateWorkingHours(pharmacy.Is24Hours, pharmacy.OpenTime, pharmacy.CloseTime);
 
-            if (pharmacy.Status == PharmacyStatus.Active)
-                pharmacy.Status = PharmacyStatus.Pending;
-
             if (updateDto.LicenseImage != null)
             {
                 if (!string.IsNullOrEmpty(pharmacy.LicenseImageUrl))
-                    await attachementService.DeleteFileAsync(pharmacy.LicenseImageUrl);
+                    oldLicenseImageToDelete = pharmacy.LicenseImageUrl;
 
                 var uploadDto = new UploadFileDto
                 {
@@ -142,12 +155,49 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                     FolderName = $"requests/{userId}",
                     UserId = userId
                 };
+
                 pharmacy.LicenseImageUrl = await attachementService.UploadFileAsync(uploadDto);
+                requiresAdminApproval = true;
+            }
+
+            if (requiresAdminApproval && pharmacy.Status == PharmacyStatus.Active)
+            {
+                pharmacy.Status = PharmacyStatus.Pending;
+
+                var admins = await userManager.GetUsersInRoleAsync("Admin");
+                foreach (var admin in admins)
+                {
+                    var adminNotification = new NotificationContentDto
+                    {
+                        UserId = admin.Id,
+                        Subject = "Pharmacy Details Update ",
+                        Body = $"The pharmacy '{pharmacy.PharmacyName}' has updated critical details (Name/Location/License/Phone) and requires review.",
+                        ReferenceId = pharmacy.Id,
+                        Payload = null
+                    };
+                    await notificationService.SendNotificationAsync(adminNotification, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
+                }
+
+                var userNotification = new NotificationContentDto
+                {
+                    UserId = userId,
+                    Subject = "PharmaBridge: Pharmacy Update Status",
+                    Body = "We have received the updates for your pharmacy. The profile is currently under review by our team.",
+                    ReferenceId = pharmacy.Id,
+                    Payload = null
+                };
+                await notificationService.SendNotificationAsync(userNotification, Shared.EnumHelper.NotificationEnums.NotificationType.Push);
             }
 
             unitOfWork.GetRepository<Domain.Models.Pharma_Requests.Pharmacy, int>().UpdateAsync(pharmacy);
+
             if (await unitOfWork.SaveChangesAsync() <= 0)
                 throw new BadRequestCustomeException("Failed to update pharmacy profile.");
+
+            if (!string.IsNullOrEmpty(oldLicenseImageToDelete))
+            {
+                await attachementService.DeleteFileAsync(oldLicenseImageToDelete);
+            }
 
             return mapper.Map<PharmacyOwnerProfileDto>(pharmacy);
         }

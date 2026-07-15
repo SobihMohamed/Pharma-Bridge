@@ -323,6 +323,7 @@ namespace PharmaBridge.Services.ServicesImplementation.OrderService
             {
                 case OrderStatus.Completed:
                     order.DeliveredAt = DateTime.UtcNow;
+                    order.PaymentStatus = PaymentStatus.Succeeded;
                     break;
 
                 case OrderStatus.Cancelled:

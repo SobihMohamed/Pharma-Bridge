@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.Pharma_Requests;
 using PharmaBridge.Domain.Models.User;
@@ -17,6 +18,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
         {
             await ValidatePharmacyOwnerForDashboardAsync(pharmacyId);
 
+            var pharmacyRepo = _unitOfWork.GetRepository<PharmaBridge.Domain.Models.Pharma_Requests.Pharmacy, int>();
+            var pharmacy = await pharmacyRepo.GetByIdAsync(pharmacyId);
             // ── Date ranges ───────────────────────────────────────────────
             var now = DateTime.UtcNow;
             var currentStart = now.StartOfWeek();
@@ -25,7 +28,8 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
             var prevEnd = currentStart.AddTicks(-1);
             var last7Days = now.Date.AddDays(-6);
 
-            
+            var currentRating = pharmacy?.AverageRating ?? 0;
+
             var currentBids = await CountActiveBidsAsync(pharmacyId, currentStart, currentEnd);
 
             var prevBids = await CountActiveBidsAsync(pharmacyId, prevStart, prevEnd);
@@ -40,6 +44,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
 
             var recentOrders = await GetRecentDeliveredOrdersAsync(pharmacyId);
 
+            
 
             // ── Calculations ───────────────────────────────────────────────
             var currentRevenue = currentOrders.Sum(o => o.Amount);
@@ -55,7 +60,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Pharmacy
                 Revenue = currentRevenue,
                 NewPatients = currentNewPatients,
                 CompletedOrders = currentCompleted,
-
+                AverageRating = currentRating,
                 ActiveBidsGrowth = CalculateGrowth(currentBids, prevBids),
                 RevenueGrowth = CalculateGrowth(currentRevenue, prevRevenue),
                 NewPatientsGrowth = CalculateGrowth(currentNewPatients, prevNewPatients),

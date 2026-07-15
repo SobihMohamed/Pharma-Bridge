@@ -9,7 +9,7 @@ namespace PharmaBridge.Shared.DTOs.Order
     {
         public int Id { get; set; }
 
-       // 1. Price Breakdown (Flattened from Bid)
+        // 1. Price Breakdown (Flattened from Bid)
         public decimal Subtotal { get; set; }
         public decimal DeliveryFee { get; set; }
         public decimal DiscountAmount { get; set; }
@@ -22,7 +22,7 @@ namespace PharmaBridge.Shared.DTOs.Order
         public string PaymentMethod { get; set; }
         public string PaymentStatus { get; set; }
 
-        // Lifecycle timestamps — patient wants to know when key events happened
+        // Lifecycle timestamps
         public DateTime CreatedAt { get; set; }
         public DateTime? CancelledAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
@@ -30,19 +30,21 @@ namespace PharmaBridge.Shared.DTOs.Order
 
         public string DeliveryAddress { get; set; }
 
-        // 2. Pharmacy Info (For the Patient)
+        // 2. Pharmacy Info
         public int PharmacyId { get; set; }
         public string PharmacyName { get; set; }
         public string? PharmacyPhone { get; set; }
 
-        // 3. Patient Info (For the Pharmacy & Delivery Guy)
+        // 3. Patient Info
         public string PatientName { get; set; }
         public string PatientPhone { get; set; }
-        
+
         public int BidId { get; set; }
         public int PrescriptionRequestId { get; set; }
-        
-        // 4. The actual items ordered! (Mapped from Bid.BidItems)
+
+        public OrderRatingSummaryDto? PharmacyRating { get; set; }
+
+        // 4. The actual items ordered!
         public List<BidItemDto> Items { get; set; } = new();
     }
 }
