@@ -25,6 +25,8 @@ namespace PharmaBridge.Services.Specifications.OrderSpec
 
             // Bid, BidItems
             AddInclude(nameof(Order.Bid) + "." + nameof(Bid.BidItems));
+
+            AddInclude(o => o.PharmacyRating!);
         }
     }
 }

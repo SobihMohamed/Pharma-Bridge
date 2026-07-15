@@ -8,6 +8,7 @@
         public int NewPatients { get; set; }
         public int CompletedOrders { get; set; }
 
+        public decimal AverageRating { get; set; }
         // ── Growth % (current week vs previous week) ──────────────────────
         public decimal ActiveBidsGrowth { get; set; }
         public decimal RevenueGrowth { get; set; }

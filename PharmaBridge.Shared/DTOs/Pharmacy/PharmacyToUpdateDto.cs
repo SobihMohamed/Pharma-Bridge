@@ -36,8 +36,6 @@ namespace PharmaBridge.Shared.DTOs.Pharmacy
 
         public Microsoft.AspNetCore.Http.IFormFile? LicenseImage { get; set; }
 
-        // LicenseNumber -> can update but it require review from admin
-        // PharmaOwnerId -> ownership transfer is a separate admin operation
-        // Status        -> changed only through dedicated admin endpoints
+
     }
 }

@@ -59,11 +59,11 @@ namespace PharmaBridge.Services.EventHandlers
 
                 var message = new NotificationContentDto
                 {
-                    UserId = ownerUserId, 
-                    Subject = "طلب جديد بالقرب منك",
-                    Body = $"يوجد طلب دواء جديد على بعد مسافة قريبة من صيدليتك.",
+                    UserId = ownerUserId,
+                    Subject = "New Prescription Request Nearby ",
+                    Body = "A new medication request is available near your pharmacy.",
                     ReferenceId = request.Id,
-                    Payload = requestCardData 
+                    Payload = requestCardData
                 };
 
                 await _notificationService.SendNotificationAsync(message, NotificationType.Push);

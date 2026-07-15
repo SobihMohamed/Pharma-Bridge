@@ -44,5 +44,7 @@ namespace PharmaBridge.Domain.Models.UserAccess
 
         // add the complaints list 
         public virtual ICollection<Complaint> Complaints { get; set; } = new HashSet<Complaint>();
+
+        public virtual PharmacyRating? PharmacyRating { get; set; }
     }
 }

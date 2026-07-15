@@ -20,8 +20,9 @@ namespace PharmaBridge.Services.Specifications.OrderSpec
             AddInclude(o => o.PrescriptionRequest);
 
             AddInclude($"{nameof(Order.PatientProfile)}.{nameof(PatientProfile.ApplicationUser)}");
-
             AddInclude($"{nameof(Order.Bid)}.{nameof(Bid.BidItems)}");
+
+            AddInclude(o => o.PharmacyRating!);
         }
     }
 }
