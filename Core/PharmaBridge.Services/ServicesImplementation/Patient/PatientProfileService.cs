@@ -115,7 +115,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Patient
         {
             var patientRepo = unitOfWork.GetRepository<PatientProfile, string>();
 
-            var spec = new PatientProfileWithDetailsSpec(patientProfileId);
+            var spec = new GetPatientDetailsByPatientId(patientProfileId);
             var patient = await patientRepo.GetByIdWithSpecAsync(spec);
 
             if (patient is null)
