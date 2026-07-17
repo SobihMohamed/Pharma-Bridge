@@ -5,8 +5,8 @@ namespace PharmaBridge.Services.Specifications.Patient
 {
     public class PatientProfileWithDetailsSpec : BaseSpecifications<PatientProfile, string>
     {
-        public PatientProfileWithDetailsSpec(string patientProfileId)
-             : base(p => p.Id == patientProfileId)
+        public PatientProfileWithDetailsSpec(string applicationUserId)
+             : base(p => p.ApplicationUserId == applicationUserId)
         {
             AddInclude(p => p.ApplicationUser);
 

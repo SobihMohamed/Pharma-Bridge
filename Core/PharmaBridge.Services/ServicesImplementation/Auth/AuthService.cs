@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using PharmaBridge.Abstraction.IServices.Auth;
 using PharmaBridge.Abstraction.IServices.Notification;
 using PharmaBridge.Abstraction.IServices.Token;
+using PharmaBridge.Domain.Contracts.UnitOfWorkPattern;
 using PharmaBridge.Domain.Exceptions;
 using PharmaBridge.Domain.Models.User;
+using PharmaBridge.Services.Specifications.PatientAddressSpec;
 using PharmaBridge.Shared.Dto_s.Auth.ForgetPssword;
 using PharmaBridge.Shared.Dto_s.Auth.Sign_In_Up;
 using PharmaBridge.Shared.Dto_s.Token;
@@ -20,7 +22,7 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
 {
     public class AuthService(UserManager<ApplicationUser> _userManager
         //INotificationService _notificationService
-        , IMapper _mapper, ITokenService _tokenService, INotificationService _notificationService)
+        , IMapper _mapper, ITokenService _tokenService, INotificationService _notificationService , IUnitOfWork _unitOfWork)
         : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -255,6 +257,19 @@ namespace PharmaBridge.Services.ServicesImplementation.Auth
                     throw new BadRequestCustomeException("Failed to create user from Google.");
 
                 await _userManager.AddToRoleAsync(user, googleAuthDto.Role.ToString());
+
+                if (googleAuthDto.Role == UserRole.Patient)
+                {
+                    var patientProfile = new PatientProfile
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ApplicationUserId = user.Id
+                    };
+
+                    var patientRepo = _unitOfWork.GetRepository<PatientProfile, string>();
+                    await patientRepo.AddAsync(patientProfile);
+                    await _unitOfWork.SaveChangesAsync();
+                }
             }
 
             // 4 - Generate OUR System Token (Login/Success Part)
